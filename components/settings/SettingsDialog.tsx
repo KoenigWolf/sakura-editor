@@ -106,6 +106,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         ref={dialogRef}
+        customPosition
         className={cn(
           "fixed p-0 shadow-lg border border-input rounded-md",
           "backdrop-blur-sm bg-background/95",
@@ -117,6 +118,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
           width: '600px',
           maxHeight: '80vh',
           opacity: open ? 1 : 0,
+          transform: 'none',
         }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
