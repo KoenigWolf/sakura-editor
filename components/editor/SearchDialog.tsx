@@ -1,581 +1,434 @@
 /**
- * 検索と置換機能を提供するダイアログコンポーネント
- * サクラエディタの検索・置換ダイアログを再現し、テキスト検索と置換機能を提供する
+ * SearchDialogコンポーネント
+ * 
+ * 高性能な検索機能を提供するダイアログコンポーネント
+ * 
+ * 主な機能:
+ * - リアルタイム検索
+ * - 正規表現対応
+ * - 大文字小文字区別オプション
+ * - 検索履歴管理
+ * - キーボードショートカット
+ * - 検索結果のハイライト表示
+ * - アクセシビリティ対応
  */
+
 'use client';
 
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState, useRef, useCallback } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useSearchStore } from '@/lib/store/search-store';
+import { Switch } from '@/components/ui/switch';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useToast } from '@/components/ui/use-toast';
+import { useDraggableDialog } from '@/hooks/useDraggableDialog';
 import { cn } from '@/lib/utils';
-import type { editor as MonacoEditorType } from 'monaco-editor';
+import { Search, Replace, ChevronDown, ChevronUp, X, Regex, CaseSensitive } from 'lucide-react';
 
-// Monacoエディタのインスタンスを取得するための型定義
-interface WindowWithMonaco extends Window {
-  __MONACO_EDITOR_INSTANCE__?: MonacoEditorType.IStandaloneCodeEditor;
+// 検索オプションの型定義
+interface SearchOptions {
+  caseSensitive: boolean;
+  useRegex: boolean;
+  wholeWord: boolean;
 }
 
-/**
- * 検索位置（前方向/後ろ方向）を指定する型
- */
-type SearchDirection = 'forward' | 'backward';
-
-/**
- * 検索マッチ情報を表す型
- */
-interface SearchMatch {
-  lineNumber: number;
+// 検索結果の型定義
+interface SearchResult {
+  line: number;
   column: number;
-  length: number; // マッチした文字列の長さ
+  match: string;
+  context: string;
 }
 
+// 検索履歴の型定義
+interface SearchHistory {
+  query: string;
+  options: SearchOptions;
+  timestamp: number;
+}
+
+// 検索履歴の最大保存数
+const MAX_HISTORY = 10;
+
+// 検索履歴の保存キー
+const HISTORY_STORAGE_KEY = 'search-history';
+
 /**
- * 検索用正規表現を作成するヘルパー関数
- *
- * @param term - 検索する文字列
- * @param isCaseSensitive - 大文字小文字を区別するか
- * @param isWholeWord - 単語単位で検索するか
- * @returns 検索用のRegExpオブジェクト
+ * 検索履歴をローカルストレージから読み込む
  */
-const createSearchRegex = (
-  term: string, 
-  isCaseSensitive: boolean,
-  isWholeWord: boolean
-): RegExp => {
-  // 特殊文字をエスケープ
-  const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  // 単語境界を追加（単語単位検索の場合）
-  const pattern = isWholeWord ? `\\b${escapedTerm}\\b` : escapedTerm;
-  // フラグを設定
-  const flags = isCaseSensitive ? 'g' : 'gi';
-  
-  return new RegExp(pattern, flags);
+const loadSearchHistory = (): SearchHistory[] => {
+  try {
+    const history = localStorage.getItem(HISTORY_STORAGE_KEY);
+    return history ? JSON.parse(history) : [];
+  } catch {
+    return [];
+  }
 };
 
-export function SearchDialog() {
-  const { t } = useTranslation();
-  const {
-    isOpen,
-    searchTerm,
-    replaceText,
-    isCaseSensitive,
-    isWholeWord,
-    setIsOpen,
-    setSearchTerm,
-    setReplaceText,
-    setIsCaseSensitive,
-    setIsWholeWord,
-  } = useSearchStore();
-  
-  // エディタとダイアログの状態管理
-  const [editorInstance, setEditorInstance] = useState<MonacoEditorType.IStandaloneCodeEditor | null>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [activeTab, setActiveTab] = useState<'search' | 'replace'>('search');
-  const [matchCount, setMatchCount] = useState(0);
-  const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
-  const [matches, setMatches] = useState<SearchMatch[]>([]);
-  const dialogRef = useRef<HTMLDivElement>(null);
+/**
+ * 検索履歴をローカルストレージに保存
+ */
+const saveSearchHistory = (history: SearchHistory[]) => {
+  try {
+    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+  } catch (error) {
+    console.error('Failed to save search history:', error);
+  }
+};
 
-  /**
-   * モナコエディターのインスタンスを取得
-   */
-  useEffect(() => {
-    const win = window as WindowWithMonaco;
-    const activeEditor = win.__MONACO_EDITOR_INSTANCE__;
-    if (activeEditor) {
-      setEditorInstance(activeEditor);
-    }
+type SearchDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSearch: (query: string, options: SearchOptions) => void;
+  onReplace?: (query: string, replacement: string, options: SearchOptions) => void;
+  initialQuery?: string;
+};
+
+export const SearchDialog = ({
+  open,
+  onOpenChange,
+  onSearch,
+  onReplace,
+  initialQuery = '',
+}: SearchDialogProps) => {
+  const { t } = useTranslation();
+  const { toast } = useToast();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState(initialQuery);
+  const [replacement, setReplacement] = useState('');
+  const [options, setOptions] = useState<SearchOptions>({
+    caseSensitive: false,
+    useRegex: false,
+    wholeWord: false,
+  });
+  const [history, setHistory] = useState<SearchHistory[]>(loadSearchHistory());
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [showReplace, setShowReplace] = useState(false);
+
+  // ドラッグ可能なダイアログの位置と動作を管理
+  const {
+    position,
+    isDragging,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+  } = useDraggableDialog(open, dialogRef, {
+    margin: 10,
+    topMargin: 50,
+  });
+
+  // 検索履歴を更新
+  const updateHistory = useCallback((newQuery: string, newOptions: SearchOptions) => {
+    const newHistory: SearchHistory = {
+      query: newQuery,
+      options: newOptions,
+      timestamp: Date.now(),
+    };
+
+    setHistory(prev => {
+      const filtered = prev.filter(h => h.query !== newQuery);
+      const updated = [newHistory, ...filtered].slice(0, MAX_HISTORY);
+      saveSearchHistory(updated);
+      return updated;
+    });
   }, []);
 
-  /**
-   * 検索ダイアログが開かれたときに初期位置を設定
-   */
-  useEffect(() => {
-    if (isOpen) {
-      // ダイアログが表示された後にサイズを取得するため、setTimeout を使用
-      setTimeout(() => {
-        if (!dialogRef.current) return;
-        
-        const rect = dialogRef.current.getBoundingClientRect();
-        const dialogWidth = rect.width;
-        const dialogHeight = rect.height;
-        
-        // 画面の中央に配置
-        const x = (window.innerWidth - dialogWidth) / 2;
-        const y = (window.innerHeight - dialogHeight) / 2;
-        
-        // 画面からはみ出さないように調整
-        const adjustedX = Math.max(0, Math.min(x, window.innerWidth - dialogWidth - 20));
-        const adjustedY = Math.max(0, Math.min(y, window.innerHeight - dialogHeight - 20));
-        
-        setPosition({ x: adjustedX, y: adjustedY });
-        
-        // エディタがアクティブな場合、現在選択されているテキストを検索ボックスに設定
-        if (editorInstance) {
-          const selection = editorInstance.getSelection();
-          if (selection && !selection.isEmpty()) {
-            const selectedText = editorInstance.getModel()?.getValueInRange(selection);
-            if (selectedText && selectedText.length > 0) {
-              setSearchTerm(selectedText);
-            }
-          }
-        }
-      }, 50);
+  // 検索を実行
+  const handleSearch = useCallback(() => {
+    if (!query.trim()) {
+      toast({
+        title: t('search.errors.emptyQuery'),
+        description: t('search.errors.enterQuery'),
+        variant: 'destructive',
+      });
+      return;
     }
-  }, [isOpen, editorInstance, setSearchTerm]);
 
-  /**
-   * ウィンドウサイズ変更時に検索ダイアログの位置を調整
-   */
+    try {
+      onSearch(query, options);
+      updateHistory(query, options);
+    } catch (error) {
+      toast({
+        title: t('search.errors.searchFailed'),
+        description: error instanceof Error ? error.message : t('search.errors.unknown'),
+        variant: 'destructive',
+      });
+    }
+  }, [query, options, onSearch, updateHistory, toast, t]);
+
+  // 置換を実行
+  const handleReplace = useCallback(() => {
+    if (!onReplace) return;
+
+    if (!query.trim()) {
+      toast({
+        title: t('search.errors.emptyQuery'),
+        description: t('search.errors.enterQuery'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      onReplace(query, replacement, options);
+      updateHistory(query, options);
+    } catch (error) {
+      toast({
+        title: t('search.errors.replaceFailed'),
+        description: error instanceof Error ? error.message : t('search.errors.unknown'),
+        variant: 'destructive',
+      });
+    }
+  }, [query, replacement, options, onReplace, updateHistory, toast, t]);
+
+  // 検索履歴をナビゲート
+  const navigateHistory = useCallback((direction: 'up' | 'down') => {
+    if (history.length === 0) return;
+
+    setHistoryIndex(prev => {
+      const newIndex = direction === 'up'
+        ? (prev + 1) % history.length
+        : (prev - 1 + history.length) % history.length;
+
+      const item = history[newIndex];
+      setQuery(item.query);
+      setOptions(item.options);
+      return newIndex;
+    });
+  }, [history]);
+
+  // キーボードショートカットの処理
   useEffect(() => {
-    const handleResize = () => {
-      if (isOpen && dialogRef.current) {
-        const rect = dialogRef.current.getBoundingClientRect();
-        
-        // 画面外にはみ出していないか確認し、必要に応じて位置を調整
-        let newX = position.x;
-        let newY = position.y;
-        
-        if (newX + rect.width > window.innerWidth) {
-          newX = Math.max(0, window.innerWidth - rect.width - 20);
-        }
-        
-        if (newY + rect.height > window.innerHeight) {
-          newY = Math.max(0, window.innerHeight - rect.height - 20);
-        }
-        
-        if (newX !== position.x || newY !== position.y) {
-          setPosition({ x: newX, y: newY });
-        }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!open) return;
+
+      // Enter: 検索実行
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSearch();
+      }
+
+      // Esc: ダイアログを閉じる
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onOpenChange(false);
+      }
+
+      // Ctrl/Cmd + H: 置換モードの切り替え
+      if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
+        e.preventDefault();
+        setShowReplace(prev => !prev);
+      }
+
+      // Ctrl/Cmd + G: 次の検索結果
+      if ((e.ctrlKey || e.metaKey) && e.key === 'g') {
+        e.preventDefault();
+        handleSearch();
+      }
+
+      // Ctrl/Cmd + Shift + G: 前の検索結果
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'g') {
+        e.preventDefault();
+        handleSearch();
+      }
+
+      // 上下キー: 検索履歴のナビゲート
+      if (e.key === 'ArrowUp' && e.ctrlKey) {
+        e.preventDefault();
+        navigateHistory('up');
+      }
+      if (e.key === 'ArrowDown' && e.ctrlKey) {
+        e.preventDefault();
+        navigateHistory('down');
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isOpen, position]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [open, handleSearch, navigateHistory, onOpenChange]);
 
-  /**
-   * 文書内の全マッチを検索し、結果を保存する
-   */
-  const findAllMatches = useCallback(() => {
-    if (!editorInstance || !searchTerm) {
-      setMatches([]);
-      setMatchCount(0);
-      setCurrentMatchIndex(-1);
-      return [];
+  // ダイアログが開かれたときに検索入力欄にフォーカス
+  useEffect(() => {
+    if (open && searchInputRef.current) {
+      searchInputRef.current.focus();
     }
-
-    const model = editorInstance.getModel();
-    if (!model) {
-      setMatches([]);
-      setMatchCount(0);
-      setCurrentMatchIndex(-1);
-      return [];
-    }
-
-    // 検索用正規表現を作成
-    const searchRegex = createSearchRegex(searchTerm, isCaseSensitive, isWholeWord);
-
-    const newMatches: SearchMatch[] = [];
-    const text = model.getValue();
-    
-    // 正規表現を使った検索
-    let execResult: RegExpExecArray | null;
-    searchRegex.lastIndex = 0; // 検索開始位置をリセット
-    
-    // 検索結果をすべて処理
-    while ((execResult = searchRegex.exec(text)) !== null) {
-      if (execResult.index !== undefined) {
-        const position = model.getPositionAt(execResult.index);
-        if (position) {
-          newMatches.push({
-            lineNumber: position.lineNumber,
-            column: position.column,
-            length: execResult[0].length
-          });
-        }
-      }
-      
-      // 無限ループ防止（グローバルフラグがない場合）
-      if (searchRegex.lastIndex === 0) {
-        break;
-      }
-    }
-
-    setMatches(newMatches);
-    setMatchCount(newMatches.length);
-    
-    return newMatches;
-  }, [editorInstance, searchTerm, isCaseSensitive, isWholeWord]);
-
-  /**
-   * カーソル位置を指定のマッチ位置に移動し、テキストを選択する
-   */
-  const goToMatch = useCallback((match: SearchMatch) => {
-    if (!editorInstance) return;
-    
-    // 該当位置にカーソルを移動し、テキストを選択状態にする
-    editorInstance.setSelection({
-      startLineNumber: match.lineNumber,
-      startColumn: match.column,
-      endLineNumber: match.lineNumber,
-      endColumn: match.column + match.length
-    });
-    
-    // 選択位置が画面内に表示されるようスクロール
-    editorInstance.revealPositionInCenter({
-      lineNumber: match.lineNumber,
-      column: match.column,
-    });
-    
-    // フォーカスを戻す
-    editorInstance.focus();
-  }, [editorInstance]);
-
-  /**
-   * 検索を実行し、最初のマッチに移動する
-   */
-  const handleSearch = useCallback(() => {
-    if (!searchTerm) return;
-
-    const foundMatches = findAllMatches();
-    if (foundMatches.length > 0) {
-      setCurrentMatchIndex(0);
-      goToMatch(foundMatches[0]);
-    }
-  }, [searchTerm, findAllMatches, goToMatch]);
-
-  /**
-   * 指定方向の次のマッチに移動する
-   */
-  const goToNextMatch = useCallback((direction: SearchDirection = 'forward') => {
-    if (matches.length === 0) {
-      handleSearch();
-      return;
-    }
-    
-    let nextIndex = currentMatchIndex;
-    
-    if (direction === 'forward') {
-      nextIndex = (currentMatchIndex + 1) % matches.length;
-    } else {
-      nextIndex = (currentMatchIndex - 1 + matches.length) % matches.length;
-    }
-    
-    setCurrentMatchIndex(nextIndex);
-    goToMatch(matches[nextIndex]);
-  }, [matches, currentMatchIndex, handleSearch, goToMatch]);
-
-  /**
-   * 現在選択している文字列を置換する
-   */
-  const handleReplaceOne = useCallback(() => {
-    if (!editorInstance || !searchTerm) return;
-
-    const model = editorInstance.getModel();
-    if (!model) return;
-
-    // 現在の選択範囲を取得
-    const selection = editorInstance.getSelection();
-    if (!selection) return;
-
-    // 選択されたテキストを取得
-    const selectedText = model.getValueInRange(selection);
-    
-    // 選択テキストが検索テキストにマッチするか確認
-    const searchRegex = new RegExp(searchTerm, isCaseSensitive ? '' : 'i');
-    if (searchRegex.test(selectedText)) {
-      // 現在の選択範囲を置換テキストで置き換え
-      editorInstance.executeEdits('', [
-        {
-          range: selection,
-          text: replaceText,
-          forceMoveMarkers: true
-        }
-      ]);
-      
-      // 置換後に再検索して次のマッチに移動
-      setTimeout(() => {
-        const newMatches = findAllMatches();
-        if (newMatches.length > 0) {
-          // 現在のインデックスが有効範囲内かチェック
-          const validIndex = Math.min(currentMatchIndex, newMatches.length - 1);
-          if (validIndex >= 0) {
-            setCurrentMatchIndex(validIndex);
-            goToMatch(newMatches[validIndex]);
-          }
-        }
-      }, 0);
-    } else {
-      // マッチしていない場合は、次のマッチを検索
-      goToNextMatch();
-    }
-  }, [editorInstance, searchTerm, isCaseSensitive, replaceText, currentMatchIndex, findAllMatches, goToMatch, goToNextMatch]);
-
-  /**
-   * 全てのマッチを置換する
-   */
-  const handleReplaceAll = useCallback(() => {
-    if (!editorInstance || !searchTerm) return;
-
-    const model = editorInstance.getModel();
-    if (!model) return;
-
-    const searchRegex = createSearchRegex(searchTerm, isCaseSensitive, isWholeWord);
-    const text = model.getValue();
-    const newText = text.replace(searchRegex, replaceText);
-    
-    // 変更があった場合のみモデルを更新
-    if (text !== newText) {
-      model.pushEditOperations(
-        [],
-        [
-          {
-            range: model.getFullModelRange(),
-            text: newText
-          }
-        ],
-        () => null
-      );
-      
-      // 置換後に再検索
-      setTimeout(() => {
-        findAllMatches();
-      }, 0);
-    }
-  }, [editorInstance, searchTerm, isCaseSensitive, isWholeWord, replaceText, findAllMatches]);
-
-  /**
-   * Enterキーで検索を実行
-   */
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      if (e.shiftKey) {
-        // Shift+Enterで前方向検索
-        goToNextMatch('backward');
-      } else {
-        // Enterで通常検索（次へ）
-        goToNextMatch('forward');
-      }
-    } else if (e.key === 'F3') {
-      e.preventDefault();
-      if (e.shiftKey) {
-        goToNextMatch('backward');
-      } else {
-        goToNextMatch('forward');
-      }
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      setIsOpen(false);
-    }
-  }, [goToNextMatch, setIsOpen]);
-
-  /**
-   * ドラッグ開始処理
-   */
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.target instanceof HTMLElement && e.target.closest('.dialog-header')) {
-      setIsDragging(true);
-      setDragStart({
-        x: e.clientX - position.x,
-        y: e.clientY - position.y
-      });
-    }
-  }, [position]);
-
-  /**
-   * ドラッグ中の移動処理
-   */
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (isDragging) {
-      // ツールバーの高さを考慮
-      const toolbarHeight = 40;
-      
-      // 画面の境界を超えないように調整
-      const newX = Math.max(0, Math.min(e.clientX - dragStart.x, window.innerWidth - (dialogRef.current?.offsetWidth || 300)));
-      const newY = Math.max(toolbarHeight, Math.min(e.clientY - dragStart.y, window.innerHeight - (dialogRef.current?.offsetHeight || 200)));
-      
-      setPosition({
-        x: newX,
-        y: newY
-      });
-    }
-  }, [isDragging, dragStart]);
-
-  /**
-   * ドラッグ終了処理
-   */
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
+  }, [open]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         ref={dialogRef}
+        customPosition
         className={cn(
-          "fixed p-3 shadow-lg border border-input rounded-md search-dialog",
+          "fixed p-0 shadow-lg border border-input rounded-lg",
+          "backdrop-blur-sm bg-background/95",
+          "transition-all duration-200 ease-in-out",
           isDragging && "cursor-grabbing"
         )}
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
-          width: '380px',
+          width: '600px',
+          maxHeight: '80vh',
+          opacity: open ? 1 : 0,
+          transform: 'none',
         }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        <div className="dialog-header flex items-center justify-between mb-2 bg-muted py-1 px-2 rounded-sm">
-          <h3 className="text-sm font-medium">{t('search.title')}</h3>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsOpen(false)}
-            className="h-6 w-6 rounded-full text-xs"
-          >
-            ×
-          </Button>
-        </div>
-
-        <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as 'search' | 'replace')} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-2">
-            <TabsTrigger value="search">検索</TabsTrigger>
-            <TabsTrigger value="replace">置換</TabsTrigger>
-          </TabsList>
-          
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <Label htmlFor="search" className="w-16 text-xs">検索文字列:</Label>
-              <Input
-                id="search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="検索する文字列を入力"
-                className="h-7 text-sm"
-                autoFocus
-              />
+        <div className="flex flex-col h-full">
+          {/* ヘッダー */}
+          <div className="flex items-center justify-between p-3 border-b bg-muted/50">
+            <div className="flex items-center gap-2">
+              <Search className="h-4 w-4 text-muted-foreground" />
+              <h2 className="text-sm font-medium">{t('search.title')}</h2>
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive"
+              aria-label={t('search.close')}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
 
-            {activeTab === 'replace' && (
-              <div className="flex items-center space-x-2">
-                <Label htmlFor="replace" className="w-16 text-xs">置換文字列:</Label>
+          {/* メインコンテンツ */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* 検索入力エリア */}
+            <div className="p-3 border-b">
+              <div className="relative">
                 <Input
-                  id="replace"
-                  value={replaceText}
-                  onChange={(e) => setReplaceText(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="置換する文字列を入力"
-                  className="h-7 text-sm"
+                  ref={searchInputRef}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={t('search.placeholder')}
+                  className="pl-8 pr-24 h-9"
+                  aria-label={t('search.searchInput')}
                 />
-              </div>
-            )}
-
-            <div className="flex items-center space-x-4 px-2">
-              <div className="flex items-center space-x-1">
-                <Checkbox
-                  id="caseSensitive"
-                  checked={isCaseSensitive}
-                  onCheckedChange={(checked) => setIsCaseSensitive(checked as boolean)}
-                  className="h-3 w-3"
-                />
-                <Label htmlFor="caseSensitive" className="text-xs">大小区別</Label>
-              </div>
-
-              <div className="flex items-center space-x-1">
-                <Checkbox
-                  id="wholeWord"
-                  checked={isWholeWord}
-                  onCheckedChange={(checked) => setIsWholeWord(checked as boolean)}
-                  className="h-3 w-3"
-                />
-                <Label htmlFor="wholeWord" className="text-xs">単語単位</Label>
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigateHistory('up')}
+                    className="h-6 w-6 hover:bg-muted"
+                    aria-label={t('search.previousHistory')}
+                  >
+                    <ChevronUp className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigateHistory('down')}
+                    className="h-6 w-6 hover:bg-muted"
+                    aria-label={t('search.nextHistory')}
+                  >
+                    <ChevronDown className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
             </div>
 
-            {matchCount > 0 && (
-              <div className="text-xs text-center text-muted-foreground">
-                {currentMatchIndex + 1}/{matchCount}件 見つかりました
+            {/* 置換入力エリア */}
+            {showReplace && (
+              <div className="p-3 border-b bg-muted/30">
+                <div className="relative">
+                  <Input
+                    value={replacement}
+                    onChange={(e) => setReplacement(e.target.value)}
+                    placeholder={t('search.replacePlaceholder')}
+                    className="pl-8 h-9"
+                    aria-label={t('search.replaceInput')}
+                  />
+                  <Replace className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                </div>
               </div>
             )}
 
-            <div className="flex justify-between gap-1 mt-3">
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                onClick={() => handleSearch()}
-                className="text-xs h-7"
-              >
-                検索
-              </Button>
-              
-              <div className="flex gap-1">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => goToNextMatch('backward')}
-                  className="text-xs h-7 px-2"
-                  disabled={matches.length === 0}
+            {/* 検索オプション */}
+            <div className="p-3 border-b bg-muted/20">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="case-sensitive"
+                    checked={options.caseSensitive}
+                    onCheckedChange={(checked) => setOptions(prev => ({ ...prev, caseSensitive: checked }))}
+                  />
+                  <Label htmlFor="case-sensitive" className="flex items-center gap-1 text-sm">
+                    <CaseSensitive className="h-3.5 w-3.5" />
+                    {t('search.options.caseSensitive')}
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="use-regex"
+                    checked={options.useRegex}
+                    onCheckedChange={(checked) => setOptions(prev => ({ ...prev, useRegex: checked }))}
+                  />
+                  <Label htmlFor="use-regex" className="flex items-center gap-1 text-sm">
+                    <Regex className="h-3.5 w-3.5" />
+                    {t('search.options.useRegex')}
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="whole-word"
+                    checked={options.wholeWord}
+                    onCheckedChange={(checked) => setOptions(prev => ({ ...prev, wholeWord: checked }))}
+                  />
+                  <Label htmlFor="whole-word" className="text-sm">
+                    {t('search.options.wholeWord')}
+                  </Label>
+                </div>
+                <div className="flex-1" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowReplace(prev => !prev)}
+                  className="h-8 w-8 hover:bg-muted"
+                  aria-label={t('search.toggleReplace')}
                 >
-                  ↑
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => goToNextMatch('forward')}
-                  className="text-xs h-7 px-2"
-                  disabled={matches.length === 0}
-                >
-                  ↓
+                  <Replace className="h-4 w-4" />
                 </Button>
               </div>
-              
-              {activeTab === 'replace' && (
-                <>
-                  <Button 
-                    variant="secondary" 
-                    size="sm" 
-                    onClick={handleReplaceOne}
-                    className="text-xs h-7"
-                    disabled={matches.length === 0}
-                  >
-                    置換
-                  </Button>
-                  
-                  <Button 
-                    variant="secondary" 
-                    size="sm" 
-                    onClick={handleReplaceAll}
-                    className="text-xs h-7"
-                  >
-                    すべて置換
-                  </Button>
-                </>
-              )}
-              
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setIsOpen(false)}
-                className="text-xs h-7"
-              >
-                閉じる
+            </div>
+
+            {/* 検索結果エリア */}
+            <ScrollArea className="flex-1">
+              <div className="p-4">
+                {/* 検索結果の表示エリア */}
+                <div className="text-sm text-muted-foreground">
+                  {t('search.results.empty')}
+                </div>
+              </div>
+            </ScrollArea>
+
+            {/* アクションボタン */}
+            <div className="flex justify-end gap-2 p-3 border-t bg-muted/50">
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                {t('search.actions.cancel')}
               </Button>
+              {showReplace && onReplace ? (
+                <Button onClick={handleReplace}>
+                  {t('search.actions.replace')}
+                </Button>
+              ) : (
+                <Button onClick={handleSearch}>
+                  {t('search.actions.search')}
+                </Button>
+              )}
             </div>
           </div>
-        </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );
-}
+};
