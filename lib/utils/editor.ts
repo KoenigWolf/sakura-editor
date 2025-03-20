@@ -28,6 +28,7 @@ export const updateFileContent = (file: EditorFile, newContent: string): EditorF
 export const createHistoryState = (): HistoryState => ({
   past: [],
   future: [],
+  totalEntries: 0,
 });
 
 /**
@@ -50,6 +51,7 @@ export const updateHistoryForUndo = (
   return {
     past: history.past.slice(0, -1),
     future: [currentContent, ...history.future].slice(0, MAX_HISTORY_LENGTH),
+    totalEntries: history.totalEntries,
   };
 };
 
@@ -68,5 +70,6 @@ export const updateHistoryForRedo = (
   return {
     past: [...history.past, currentContent].slice(-MAX_HISTORY_LENGTH),
     future: history.future.slice(1),
+    totalEntries: history.totalEntries,
   };
 }; 
