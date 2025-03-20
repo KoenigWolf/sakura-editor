@@ -28,37 +28,32 @@ import { useDraggableDialog } from '@/hooks/useDraggableDialog';
 import { cn } from '@/lib/utils';
 import { Search, Replace, ChevronDown, ChevronUp, X, Regex, CaseSensitive } from 'lucide-react';
 
-// 検索オプションの型定義
+// 型定義
 interface SearchOptions {
   caseSensitive: boolean;
   useRegex: boolean;
   wholeWord: boolean;
 }
 
-// 検索結果の型定義
-interface SearchResult {
-  line: number;
-  column: number;
-  match: string;
-  context: string;
-}
-
-// 検索履歴の型定義
 interface SearchHistory {
   query: string;
   options: SearchOptions;
   timestamp: number;
 }
 
-// 検索履歴の最大保存数
-const MAX_HISTORY = 10;
+interface SearchDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSearch: (query: string, options: SearchOptions) => void;
+  onReplace?: (query: string, replacement: string, options: SearchOptions) => void;
+  initialQuery?: string;
+}
 
-// 検索履歴の保存キー
+// 定数
+const MAX_HISTORY = 10;
 const HISTORY_STORAGE_KEY = 'search-history';
 
-/**
- * 検索履歴をローカルストレージから読み込む
- */
+// ユーティリティ関数
 const loadSearchHistory = (): SearchHistory[] => {
   try {
     const history = localStorage.getItem(HISTORY_STORAGE_KEY);
@@ -68,23 +63,12 @@ const loadSearchHistory = (): SearchHistory[] => {
   }
 };
 
-/**
- * 検索履歴をローカルストレージに保存
- */
 const saveSearchHistory = (history: SearchHistory[]) => {
   try {
     localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
   } catch (error) {
     console.error('Failed to save search history:', error);
   }
-};
-
-type SearchDialogProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSearch: (query: string, options: SearchOptions) => void;
-  onReplace?: (query: string, replacement: string, options: SearchOptions) => void;
-  initialQuery?: string;
 };
 
 export const SearchDialog = ({
