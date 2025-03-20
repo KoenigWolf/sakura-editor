@@ -15,7 +15,8 @@ interface EditorProps {
 }
 
 /**
- * Main editor component with enhanced scroll functionality and accessibility
+ * エディタコンポーネント
+ * テキスト編集、シンタックスハイライト、行番号表示、スクロール管理を行う
  */
 export function Editor({ className }: EditorProps) {
   const { settings } = useEditorStore();
@@ -23,14 +24,9 @@ export function Editor({ className }: EditorProps) {
   const { theme } = useTheme();
   const activeFile = getActiveFile();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  
-  const {
-    saveScrollPosition,
-    restoreScrollPosition,
-    handleAutoScroll,
-    handleScroll
-  } = useEditorScroll({ textareaRef });
+  const { saveScrollPosition, restoreScrollPosition, handleAutoScroll, handleScroll } = useEditorScroll({ textareaRef });
 
+  // テキスト変更時の処理
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       if (activeFile) {
@@ -40,7 +36,7 @@ export function Editor({ className }: EditorProps) {
     [activeFile, updateFile]
   );
 
-  // Handle keyboard shortcuts
+  // Undo/Redoショートカット
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === 'z') {
@@ -56,15 +52,11 @@ export function Editor({ className }: EditorProps) {
         setTimeout(restoreScrollPosition, 0);
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [saveScrollPosition, restoreScrollPosition]);
 
-  const content = activeFile?.content ?? '';
-  const lines = content.split('\n');
-  const language: Language = 'typescript';
-
+  // ファイルが選択されていない場合の表示
   if (!activeFile) {
     return (
       <div className="flex h-full items-center justify-center text-muted-foreground">
@@ -73,9 +65,10 @@ export function Editor({ className }: EditorProps) {
     );
   }
 
-  // 行の高さを計算（em単位）
+  const content = activeFile.content;
+  const lines = content.split('\n');
+  const language: Language = 'typescript';
   const lineHeightEm = settings.lineHeight;
-  // 行の高さをピクセル単位で計算
   const lineHeightPx = `${lineHeightEm * settings.fontSize}px`;
 
   return (
@@ -84,29 +77,26 @@ export function Editor({ className }: EditorProps) {
       aria-label="エディター"
     >
       <div className="relative">
-        {/* 行番号表示 */}
+        {/* 行番号エリア */}
         <div
           className="absolute left-0 top-0 bottom-0 w-12 bg-muted/50 text-muted-foreground font-mono text-right pr-2"
-          style={{
-            fontSize: settings.fontSize,
-            lineHeight: lineHeightEm,
-          }}
+          style={{ fontSize: settings.fontSize, lineHeight: lineHeightEm }}
         >
-          {lines.map((_, lineNumber) => (
-            <div 
-              key={`line-${lineNumber}`} 
-              style={{ 
+          {lines.map((_, i) => (
+            <div
+              key={`line-${i}`}
+              style={{
                 height: lineHeightPx,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'flex-end'
+                justifyContent: 'flex-end',
               }}
             >
-              {lineNumber + 1}
+              {i + 1}
             </div>
           ))}
         </div>
-        {/* シンタックスハイライト */}
+        {/* シンタックスハイライトエリア */}
         <div className="relative ml-12">
           <Highlight
             theme={theme === 'dark' ? themes.vsDark : themes.vsLight}
@@ -123,20 +113,17 @@ export function Editor({ className }: EditorProps) {
                   padding: '1rem',
                 }}
               >
-                {tokens.map((line: Token[], lineIndex: number) => (
-                  <div 
-                    key={`syntax-${lineIndex}`} 
-                    {...getLineProps({ line })}
-                    style={{ height: lineHeightPx }}
-                  >
-                    {line.map((token: Token, tokenIndex: number) => (
-                      <span key={`token-${lineIndex}-${tokenIndex}`} {...getTokenProps({ token })} />
+                {tokens.map((line: Token[], i: number) => (
+                  <div key={`syntax-${i}`} {...getLineProps({ line })} style={{ height: lineHeightPx }}>
+                    {line.map((token: Token, j: number) => (
+                      <span key={`token-${i}-${j}`} {...getTokenProps({ token })} />
                     ))}
                   </div>
                 ))}
               </pre>
             )}
           </Highlight>
+          {/* 透明テキストエリア（入力用） */}
           <TextareaAutosize
             ref={textareaRef}
             value={content}

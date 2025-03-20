@@ -33,7 +33,7 @@ export function EditorToolbar() {
   const { theme, setTheme } = useTheme();
   const { undo, redo } = useEditorStore();
   const { addFile, getActiveFile, updateFile } = useFileStore();
-  const { setIsOpen: setSearchOpen } = useSearchStore();
+  const { setIsOpen: setSearchOpen, isOpen: searchOpen } = useSearchStore();
   const [showSettings, setShowSettings] = useState(false);
 
   const handleNewFile = () => {
@@ -158,7 +158,14 @@ export function EditorToolbar() {
       </Tooltip>
 
       <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
-      <SearchDialog />
+      <SearchDialog 
+        open={searchOpen} 
+        onOpenChange={setSearchOpen}
+        onSearch={(query, options) => {
+          // 検索処理を実装
+          console.log('Search:', query, options);
+        }}
+      />
 
       <Tooltip>
         <TooltipTrigger asChild>

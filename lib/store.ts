@@ -43,6 +43,13 @@ export interface EditorState {
   loadHistoryEntry: (index: number) => Promise<string | null>;
 }
 
+// 履歴状態の初期化
+const initialHistory = {
+  past: [] as string[],
+  future: [] as string[],
+  totalEntries: 0,
+};
+
 /**
  * Create the editor store with persistence and devtools.
  * The store is responsible for:
@@ -59,11 +66,7 @@ export const useEditorStore = create<EditorState>()(
         content: '',
         files: [],
         activeFileId: null,
-        history: {
-          past: [],
-          future: [],
-          totalEntries: 0,
-        },
+        history: initialHistory,
         settings: DEFAULT_EDITOR_SETTINGS,
         isLoading: false,
 

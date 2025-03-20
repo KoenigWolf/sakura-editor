@@ -138,7 +138,6 @@ export function EditorContainer() {
       {/* エディタ本体 */}
       <div className="flex-1 overflow-hidden relative">
         <MonacoEditor />
-        <SearchDialog />
       </div>
       
       {/* ステータスバー */}
