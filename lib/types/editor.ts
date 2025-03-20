@@ -16,6 +16,7 @@ export interface EditorFile {
 export interface HistoryState {
   past: string[];
   future: string[];
+  totalEntries: number;
 }
 
 /**
