@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-interface SearchMatch {
+export interface SearchMatch {
   lineNumber: number;
   startIndex: number;
   endIndex: number;

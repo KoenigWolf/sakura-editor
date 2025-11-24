@@ -162,8 +162,10 @@ export function EditorToolbar() {
         open={searchOpen} 
         onOpenChange={setSearchOpen}
         onSearch={(query, options) => {
-          // 検索処理を実装
-          console.log('Search:', query, options);
+          // 検索処理はSearchDialog内で実装済み
+        }}
+        onReplace={(query, replacement, options) => {
+          // 置換処理はSearchDialog内で実装済み
         }}
       />
 

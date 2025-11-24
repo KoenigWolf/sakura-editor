@@ -28,7 +28,9 @@ export const useFileStore = create<FileStore>()(
       addFile: (file) => {
         const newFile = {
           ...file,
-          id: crypto.randomUUID(),
+          id: typeof crypto !== 'undefined' && crypto.randomUUID 
+            ? crypto.randomUUID() 
+            : `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         };
         set((state) => ({
           files: [...state.files, newFile],

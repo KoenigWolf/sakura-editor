@@ -27,6 +27,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useDraggableDialog } from '@/hooks/useDraggableDialog';
 import { cn } from '@/lib/utils';
 import { Search, Replace, ChevronDown, ChevronUp, X, Regex, CaseSensitive } from 'lucide-react';
+import type { SearchMatch } from '@/lib/store/search-store';
 
 // 型定義
 interface SearchOptions {
@@ -133,6 +134,40 @@ export const SearchDialog = ({
     }
 
     try {
+      // Monaco Editorの検索機能を使用
+      const win = window as any;
+      const editor = win.__MONACO_EDITOR_INSTANCE__;
+      if (editor) {
+        const model = editor.getModel();
+        if (model) {
+          // 検索オプションを設定
+          const searchOptions: any = {
+            isRegex: options.useRegex,
+            matchCase: options.caseSensitive,
+            wholeWord: options.wholeWord,
+          };
+
+          // 検索を実行
+          const matches = model.findMatches(query, false, searchOptions.isRegex, searchOptions.matchCase, searchOptions.wholeWord, false);
+          
+          // 検索結果をストアに保存
+          const searchStore = require('@/lib/store/search-store').useSearchStore.getState();
+          searchStore.setMatches(matches.map((match: any) => ({
+            lineNumber: match.range.startLineNumber,
+            startIndex: match.range.startColumn,
+            endIndex: match.range.endColumn,
+            text: match.matches[0] || '',
+          })));
+          
+          if (matches.length > 0) {
+            // 最初のマッチに移動
+            editor.setPosition({ lineNumber: matches[0].range.startLineNumber, column: matches[0].range.startColumn });
+            editor.revealLineInCenter(matches[0].range.startLineNumber);
+            searchStore.setCurrentMatchIndex(0);
+          }
+        }
+      }
+      
       onSearch(query, options);
       updateHistory(query, options);
     } catch (error) {
@@ -158,6 +193,43 @@ export const SearchDialog = ({
     }
 
     try {
+      // Monaco Editorの置換機能を使用
+      const win = window as any;
+      const editor = win.__MONACO_EDITOR_INSTANCE__;
+      if (editor) {
+        const model = editor.getModel();
+        if (model) {
+          const selection = editor.getSelection();
+          if (selection && !selection.isEmpty()) {
+            // 選択範囲を置換
+            const selectedText = model.getValueInRange(selection);
+            let replaceText = replacement;
+            
+            if (options.useRegex) {
+              try {
+                const regex = new RegExp(query, options.caseSensitive ? 'g' : 'gi');
+                replaceText = selectedText.replace(regex, replacement);
+              } catch (e) {
+                // 正規表現エラーの場合は通常の置換
+                replaceText = selectedText.replace(query, replacement);
+              }
+            } else {
+              if (options.caseSensitive) {
+                replaceText = selectedText.replace(query, replacement);
+              } else {
+                const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+                replaceText = selectedText.replace(regex, replacement);
+              }
+            }
+            
+            editor.executeEdits('replace', [{
+              range: selection,
+              text: replaceText,
+            }]);
+          }
+        }
+      }
+      
       onReplace(query, replacement, options);
       updateHistory(query, options);
     } catch (error) {
@@ -389,9 +461,54 @@ export const SearchDialog = ({
             <ScrollArea className="flex-1">
               <div className="p-4">
                 {/* 検索結果の表示エリア */}
-                <div className="text-sm text-muted-foreground">
-                  {t('search.results.empty')}
-                </div>
+                {(() => {
+                  const win = window as any;
+                  const searchStore = win.__SEARCH_STORE__ || require('@/lib/store/search-store').useSearchStore.getState();
+                  const matches = searchStore.matches || [];
+                  const currentIndex = searchStore.currentMatchIndex || -1;
+                  
+                  if (matches.length === 0 && query) {
+                    return (
+                      <div className="text-sm text-muted-foreground">
+                        {t('search.results.empty')}
+                      </div>
+                    );
+                  }
+                  
+                  if (matches.length > 0) {
+                    return (
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium">
+                          {t('search.results.found', { count: matches.length })}
+                        </div>
+                        <div className="space-y-1 max-h-48 overflow-y-auto">
+                          {matches.map((match: SearchMatch, index: number) => (
+                            <div
+                              key={index}
+                              className={cn(
+                                'text-xs p-2 rounded cursor-pointer hover:bg-accent',
+                                index === currentIndex && 'bg-accent'
+                              )}
+                              onClick={() => {
+                                const editor = win.__MONACO_EDITOR_INSTANCE__;
+                                if (editor) {
+                                  editor.setPosition({ lineNumber: match.lineNumber, column: match.startIndex });
+                                  editor.revealLineInCenter(match.lineNumber);
+                                  searchStore.setCurrentMatchIndex(index);
+                                }
+                              }}
+                            >
+                              {match.lineNumber}: {match.text.substring(0, 50)}
+                              {match.text.length > 50 ? '...' : ''}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  return null;
+                })()}
               </div>
             </ScrollArea>
 

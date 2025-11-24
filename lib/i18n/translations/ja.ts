@@ -70,5 +70,39 @@ export const ja = {
         }
       }
     }
-  }
+  },
+  // 検索ダイアログに関する翻訳
+  search: {
+    title: '検索・置換',
+    placeholder: '検索する文字列を入力...',
+    replacePlaceholder: '置換する文字列を入力...',
+    searchInput: '検索文字列',
+    replaceInput: '置換文字列',
+    close: '閉じる',
+    toggleReplace: '置換モードの切り替え',
+    previousHistory: '前の検索履歴',
+    nextHistory: '次の検索履歴',
+    options: {
+      caseSensitive: '大文字小文字を区別',
+      useRegex: '正規表現を使用',
+      wholeWord: '単語単位で検索',
+    },
+    results: {
+      empty: '検索結果がありません',
+      found: '{count}件見つかりました',
+    },
+    actions: {
+      search: '検索',
+      replace: '置換',
+      replaceAll: 'すべて置換',
+      cancel: 'キャンセル',
+    },
+    errors: {
+      emptyQuery: '検索文字列が空です',
+      enterQuery: '検索する文字列を入力してください',
+      searchFailed: '検索に失敗しました',
+      replaceFailed: '置換に失敗しました',
+      unknown: '不明なエラーが発生しました',
+    },
+  },
 };

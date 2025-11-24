@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useEditorStore } from '@/lib/store';
+import type { EditorState } from '@/lib/store';
 
 const FONT_FAMILIES = [
   'monospace',
@@ -18,8 +18,12 @@ const FONT_FAMILIES = [
   'Fira Code',
 ];
 
-export function AppearanceSettings() {
-  const { settings, updateSettings } = useEditorStore();
+interface AppearanceSettingsProps {
+  settings: EditorState['settings'];
+  onSettingsChange: (settings: Partial<EditorState['settings']>) => void;
+}
+
+export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSettingsProps) {
 
   return (
     <div className="space-y-6">
@@ -33,7 +37,7 @@ export function AppearanceSettings() {
               <Label htmlFor="font-family">Font Family</Label>
               <Select
                 value={settings.fontFamily}
-                onValueChange={(value) => updateSettings({ fontFamily: value })}
+                onValueChange={(value) => onSettingsChange({ fontFamily: value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select font" />
@@ -56,7 +60,7 @@ export function AppearanceSettings() {
                 max={32}
                 value={settings.fontSize}
                 onChange={(e) =>
-                  updateSettings({ fontSize: Number(e.target.value) })
+                  onSettingsChange({ fontSize: Number(e.target.value) })
                 }
               />
             </div>
@@ -75,7 +79,7 @@ export function AppearanceSettings() {
               id="show-line-numbers"
               checked={settings.showLineNumbers}
               onCheckedChange={(checked) =>
-                updateSettings({ showLineNumbers: checked })
+                onSettingsChange({ showLineNumbers: checked })
               }
             />
           </div>
@@ -85,7 +89,7 @@ export function AppearanceSettings() {
               id="show-ruler"
               checked={settings.showRuler}
               onCheckedChange={(checked) =>
-                updateSettings({ showRuler: checked })
+                onSettingsChange({ showRuler: checked })
               }
             />
           </div>
@@ -95,7 +99,7 @@ export function AppearanceSettings() {
               id="word-wrap"
               checked={settings.wordWrap}
               onCheckedChange={(checked) =>
-                updateSettings({ wordWrap: checked })
+                onSettingsChange({ wordWrap: checked })
               }
             />
           </div>

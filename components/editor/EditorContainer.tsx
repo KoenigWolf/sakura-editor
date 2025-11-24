@@ -131,17 +131,17 @@ export function EditorContainer() {
   }, [activeFile, updateStatusInfo]);
 
   return (
-    <div className="sakura-editor-container">
+    <div className="sakura-editor-container flex flex-col h-full">
       {/* ツールバー */}
       <EditorToolbar />
       
       {/* エディタ本体 */}
-      <div className="flex-1 overflow-hidden relative">
+      <div className="flex-1 overflow-hidden relative min-h-0">
         <MonacoEditor />
       </div>
       
       {/* ステータスバー */}
-      <div className="sakura-editor-statusbar text-xs">
+      <div className="sakura-editor-statusbar text-xs flex-shrink-0">
         <div className="sakura-editor-statusbar-item">
           {activeFile?.name || 'untitled.txt'}
         </div>

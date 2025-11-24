@@ -149,18 +149,14 @@ export const useEditorStore = create<EditorState>()(
           set({ isLoading: true });
           try {
             const { content, history } = get();
+            if (history.past.length === 0) {
+              set({ isLoading: false });
+              return;
+            }
+
+            const previousContent = history.past[history.past.length - 1];
             const newHistory = updateHistoryForUndo(content, history);
-            if (newHistory === history) {
-              set({ isLoading: false });
-              return;
-            }
-
-            const previousContent = await historyLoader.loadEntry(history.past.length - 1);
-            if (!previousContent) {
-              set({ isLoading: false });
-              return;
-            }
-
+            
             set({
               content: previousContent,
               history: newHistory,
@@ -176,18 +172,14 @@ export const useEditorStore = create<EditorState>()(
           set({ isLoading: true });
           try {
             const { content, history } = get();
+            if (history.future.length === 0) {
+              set({ isLoading: false });
+              return;
+            }
+
+            const nextContent = history.future[0];
             const newHistory = updateHistoryForRedo(content, history);
-            if (newHistory === history) {
-              set({ isLoading: false });
-              return;
-            }
-
-            const nextContent = await historyLoader.loadEntry(history.past.length);
-            if (!nextContent) {
-              set({ isLoading: false });
-              return;
-            }
-
+            
             set({
               content: nextContent,
               history: newHistory,

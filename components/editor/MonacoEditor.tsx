@@ -175,17 +175,22 @@ export function MonacoEditor() {
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
         // 検索ダイアログを開く
         try {
-          const searchStore = require('@/lib/store/search-store').useSearchStore.getState();
-          searchStore.setIsOpen(true);
-          
-          // 選択テキストがあれば検索語として設定
-          const selection = editor.getSelection();
-          if (selection && !selection.isEmpty()) {
-            const selectedText = editor.getModel()?.getValueInRange(selection);
-            if (selectedText) {
-              searchStore.setSearchTerm(selectedText);
+          // 動的インポートを使用して検索ストアを取得
+          import('@/lib/store/search-store').then(({ useSearchStore }) => {
+            const searchStore = useSearchStore.getState();
+            searchStore.setIsOpen(true);
+            
+            // 選択テキストがあれば検索語として設定
+            const selection = editor.getSelection();
+            if (selection && !selection.isEmpty()) {
+              const selectedText = editor.getModel()?.getValueInRange(selection);
+              if (selectedText) {
+                searchStore.setSearchTerm(selectedText);
+              }
             }
-          }
+          }).catch((error) => {
+            console.error('検索ダイアログの起動に失敗しました:', error);
+          });
         } catch (error) {
           console.error('検索ダイアログの起動に失敗しました:', error);
         }

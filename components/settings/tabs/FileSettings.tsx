@@ -6,7 +6,7 @@
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useEditorStore } from '@/lib/store';
+import type { EditorState } from '@/lib/store';
 
 const ENCODINGS = [
   { value: 'utf-8', label: 'UTF-8' },
@@ -20,7 +20,12 @@ const LINE_ENDINGS = [
   { value: 'cr', label: 'CR (Classic Mac)' },
 ];
 
-export function FileSettings() {
+interface FileSettingsProps {
+  settings: EditorState['settings'];
+  onSettingsChange: (settings: Partial<EditorState['settings']>) => void;
+}
+
+export function FileSettings({ settings, onSettingsChange }: FileSettingsProps) {
   return (
     <div className="space-y-6">
       <Card>

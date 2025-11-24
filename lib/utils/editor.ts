@@ -1,10 +1,20 @@
 import type { EditorFile, HistoryState } from '../types/editor';
 
 /**
+ * Generates a unique ID
+ */
+const generateId = (): string => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+};
+
+/**
  * Creates a new editor file with default values
  */
 export const createEditorFile = (name: string, content: string): EditorFile => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   name,
   content,
   isDirty: false,

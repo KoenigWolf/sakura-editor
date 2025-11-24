@@ -129,18 +129,33 @@ export class HistoryLoader {
   }
 
   /**
-   * Simulates loading from storage
+   * Loads history entry from localStorage
    */
   private async loadFromStorage(index: number): Promise<string | null> {
-    // This is a placeholder. In a real implementation, you would:
-    // 1. Load from IndexedDB
-    // 2. Handle errors
-    // 3. Implement proper storage management
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(`History entry ${index}`);
-      }, 100);
-    });
+    try {
+      const historyKey = `editor-history-${index}`;
+      const stored = localStorage.getItem(historyKey);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to load history entry:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Saves history entry to localStorage
+   */
+  async saveEntry(index: number, content: string): Promise<void> {
+    try {
+      const historyKey = `editor-history-${index}`;
+      localStorage.setItem(historyKey, JSON.stringify(content));
+      this.loadedEntries.set(index, content);
+    } catch (error) {
+      console.error('Failed to save history entry:', error);
+    }
   }
 
   /**

@@ -60,5 +60,39 @@ export const en = {
         }
       }
     }
-  }
+  },
+  // Search dialog translations
+  search: {
+    title: 'Find & Replace',
+    placeholder: 'Enter search text...',
+    replacePlaceholder: 'Enter replacement text...',
+    searchInput: 'Search text',
+    replaceInput: 'Replacement text',
+    close: 'Close',
+    toggleReplace: 'Toggle replace mode',
+    previousHistory: 'Previous search history',
+    nextHistory: 'Next search history',
+    options: {
+      caseSensitive: 'Match case',
+      useRegex: 'Use regular expression',
+      wholeWord: 'Match whole word',
+    },
+    results: {
+      empty: 'No search results',
+      found: 'Found {count} results',
+    },
+    actions: {
+      search: 'Search',
+      replace: 'Replace',
+      replaceAll: 'Replace All',
+      cancel: 'Cancel',
+    },
+    errors: {
+      emptyQuery: 'Search text is empty',
+      enterQuery: 'Please enter search text',
+      searchFailed: 'Search failed',
+      replaceFailed: 'Replace failed',
+      unknown: 'An unknown error occurred',
+    },
+  },
 };
