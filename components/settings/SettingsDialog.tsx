@@ -6,21 +6,17 @@
 'use client';
 
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useEffect, useState, useCallback } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
 import { GeneralSettings } from './tabs/GeneralSettings';
 import { AppearanceSettings } from './tabs/AppearanceSettings';
 import { KeyboardSettings } from './tabs/KeyboardSettings';
 import { FileSettings } from './tabs/FileSettings';
 import { useEditorStore } from '@/lib/store';
-import { X } from 'lucide-react';
-import { useDraggableDialog } from '@/hooks/useDraggableDialog';
 
 // タブ定義
 const settingsTabs = [
@@ -56,19 +52,6 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const { toast } = useToast();
   const { settings: currentSettings, updateSettings } = useEditorStore();
   const [tempSettings, setTempSettings] = useState(currentSettings);
-  const dialogRef = useRef<HTMLDivElement>(null);
-
-  // ドラッグ可能なダイアログの位置と動作を管理
-  const {
-    position,
-    isDragging,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
-  } = useDraggableDialog(open, dialogRef, {
-    margin: 10,
-    topMargin: 50,
-  });
 
   // グローバル設定が更新された場合に、一時設定を同期する
   useEffect(() => {
@@ -104,78 +87,46 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        ref={dialogRef}
-        customPosition
-        className={cn(
-          "fixed p-0 shadow-lg border border-input rounded-md",
-          "backdrop-blur-sm bg-background/95",
-          isDragging && "cursor-grabbing"
-        )}
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          width: '600px',
-          maxHeight: '80vh',
-          opacity: open ? 1 : 0,
-          transform: 'none',
-        }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-      >
-        <Card className="border-0 shadow-none">
-          <CardHeader className="dialog-header flex items-center justify-between p-2 cursor-grab border-b">
-            <div className="text-lg font-semibold">エディタ設定</div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-              className="h-6 w-6 rounded-full text-xs hover:bg-destructive/10 hover:text-destructive"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </CardHeader>
+      <DialogContent className="max-w-2xl max-h-[80vh] p-0">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+          <DialogTitle className="text-lg font-semibold">エディタ設定</DialogTitle>
+        </DialogHeader>
 
-          <CardContent className="p-0">
-            <ScrollArea className="h-[calc(80vh-8rem)]">
-              <div className="p-4">
-                <Tabs defaultValue="general" className="w-full">
-                  <TabsList className="w-full flex justify-start mb-4">
-                    {settingsTabs.map(({ value, label }) => (
-                      <TabsTrigger 
-                        key={value} 
-                        value={value}
-                        className="flex-1 data-[state=active]:bg-primary/10"
-                      >
-                        {label}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
+        <ScrollArea className="max-h-[calc(80vh-8rem)]">
+          <div className="p-6">
+            <Tabs defaultValue="general" className="w-full">
+              <TabsList className="w-full flex justify-start mb-4">
+                {settingsTabs.map(({ value, label }) => (
+                  <TabsTrigger 
+                    key={value} 
+                    value={value}
+                    className="flex-1 data-[state=active]:bg-primary/10"
+                  >
+                    {label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
 
-                  {settingsTabs.map(({ value, Component }) => (
-                    <TabsContent key={value} value={value}>
-                      <Component
-                        settings={tempSettings}
-                        onSettingsChange={handleSettingsChange}
-                      />
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              </div>
-            </ScrollArea>
-          </CardContent>
-
-          <div className="flex justify-end gap-2 p-4 border-t">
-            <Button variant="outline" onClick={handleReset}>
-              リセット
-            </Button>
-            <Button onClick={handleSave}>
-              保存
-            </Button>
+              {settingsTabs.map(({ value, Component }) => (
+                <TabsContent key={value} value={value}>
+                  <Component
+                    settings={tempSettings}
+                    onSettingsChange={handleSettingsChange}
+                  />
+                </TabsContent>
+              ))}
+            </Tabs>
           </div>
-        </Card>
+        </ScrollArea>
+
+        <div className="flex justify-end gap-2 px-6 py-4 border-t">
+          <Button variant="outline" onClick={handleReset}>
+            リセット
+          </Button>
+          <Button onClick={handleSave}>
+            保存
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
