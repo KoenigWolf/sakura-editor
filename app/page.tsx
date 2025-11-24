@@ -30,7 +30,7 @@ export default function Home() {
 
   if (!mounted) {
     return (
-      <main className="h-screen flex flex-col">
+      <main className="h-full flex flex-col">
         <div className="flex items-center justify-center h-full">
           <div className="text-muted-foreground">読み込み中...</div>
         </div>
@@ -39,7 +39,7 @@ export default function Home() {
   }
 
   return (
-    <main className="h-screen flex flex-col">
+    <main className="h-full flex flex-col overflow-hidden">
       <EditorContainer />
     </main>
   );

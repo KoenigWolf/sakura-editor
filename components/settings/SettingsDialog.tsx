@@ -87,9 +87,9 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] p-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <DialogTitle className="text-lg font-semibold">エディタ設定</DialogTitle>
+      <DialogContent className="max-w-2xl max-h-[80vh] p-0 overflow-hidden">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b relative">
+          <DialogTitle className="text-lg font-semibold pr-8">エディタ設定</DialogTitle>
         </DialogHeader>
 
         <ScrollArea className="max-h-[calc(80vh-8rem)]">
