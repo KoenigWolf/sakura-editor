@@ -38,7 +38,7 @@ export default function RootLayout({
         <meta httpEquiv="X-Frame-Options" content="DENY" />
         <meta httpEquiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()" />
       </head>
-      <body className={`${inter.className} h-full`}>
+      <body className={`${inter.className} h-full w-full max-w-full overflow-hidden`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

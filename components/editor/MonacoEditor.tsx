@@ -468,7 +468,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
   }, [settings.theme, resolvedTheme]);
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full overflow-hidden">
       <Editor
         height="100%"
         width="100%"

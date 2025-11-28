@@ -79,17 +79,18 @@ export const EditorContainer = memo(function EditorContainer() {
       {/* メインエリア */}
       <div
         ref={containerRef}
-        className={`flex-1 overflow-hidden relative min-h-0 flex ${
+        className={`flex-1 overflow-hidden relative min-h-0 min-w-0 flex ${
           splitDirection === 'vertical' ? 'flex-row' : 'flex-col'
         }`}
       >
         {/* プライマリエディタ */}
         <div
-          className="overflow-hidden"
+          className="overflow-hidden min-w-0 min-h-0"
           style={{
             [splitDirection === 'vertical' ? 'width' : 'height']: splitDirection
               ? `${splitRatio * 100}%`
               : '100%',
+            [splitDirection === 'vertical' ? 'height' : 'width']: '100%',
             flexShrink: 0,
           }}
         >
