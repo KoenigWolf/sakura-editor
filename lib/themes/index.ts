@@ -300,9 +300,9 @@ export const CUSTOM_THEMES: EditorTheme[] = [
 
   // ========== Light Themes ==========
   {
-    id: 'sakura-blossom',
-    name: 'Sakura Blossom',
-    nameJa: 'さくらブロッサム',
+    id: 'cherry-blossom',
+    name: 'Cherry Blossom',
+    nameJa: 'チェリーブロッサム',
     type: 'light',
     monacoTheme: 'vs',
     preview: {

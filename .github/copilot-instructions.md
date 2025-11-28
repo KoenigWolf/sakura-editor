@@ -1,4 +1,4 @@
-# Sakura Editor - GitHub Copilot Instructions
+# Mochi Editor - GitHub Copilot Instructions
 
 ## Required Reading
 

@@ -163,7 +163,7 @@ const DEFAULT_EDITOR_SETTINGS: EditorSettings = {
 
 ## 空白文字の表示
 
-サクラエディタと同様に空白文字を可視化:
+空白文字を可視化:
 
 | 値 | 説明 |
 |----|------|

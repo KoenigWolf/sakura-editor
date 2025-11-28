@@ -1,6 +1,6 @@
-# Sakura Editor
+# Mochi Editor
 
-モダンな Web ベースのコードエディタ。Next.js、TypeScript、TailwindCSS を使用して構築された高機能エディタです。
+無料で使えるオンラインテキストエディタ。インストール不要でブラウザから即座に利用可能。Next.js、TypeScript、TailwindCSS を使用して構築された高機能エディタです。
 
 ## 主な機能
 
@@ -8,9 +8,10 @@
 
 - **Monaco Editor** をベースにした高性能コードエディタ
 - リアルタイムシンタックスハイライト
-- インテリセンス・コード補完
 - **分割ビュー** - 縦・横分割でファイルを並べて編集
 - ドラッグ可能なスプリッター
+- **全角スペース表示** - 全角スペースを視覚的にハイライト
+- モバイル対応 - スマートフォンでもスワイプ操作で快適に編集
 
 ### 検索・置換
 
@@ -19,19 +20,20 @@
 - 大文字小文字の区別
 - 単語単位検索
 - 一括置換
+- Tab キーで検索→置換ボックス間を移動
 
 ### テーマ
 
 - **12種類のカスタムテーマ**
   - ダーク: Midnight Aurora, Synthwave '84, Tokyo Night, Nord Deep, GitHub Dark, Dracula Pro
-  - ライト: Sakura Blossom, Ocean Breeze, GitHub Light, Mint Fresh, Sunset Glow, Lavender Dream
+  - ライト: Cherry Blossom, Ocean Breeze, GitHub Light, Mint Fresh, Sunset Glow, Lavender Dream
 - システム設定連動（ライト/ダーク/自動）
 - リアルタイムプレビュー
 
 ### 設定
 
 - **テーマ設定** - カラーテーマの選択
-- **エディタ設定** - フォント、行番号、ルーラー、折り返し、空白文字表示
+- **エディタ設定** - フォント、行番号、ルーラー、折り返し、空白文字表示（半角・全角）
 - **ファイル設定** - 自動保存、バックアップ、エンコーディング、改行コード
 - **一般設定** - 言語切り替え（日本語/英語）
 - ドラッグ・リサイズ可能な設定ダイアログ
@@ -41,11 +43,18 @@
 - 日本語 / 英語 UI
 - i18next による国際化
 
+### SEO・PWA
+
+- 構造化データ（JSON-LD）対応
+- Open Graph / Twitter Cards 対応
+- PWA マニフェスト対応
+- サイトマップ自動生成
+
 ## 技術スタック
 
 | カテゴリ | 技術 |
 |---------|------|
-| フレームワーク | Next.js 15 (App Router) |
+| フレームワーク | Next.js 13.5 (App Router) |
 | 言語 | TypeScript |
 | スタイリング | TailwindCSS |
 | UIコンポーネント | shadcn/ui, Radix UI |
@@ -64,8 +73,8 @@
 ### インストール
 
 ```bash
-git clone https://github.com/KoenigWolf/sakura-editor.git
-cd sakura-editor
+git clone https://github.com/your-username/mochi-editor.git
+cd mochi-editor
 npm install
 ```
 
@@ -87,15 +96,22 @@ npm start
 ## プロジェクト構造
 
 ```
-sakura-editor/
+mochi-editor/
 ├── app/                    # Next.js App Router
+│   ├── layout.tsx         # ルートレイアウト
+│   ├── page.tsx           # メインページ
+│   ├── providers.tsx      # クライアントプロバイダー
+│   ├── metadata.ts        # SEOメタデータ
+│   └── sitemap.ts         # サイトマップ生成
 ├── components/
 │   ├── editor/            # エディタ関連
 │   │   ├── EditorContainer.tsx
 │   │   ├── EditorToolbar.tsx
-│   │   └── MonacoEditor.tsx
-│   ├── search/            # 検索ダイアログ
+│   │   ├── MonacoEditor.tsx
+│   │   ├── SearchDialog.tsx
+│   │   └── FileTabs.tsx
 │   ├── settings/          # 設定ダイアログ
+│   │   ├── SettingsDialog.tsx
 │   │   └── tabs/         # 設定タブ
 │   │       ├── ThemeSettings.tsx
 │   │       ├── EditorSettings.tsx
@@ -108,9 +124,26 @@ sakura-editor/
 │   ├── store/            # Zustand ストア
 │   ├── themes/           # カスタムテーマ定義
 │   └── types/            # 型定義
-├── docs/                  # ドキュメント
-└── public/               # 静的ファイル
+├── public/               # 静的ファイル
+│   ├── manifest.json     # PWAマニフェスト
+│   └── robots.txt        # クローラー設定
+└── docs/                  # ドキュメント
 ```
+
+## キーボードショートカット
+
+| ショートカット | 機能 |
+|---------------|------|
+| Ctrl+F | 検索ダイアログを開く |
+| Ctrl+H | 置換モード切り替え |
+| Enter | 次の検索結果 |
+| Shift+Enter | 前の検索結果 |
+| Tab | 検索→置換ボックスへ移動 |
+| Shift+Tab | 置換→検索ボックスへ移動 |
+| Escape | ダイアログを閉じる |
+| Alt+C | 大文字小文字区別 切り替え |
+| Alt+W | 単語単位検索 切り替え |
+| Alt+R | 正規表現 切り替え |
 
 ## AI エージェント向け
 
@@ -136,10 +169,6 @@ sakura-editor/
 ## ライセンス
 
 MIT License
-
-## 作者
-
-- KoenigWolf - [GitHub](https://github.com/KoenigWolf)
 
 ## 謝辞
 

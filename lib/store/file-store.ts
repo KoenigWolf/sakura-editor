@@ -92,7 +92,7 @@ export const useFileStore = create<FileStore>()(
       },
     }),
     {
-      name: 'sakura-editor-files',
+      name: 'mochi-editor-files',
       storage: createSafeStorage(),
       partialize: (state) => ({
         files: state.files,

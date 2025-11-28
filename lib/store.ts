@@ -44,7 +44,7 @@ export const useEditorStore = create<EditorSettingsState>()(
         },
       }),
       {
-        name: 'sakura-editor-settings',
+        name: 'mochi-editor-settings',
         storage: createSafeStorage(),
       }
     )

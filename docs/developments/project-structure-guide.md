@@ -17,7 +17,7 @@
 ### 全体構成
 
 ```
-sakura-editor/
+mochi-editor/
 ├── app/                      # Next.js App Router
 │   ├── globals.css           # グローバルスタイル
 │   ├── layout.tsx            # ルートレイアウト
@@ -116,7 +116,7 @@ sakura-editor/
 
 ```bash
 git clone <repository-url>
-cd sakura-editor
+cd mochi-editor
 npm install
 npm run dev
 ```
@@ -228,7 +228,7 @@ export const useEditorStore = create<EditorSettingsState>()(
         settings: { ...state.settings, ...newSettings }
       })),
     }),
-    { name: 'sakura-editor-settings' }
+    { name: 'mochi-editor-settings' }
   )
 )
 ```

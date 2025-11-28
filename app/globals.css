@@ -57,10 +57,10 @@
     --editor-linenumber-dark: 220 30% 50%;
     --editor-indent-guide-light: 0 0% 80%;
     --editor-indent-guide-dark: 220 13% 30%;
-    --sakura-green: 140 50% 60%;
-    --sakura-pink: 350 60% 80%;
-    --sakura-blue: 210 60% 70%;
-    --sakura-yellow: 40 80% 80%;
+    --mochi-green: 140 50% 60%;
+    --mochi-pink: 350 60% 80%;
+    --mochi-blue: 210 60% 70%;
+    --mochi-yellow: 40 80% 80%;
   }
   .dark {
     --background: 222.2 84% 4.9%;
@@ -136,7 +136,7 @@
   cursor: grabbing;
 }
 
-.sakura-editor-container {
+.mochi-editor-container {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -203,7 +203,7 @@ html {
   touch-action: pan-x pan-y !important;
 }
 
-.sakura-editor-toolbar {
+.mochi-editor-toolbar {
   display: flex;
   align-items: center;
   padding: 4px 8px;
@@ -211,7 +211,7 @@ html {
   border-bottom: 1px solid hsl(var(--border));
 }
 
-.sakura-editor-toolbar-button {
+.mochi-editor-toolbar-button {
   padding: 2px 6px;
   margin-right: 4px;
   font-size: 0.8rem;
@@ -224,11 +224,11 @@ html {
   border: 1px solid hsl(var(--border));
 }
 
-.sakura-editor-toolbar-button:hover {
+.mochi-editor-toolbar-button:hover {
   background-color: hsl(var(--accent));
 }
 
-.sakura-editor-statusbar {
+.mochi-editor-statusbar {
   display: flex;
   align-items: center;
   padding: 2px 8px;
@@ -238,7 +238,7 @@ html {
   color: hsl(var(--muted-foreground));
 }
 
-.sakura-editor-statusbar-item {
+.mochi-editor-statusbar-item {
   margin-right: 12px;
   display: flex;
   align-items: center;
@@ -278,26 +278,26 @@ html {
   background: hsl(var(--muted-foreground) / 0.5);
 }
 
-.monaco-editor .sakura-bracket {
-  color: hsl(var(--sakura-blue)) !important;
+.monaco-editor .mochi-bracket {
+  color: hsl(var(--mochi-blue)) !important;
 }
 
-.monaco-editor .sakura-keyword {
-  color: hsl(var(--sakura-blue)) !important;
+.monaco-editor .mochi-keyword {
+  color: hsl(var(--mochi-blue)) !important;
   font-weight: bold;
 }
 
-.monaco-editor .sakura-string {
-  color: hsl(var(--sakura-green)) !important;
+.monaco-editor .mochi-string {
+  color: hsl(var(--mochi-green)) !important;
 }
 
-.monaco-editor .sakura-comment {
-  color: hsl(var(--sakura-pink)) !important;
+.monaco-editor .mochi-comment {
+  color: hsl(var(--mochi-pink)) !important;
   font-style: italic;
 }
 
-.monaco-editor .sakura-function {
-  color: hsl(var(--sakura-yellow)) !important;
+.monaco-editor .mochi-function {
+  color: hsl(var(--mochi-yellow)) !important;
 }
 
 /* 全角スペースのハイライト */
@@ -316,13 +316,13 @@ html {
   border-right-color: rgba(180, 180, 180, 0.3);
 }
 
-.sakura-dialog {
+.mochi-dialog {
   border-radius: 2px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.08);
   background-color: hsl(var(--background));
 }
 
-.sakura-dialog-header {
+.mochi-dialog-header {
   background-color: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
   font-size: 0.9rem;
@@ -335,7 +335,7 @@ html {
   user-select: none;
 }
 
-.sakura-dialog-content {
+.mochi-dialog-content {
   padding: 8px;
 }
 

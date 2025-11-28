@@ -68,7 +68,7 @@ export const EditorContainer = memo(function EditorContainer() {
   const secondaryFile = files.find(f => f.id === secondaryFileId);
 
   return (
-    <div className="sakura-editor-container flex flex-col h-full w-full max-w-full overflow-hidden">
+    <div className="mochi-editor-container flex flex-col h-full w-full max-w-full overflow-hidden">
       <EditorToolbar />
       <FileTabs />
 
@@ -109,26 +109,26 @@ export const EditorContainer = memo(function EditorContainer() {
         )}
       </div>
 
-      <div className="sakura-editor-statusbar text-xs flex-shrink-0 overflow-x-auto overflow-y-hidden">
-        <div className="sakura-editor-statusbar-item truncate max-w-[120px] sm:max-w-none">
+      <div className="mochi-editor-statusbar text-xs flex-shrink-0 overflow-x-auto overflow-y-hidden">
+        <div className="mochi-editor-statusbar-item truncate max-w-[120px] sm:max-w-none">
           {activeFile?.name || t('status.untitled')}
         </div>
-        <div className="sakura-editor-statusbar-item whitespace-nowrap">
+        <div className="mochi-editor-statusbar-item whitespace-nowrap">
           {t('status.position', { line: statusInfo.cursorLine, col: statusInfo.cursorColumn })}
         </div>
-        <div className="sakura-editor-statusbar-item whitespace-nowrap hidden sm:block">
+        <div className="mochi-editor-statusbar-item whitespace-nowrap hidden sm:block">
           {t('status.document', { lines: statusInfo.lineCount, chars: statusInfo.charCount })}
         </div>
-        <div className="sakura-editor-statusbar-item whitespace-nowrap hidden sm:block">
+        <div className="mochi-editor-statusbar-item whitespace-nowrap hidden sm:block">
           UTF-8
         </div>
-        <div className="sakura-editor-statusbar-item whitespace-nowrap">
+        <div className="mochi-editor-statusbar-item whitespace-nowrap">
           {statusInfo.eol}
         </div>
-        <div className="sakura-editor-statusbar-item whitespace-nowrap hidden sm:block">
+        <div className="mochi-editor-statusbar-item whitespace-nowrap hidden sm:block">
           {statusInfo.language}
         </div>
-        <div className="sakura-editor-statusbar-item ml-auto whitespace-nowrap" suppressHydrationWarning>
+        <div className="mochi-editor-statusbar-item ml-auto whitespace-nowrap" suppressHydrationWarning>
           {resolvedTheme === 'dark' ? t('status.dark') : t('status.light')}
         </div>
       </div>

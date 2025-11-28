@@ -1,8 +1,8 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://sakura-editor.vercel.app';
-  
+  const baseUrl = 'https://mochi-editor.vercel.app';
+
   return [
     {
       url: baseUrl,

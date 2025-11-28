@@ -2,7 +2,7 @@
 
 ## 概要
 
-サクラエディタは、Next.js App Router をベースにしたモダンなWebエディタです。
+Mochi Editor は、Next.js App Router をベースにしたモダンなWebエディタです。
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -122,7 +122,7 @@ const useEditorStore = create<EditorSettingsState>()(
         settings: { ...state.settings, ...newSettings }
       })),
     }),
-    { name: 'sakura-editor-settings' }
+    { name: 'mochi-editor-settings' }
   )
 )
 

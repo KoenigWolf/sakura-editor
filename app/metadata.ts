@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
-const siteName = 'Sakura Editor Online';
-const siteUrl = 'https://sakura-editor.vercel.app';
+const siteName = 'Mochi Editor';
+const siteUrl = 'https://mochi-editor.vercel.app';
 const description = '無料で使えるオンラインテキストエディタ。インストール不要でブラウザから即座に利用可能。日本語完全対応、全角スペース表示、ダークモード、検索・置換機能搭載。プログラミングからメモまで幅広く対応。';
 
 export const metadata: Metadata = {
@@ -42,9 +42,9 @@ export const metadata: Metadata = {
     'dark mode',
     'Monaco Editor',
   ],
-  authors: [{ name: 'Sakura Editor Team' }],
-  creator: 'Sakura Editor Team',
-  publisher: 'Sakura Editor',
+  authors: [{ name: 'Mochi Editor Team' }],
+  creator: 'Mochi Editor Team',
+  publisher: 'Mochi Editor',
   robots: {
     index: true,
     follow: true,
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Sakura Editor Online - 無料オンラインテキストエディタ',
+        alt: 'Mochi Editor - 無料オンラインテキストエディタ',
       },
     ],
   },
@@ -127,7 +127,7 @@ export const jsonLd = {
   softwareVersion: '1.0.0',
   author: {
     '@type': 'Organization',
-    name: 'Sakura Editor Team',
+    name: 'Mochi Editor Team',
   },
   inLanguage: ['ja', 'en'],
 };

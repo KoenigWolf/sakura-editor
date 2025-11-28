@@ -1,4 +1,4 @@
-# Sakura Editor - AI Agent Instructions
+# Mochi Editor - AI Agent Instructions
 
 This file provides instructions for AI coding assistants (OpenAI Codex, ChatGPT, etc.)
 
@@ -12,7 +12,7 @@ This file provides instructions for AI coding assistants (OpenAI Codex, ChatGPT,
 
 ## Project Summary
 
-Sakura Editor is a web-based code editor inspired by the classic Sakura Editor.
+Mochi Editor is a web-based code editor for modern development.
 
 ### Technology
 | Category | Technology |
@@ -27,7 +27,7 @@ Sakura Editor is a web-based code editor inspired by the classic Sakura Editor.
 
 ### Directory Map
 ```
-sakura-editor/
+mochi-editor/
 ├── app/                      # Next.js pages
 ├── components/
 │   ├── editor/               # MonacoEditor, Toolbar, FileTabs, SearchDialog

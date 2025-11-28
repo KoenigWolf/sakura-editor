@@ -1,4 +1,4 @@
-# Sakura Editor - AI Development Guide
+# Mochi Editor - AI Development Guide
 
 ## Required Reading Before Any Changes
 
@@ -21,7 +21,7 @@
 
 ### Project Structure
 ```
-sakura-editor/
+mochi-editor/
 ├── app/                  # Next.js App Router pages
 ├── components/
 │   ├── editor/           # Editor components (MonacoEditor, Toolbar, etc.)

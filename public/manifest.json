@@ -1,6 +1,6 @@
 {
-  "name": "Sakura Editor Online",
-  "short_name": "Sakura Editor",
+  "name": "Mochi Editor",
+  "short_name": "Mochi Editor",
   "description": "無料で使えるオンラインテキストエディタ。インストール不要でブラウザから即座に利用可能。",
   "start_url": "/",
   "display": "standalone",
