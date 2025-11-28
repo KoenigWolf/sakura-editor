@@ -13,11 +13,13 @@ export interface FileData {
 interface FileStore {
   files: FileData[];
   activeFileId: string | null;
+  _hasHydrated: boolean;
   addFile: (file: Omit<FileData, 'id'>) => void;
   updateFile: (id: string, content: string) => void;
   removeFile: (id: string) => void;
   setActiveFile: (id: string | null) => void;
   getActiveFile: () => FileData | undefined;
+  setHasHydrated: (state: boolean) => void;
 }
 
 export const useFileStore = create<FileStore>()(
@@ -25,6 +27,11 @@ export const useFileStore = create<FileStore>()(
     (set, get) => ({
       files: [],
       activeFileId: null,
+      _hasHydrated: false,
+
+      setHasHydrated: (state) => {
+        set({ _hasHydrated: state });
+      },
 
       addFile: (file) => {
         const newFile = {
@@ -68,6 +75,13 @@ export const useFileStore = create<FileStore>()(
     {
       name: 'sakura-editor-files',
       storage: createSafeStorage(),
+      partialize: (state) => ({
+        files: state.files,
+        activeFileId: state.activeFileId,
+      }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );

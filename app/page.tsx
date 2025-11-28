@@ -5,10 +5,10 @@ import { EditorContainer } from '@/components/editor/EditorContainer';
 import { useFileStore } from '@/lib/store/file-store';
 
 export default function Home() {
-  const { files, addFile } = useFileStore();
+  const { files, addFile, _hasHydrated } = useFileStore();
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (!_hasHydrated) return;
     if (files.length > 0) return;
 
     addFile({
@@ -17,7 +17,7 @@ export default function Home() {
       path: '',
       lastModified: Date.now(),
     });
-  }, [files.length, addFile]);
+  }, [_hasHydrated, files.length, addFile]);
 
   return (
     <main className="h-full flex flex-col overflow-hidden">
