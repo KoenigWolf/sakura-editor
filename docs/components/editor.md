@@ -161,7 +161,7 @@ const DEFAULT_EDITOR_SETTINGS: EditorSettings = {
 }
 ```
 
-## 空白文字の表示
+## 半角スペース
 
 サクラエディタと同様に空白文字を可視化:
 

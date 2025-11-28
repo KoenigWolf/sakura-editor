@@ -50,6 +50,7 @@ export const en = {
       whitespace: {
         title: 'Whitespace',
         label: 'Show whitespace',
+        fullWidthLabel: 'Full-width space',
         options: {
           none: 'None',
           boundary: 'Boundary',

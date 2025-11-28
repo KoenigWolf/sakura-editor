@@ -48,8 +48,9 @@ export const ja = {
         tabSize: 'タブサイズ',
       },
       whitespace: {
-        title: '空白文字',
-        label: '空白文字の表示',
+        title: '半角スペース',
+        label: '半角スペース',
+        fullWidthLabel: '全角スペース',
         options: {
           none: '表示しない',
           boundary: '単語間のみ',

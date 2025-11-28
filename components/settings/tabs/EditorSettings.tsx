@@ -166,25 +166,47 @@ export function EditorSettings({ settings, onSettingsChange }: EditorSettingsPro
       </SettingsSection>
 
       <SettingsSection icon={Space} title={t('settings.editor.whitespace.title')}>
-        <div className="flex items-center gap-3 py-1">
-          <Label className="text-sm text-muted-foreground shrink-0">
-            {t('settings.editor.whitespace.label')}
-          </Label>
-          <Select
-            value={settings.showWhitespace}
-            onValueChange={(value) => onSettingsChange({ showWhitespace: value as EditorSettingsType['showWhitespace'] })}
-          >
-            <SelectTrigger className="flex-1 h-8">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">{t('settings.editor.whitespace.options.none')}</SelectItem>
-              <SelectItem value="boundary">{t('settings.editor.whitespace.options.boundary')}</SelectItem>
-              <SelectItem value="selection">{t('settings.editor.whitespace.options.selection')}</SelectItem>
-              <SelectItem value="trailing">{t('settings.editor.whitespace.options.trailing')}</SelectItem>
-              <SelectItem value="all">{t('settings.editor.whitespace.options.all')}</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="space-y-3">
+          <div className="flex items-center gap-3 py-1">
+            <Label className="text-sm text-muted-foreground shrink-0">
+              {t('settings.editor.whitespace.label')}
+            </Label>
+            <Select
+              value={settings.showWhitespace}
+              onValueChange={(value) => onSettingsChange({ showWhitespace: value as EditorSettingsType['showWhitespace'] })}
+            >
+              <SelectTrigger className="flex-1 h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t('settings.editor.whitespace.options.none')}</SelectItem>
+                <SelectItem value="boundary">{t('settings.editor.whitespace.options.boundary')}</SelectItem>
+                <SelectItem value="selection">{t('settings.editor.whitespace.options.selection')}</SelectItem>
+                <SelectItem value="trailing">{t('settings.editor.whitespace.options.trailing')}</SelectItem>
+                <SelectItem value="all">{t('settings.editor.whitespace.options.all')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-3 py-1">
+            <Label className="text-sm text-muted-foreground shrink-0">
+              {t('settings.editor.whitespace.fullWidthLabel')}
+            </Label>
+            <Select
+              value={settings.showFullWidthSpace}
+              onValueChange={(value) => onSettingsChange({ showFullWidthSpace: value as EditorSettingsType['showFullWidthSpace'] })}
+            >
+              <SelectTrigger className="flex-1 h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t('settings.editor.whitespace.options.none')}</SelectItem>
+                <SelectItem value="boundary">{t('settings.editor.whitespace.options.boundary')}</SelectItem>
+                <SelectItem value="selection">{t('settings.editor.whitespace.options.selection')}</SelectItem>
+                <SelectItem value="trailing">{t('settings.editor.whitespace.options.trailing')}</SelectItem>
+                <SelectItem value="all">{t('settings.editor.whitespace.options.all')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </SettingsSection>
     </div>

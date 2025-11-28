@@ -34,6 +34,7 @@ export interface EditorSettings {
   showLineNumbers: boolean;
   showRuler: boolean;
   showWhitespace: 'none' | 'boundary' | 'selection' | 'trailing' | 'all';
+  showFullWidthSpace: 'none' | 'boundary' | 'selection' | 'trailing' | 'all';
   theme: 'system' | 'light' | 'dark' | string;
   language: 'en' | 'ja';
 }
@@ -53,6 +54,7 @@ export const DEFAULT_EDITOR_SETTINGS: EditorSettings = {
   showLineNumbers: true,
   showRuler: true,
   showWhitespace: 'all',
+  showFullWidthSpace: 'all',
   theme: 'system',
   language: 'en',
 }; 

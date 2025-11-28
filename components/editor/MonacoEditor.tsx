@@ -155,7 +155,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
     const model = ed.getModel();
     if (!model) return;
 
-    if (settings.showWhitespace === 'none') {
+    if (settings.showFullWidthSpace === 'none') {
       if (fullWidthSpaceDecorationsRef.current) {
         fullWidthSpaceDecorationsRef.current.clear();
       }
@@ -165,24 +165,46 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
     const content = model.getValue();
     const decorations: editor.IModelDeltaDecoration[] = [];
     const fullWidthSpaceRegex = /\u3000/g;
+    const selection = ed.getSelection();
     let match;
 
     while ((match = fullWidthSpaceRegex.exec(content)) !== null) {
       const startPos = model.getPositionAt(match.index);
       const endPos = model.getPositionAt(match.index + 1);
 
-      decorations.push({
-        range: new monaco.Range(
+      let shouldHighlight = false;
+      if (settings.showFullWidthSpace === 'all') {
+        shouldHighlight = true;
+      } else if (settings.showFullWidthSpace === 'selection' && selection) {
+        const range = new monaco.Range(
           startPos.lineNumber,
           startPos.column,
           endPos.lineNumber,
           endPos.column
-        ),
-        options: {
-          inlineClassName: 'full-width-space-highlight',
-          hoverMessage: { value: '全角スペース (U+3000)' },
-        },
-      });
+        );
+        shouldHighlight = monaco.Range.areIntersectingOrTouching(selection, range);
+      } else if (settings.showFullWidthSpace === 'trailing') {
+        const lineContent = model.getLineContent(startPos.lineNumber);
+        const afterSpace = lineContent.substring(startPos.column - 1);
+        shouldHighlight = afterSpace.trim().length === 0;
+      } else if (settings.showFullWidthSpace === 'boundary') {
+        shouldHighlight = true;
+      }
+
+      if (shouldHighlight) {
+        decorations.push({
+          range: new monaco.Range(
+            startPos.lineNumber,
+            startPos.column,
+            endPos.lineNumber,
+            endPos.column
+          ),
+          options: {
+            inlineClassName: 'full-width-space-highlight',
+            hoverMessage: { value: '全角スペース (U+3000)' },
+          },
+        });
+      }
     }
 
     if (!fullWidthSpaceDecorationsRef.current) {
@@ -190,7 +212,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
     } else {
       fullWidthSpaceDecorationsRef.current.set(decorations);
     }
-  }, [settings.showWhitespace]);
+  }, [settings.showFullWidthSpace]);
 
   /**
    * Monaco Editorがマウントされる前にすべてのカスタムテーマを定義
@@ -409,7 +431,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       });
       updateFullWidthSpaceDecorations();
     }
-  }, [settings.fontSize, settings.fontFamily, settings.lineHeight, settings.tabSize, settings.wordWrap, settings.showLineNumbers, settings.showWhitespace, updateFullWidthSpaceDecorations]);
+  }, [settings.fontSize, settings.fontFamily, settings.lineHeight, settings.tabSize, settings.wordWrap, settings.showLineNumbers, settings.showWhitespace, settings.showFullWidthSpace, updateFullWidthSpaceDecorations]);
 
   useEffect(() => {
     if (editorRef.current && activeFile && monacoRef.current) {
