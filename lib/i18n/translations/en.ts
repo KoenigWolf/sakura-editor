@@ -1,9 +1,7 @@
 export const en = {
-  // Common
   common: {
     close: 'Close',
   },
-  // Editor
   editor: {
     loading: 'Loading editor...',
   },
@@ -24,8 +22,8 @@ export const en = {
         label: 'Language',
         options: {
           en: 'English',
-          ja: '日本語'
-        }
+          ja: '日本語',
+        },
       },
       autoSave: {
         label: 'Enable auto-save',
@@ -35,8 +33,8 @@ export const en = {
       backup: {
         title: 'Backup',
         createBackup: 'Create backup files',
-        description: 'Automatically backup files before editing'
-      }
+        description: 'Automatically backup files before editing',
+      },
     },
     appearance: {
       title: 'Appearance',
@@ -51,18 +49,18 @@ export const en = {
         title: 'Font',
         family: 'Font Family',
         size: 'Font Size',
+        system: 'System',
         preview: {
           alphabet: 'ABCDEFG abcdefg 0123456789',
           japanese: 'あいうえお カキクケコ 漢字',
         },
-        system: 'System',
       },
       display: {
         title: 'Display',
         lineNumbers: 'Show line numbers',
         ruler: 'Show ruler',
-        wordWrap: 'Word wrap'
-      }
+        wordWrap: 'Word wrap',
+      },
     },
     keyboard: {
       title: 'Keyboard Shortcuts',
@@ -70,7 +68,7 @@ export const en = {
       find: 'Find',
       undo: 'Undo',
       redo: 'Redo',
-      reset: 'Reset to Defaults'
+      reset: 'Reset to Defaults',
     },
     file: {
       encoding: {
@@ -90,12 +88,11 @@ export const en = {
           lf: { label: 'LF', description: 'Unix / macOS / Linux' },
           crlf: { label: 'CRLF', description: 'Windows' },
           cr: { label: 'CR', description: 'Classic Mac' },
-        }
+        },
       },
       preview: 'New files will be created with UTF-8 + LF',
-    }
+    },
   },
-  // Search dialog translations
   search: {
     title: 'Find & Replace',
     placeholder: 'Enter search text...',

@@ -1,39 +1,29 @@
-/**
- * 日本語翻訳リソース
- * 各セクションごとに、設定画面で利用する文言をまとめています。
- */
 export const ja = {
-  // 共通
   common: {
     close: '閉じる',
   },
-  // エディタ
   editor: {
     loading: 'エディタを読み込み中...',
   },
-  // 設定全般に関する翻訳
   settings: {
     title: '設定',
-    // アクションに関するテキスト
     actions: {
       save: '保存',
       reset: 'リセット',
       saved: '設定を保存しました',
       resetDone: '設定をリセットしました',
     },
-    // バックアップ設定
     backup: {
       title: 'バックアップ',
     },
-    // 一般設定に関するテキスト
     general: {
       title: '一般',
       language: {
         label: '言語',
         options: {
           en: 'English',
-          ja: '日本語'
-        }
+          ja: '日本語',
+        },
       },
       autoSave: {
         label: '自動保存を有効にする',
@@ -43,12 +33,11 @@ export const ja = {
       backup: {
         title: 'バックアップ',
         createBackup: 'バックアップファイルを作成',
-        description: '編集前のファイルを自動でバックアップ'
-      }
+        description: '編集前のファイルを自動でバックアップ',
+      },
     },
-    // 表示（アピアランス）に関する翻訳
     appearance: {
-      title: '表示', // 表示設定セクションのタイトル
+      title: '表示',
       theme: {
         title: 'テーマ',
         label: 'カラーテーマ',
@@ -57,36 +46,34 @@ export const ja = {
         dark: 'ダーク',
       },
       font: {
-        title: 'フォント',     // フォント設定のセクションタイトル
-        family: 'フォント名',  // フォントファミリーのラベル
-        size: 'フォントサイズ', // フォントサイズのラベル
+        title: 'フォント',
+        family: 'フォント名',
+        size: 'フォントサイズ',
+        system: 'システム',
         preview: {
           alphabet: 'ABCDEFG abcdefg 0123456789',
           japanese: 'あいうえお カキクケコ 漢字',
         },
-        system: 'システム',
       },
       display: {
-        title: '表示設定',      // 表示オプションのセクションタイトル
-        lineNumbers: '行番号を表示', // 行番号表示のラベル
-        ruler: 'ルーラーを表示',      // ルーラー表示のラベル
-        wordWrap: '右端で折り返す'     // ワードラップのラベル
-      }
+        title: '表示設定',
+        lineNumbers: '行番号を表示',
+        ruler: 'ルーラーを表示',
+        wordWrap: '右端で折り返す',
+      },
     },
-    // キーボードショートカットに関する翻訳
     keyboard: {
-      title: 'キーボードショートカット', // キーボードショートカット設定のタイトル
-      saveFile: 'ファイルを保存',         // 「ファイルを保存」ショートカットの説明
-      find: '検索',                      // 「検索」ショートカットの説明
-      undo: '元に戻す',                  // 「元に戻す」ショートカットの説明
-      redo: 'やり直し',                  // 「やり直し」ショートカットの説明
-      reset: 'デフォルトに戻す'           // 「デフォルトに戻す」ショートカットの説明
+      title: 'キーボードショートカット',
+      saveFile: 'ファイルを保存',
+      find: '検索',
+      undo: '元に戻す',
+      redo: 'やり直し',
+      reset: 'デフォルトに戻す',
     },
-    // ファイルに関する設定の翻訳
     file: {
       encoding: {
-        title: 'ファイルエンコーディング', // エンコーディング設定のタイトル
-        label: 'デフォルトエンコーディング', // デフォルトエンコーディングのラベル
+        title: 'ファイルエンコーディング',
+        label: 'デフォルトエンコーディング',
         options: {
           'utf-8': { label: 'UTF-8', description: '推奨 - 国際標準' },
           'utf-8-bom': { label: 'UTF-8 (BOM)', description: 'Windows互換' },
@@ -95,18 +82,17 @@ export const ja = {
         },
       },
       lineEnding: {
-        title: '改行コード',          // 改行コード設定のタイトル
-        label: 'デフォルトの改行コード', // 改行コード選択のラベル
+        title: '改行コード',
+        label: 'デフォルトの改行コード',
         options: {
           lf: { label: 'LF', description: 'Unix / macOS / Linux' },
           crlf: { label: 'CRLF', description: 'Windows' },
           cr: { label: 'CR', description: 'Classic Mac' },
-        }
+        },
       },
       preview: '新規ファイルは UTF-8 + LF で作成されます',
-    }
+    },
   },
-  // 検索ダイアログに関する翻訳
   search: {
     title: '検索・置換',
     placeholder: '検索する文字列を入力...',
