@@ -2,7 +2,7 @@
  * SettingsDialogコンポーネント
  * サクラエディタスタイルの非モーダル設定ダイアログ
  * エディタの各種設定をタブ切替形式で表示・編集する
- * ドラッグで移動可能
+ * ドラッグで移動可能、リサイズ可能
  */
 'use client';
 
@@ -18,6 +18,7 @@ import { FileSettings } from './tabs/FileSettings';
 import { useEditorStore } from '@/lib/store';
 import { useTheme } from 'next-themes';
 import { CloseButton } from '@/components/ui/close-button';
+import { cn } from '@/lib/utils';
 
 // タブ定義
 const settingsTabs = [
@@ -43,6 +44,14 @@ const settingsTabs = [
   },
 ];
 
+// サイズの制限
+const MIN_WIDTH = 360;
+const MIN_HEIGHT = 300;
+const DEFAULT_WIDTH = 480;
+const DEFAULT_HEIGHT = 500;
+
+type ResizeDirection = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null;
+
 type SettingsDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -57,17 +66,22 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
 
   // ドラッグ関連のstate
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [size, setSize] = useState({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
   const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeDirection, setResizeDirection] = useState<ResizeDirection>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0, posX: 0, posY: 0 });
   const dialogRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // ダイアログを中央に配置
   useEffect(() => {
     if (open && !isInitialized) {
-      const centerX = (window.innerWidth - 480) / 2;
-      const centerY = (window.innerHeight - window.innerHeight * 0.8) / 2;
+      const centerX = (window.innerWidth - DEFAULT_WIDTH) / 2;
+      const centerY = (window.innerHeight - DEFAULT_HEIGHT) / 2;
       setPosition({ x: centerX, y: centerY });
+      setSize({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
       setIsInitialized(true);
     }
     if (!open) {
@@ -90,6 +104,22 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
       });
     }
   }, [position]);
+
+  // リサイズ開始
+  const handleResizeStart = useCallback((e: React.MouseEvent, direction: ResizeDirection) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+    setResizeDirection(direction);
+    setResizeStart({
+      x: e.clientX,
+      y: e.clientY,
+      width: size.width,
+      height: size.height,
+      posX: position.x,
+      posY: position.y,
+    });
+  }, [size, position]);
 
   // ドラッグ中
   useEffect(() => {
@@ -114,6 +144,61 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging, dragOffset]);
+
+  // リサイズ中
+  useEffect(() => {
+    if (!isResizing || !resizeDirection) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = e.clientX - resizeStart.x;
+      const deltaY = e.clientY - resizeStart.y;
+
+      let newWidth = resizeStart.width;
+      let newHeight = resizeStart.height;
+      let newX = resizeStart.posX;
+      let newY = resizeStart.posY;
+
+      // 横方向のリサイズ
+      if (resizeDirection.includes('e')) {
+        newWidth = Math.max(MIN_WIDTH, resizeStart.width + deltaX);
+      }
+      if (resizeDirection.includes('w')) {
+        const potentialWidth = resizeStart.width - deltaX;
+        if (potentialWidth >= MIN_WIDTH) {
+          newWidth = potentialWidth;
+          newX = resizeStart.posX + deltaX;
+        }
+      }
+
+      // 縦方向のリサイズ
+      if (resizeDirection.includes('s')) {
+        newHeight = Math.max(MIN_HEIGHT, resizeStart.height + deltaY);
+      }
+      if (resizeDirection.includes('n')) {
+        const potentialHeight = resizeStart.height - deltaY;
+        if (potentialHeight >= MIN_HEIGHT) {
+          newHeight = potentialHeight;
+          newY = resizeStart.posY + deltaY;
+        }
+      }
+
+      setSize({ width: newWidth, height: newHeight });
+      setPosition({ x: newX, y: newY });
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      setResizeDirection(null);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing, resizeDirection, resizeStart]);
 
   // 保存ボタン押下時の処理
   const handleSave = useCallback(() => {
@@ -146,6 +231,11 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
 
   if (!open) return null;
 
+  // リサイズハンドルのスタイル
+  const resizeHandleBase = 'absolute z-10';
+  const resizeHandleEdge = 'bg-transparent hover:bg-primary/20 transition-colors';
+  const resizeHandleCorner = 'w-3 h-3 bg-transparent hover:bg-primary/30 transition-colors rounded-sm';
+
   return (
     <>
       {/* オーバーレイ */}
@@ -157,12 +247,55 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
       {/* ダイアログ */}
       <div
         ref={dialogRef}
-        className="fixed z-50 bg-background border rounded-lg shadow-lg w-[480px] max-h-[80vh] flex flex-col overflow-hidden"
+        className="fixed z-50 bg-background border rounded-lg shadow-lg flex flex-col overflow-hidden"
         style={{
           left: position.x,
           top: position.y,
+          width: size.width,
+          height: size.height,
         }}
       >
+        {/* リサイズハンドル - 上 */}
+        <div
+          className={cn(resizeHandleBase, resizeHandleEdge, 'top-0 left-3 right-3 h-1 cursor-n-resize')}
+          onMouseDown={(e) => handleResizeStart(e, 'n')}
+        />
+        {/* リサイズハンドル - 下 */}
+        <div
+          className={cn(resizeHandleBase, resizeHandleEdge, 'bottom-0 left-3 right-3 h-1 cursor-s-resize')}
+          onMouseDown={(e) => handleResizeStart(e, 's')}
+        />
+        {/* リサイズハンドル - 左 */}
+        <div
+          className={cn(resizeHandleBase, resizeHandleEdge, 'left-0 top-3 bottom-3 w-1 cursor-w-resize')}
+          onMouseDown={(e) => handleResizeStart(e, 'w')}
+        />
+        {/* リサイズハンドル - 右 */}
+        <div
+          className={cn(resizeHandleBase, resizeHandleEdge, 'right-0 top-3 bottom-3 w-1 cursor-e-resize')}
+          onMouseDown={(e) => handleResizeStart(e, 'e')}
+        />
+        {/* リサイズハンドル - 左上 */}
+        <div
+          className={cn(resizeHandleBase, resizeHandleCorner, 'top-0 left-0 cursor-nw-resize')}
+          onMouseDown={(e) => handleResizeStart(e, 'nw')}
+        />
+        {/* リサイズハンドル - 右上 */}
+        <div
+          className={cn(resizeHandleBase, resizeHandleCorner, 'top-0 right-0 cursor-ne-resize')}
+          onMouseDown={(e) => handleResizeStart(e, 'ne')}
+        />
+        {/* リサイズハンドル - 左下 */}
+        <div
+          className={cn(resizeHandleBase, resizeHandleCorner, 'bottom-0 left-0 cursor-sw-resize')}
+          onMouseDown={(e) => handleResizeStart(e, 'sw')}
+        />
+        {/* リサイズハンドル - 右下 */}
+        <div
+          className={cn(resizeHandleBase, resizeHandleCorner, 'bottom-0 right-0 cursor-se-resize')}
+          onMouseDown={(e) => handleResizeStart(e, 'se')}
+        />
+
         {/* ドラッグ可能なヘッダー */}
         <div
           className="px-4 py-3 border-b shrink-0 cursor-move select-none flex items-center justify-between"

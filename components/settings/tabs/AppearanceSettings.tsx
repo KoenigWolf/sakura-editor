@@ -9,6 +9,8 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTheme } from 'next-themes';
+import { Palette, Type, Monitor, Sun, Moon, Laptop, Hash, Ruler, WrapText } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import type { EditorSettings } from '@/lib/types/editor';
 
 const FONT_FAMILIES = [
@@ -47,6 +49,84 @@ interface AppearanceSettingsProps {
   onSettingsChange: (settings: Partial<EditorSettings>) => void;
 }
 
+// セクションカードのラッパー
+function SettingsSection({
+  icon: Icon,
+  title,
+  children
+}: {
+  icon: React.ElementType;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-lg border bg-card/50 overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 border-b">
+        <Icon className="h-4 w-4 text-primary" />
+        <h3 className="text-sm font-medium">{title}</h3>
+      </div>
+      <div className="p-3">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// テーマ選択ボタン
+function ThemeButton({
+  value,
+  current,
+  icon: Icon,
+  label,
+  onClick
+}: {
+  value: string;
+  current: string;
+  icon: React.ElementType;
+  label: string;
+  onClick: () => void;
+}) {
+  const isActive = current === value;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-all flex-1',
+        isActive
+          ? 'border-primary bg-primary/10 text-primary'
+          : 'border-transparent bg-muted/50 hover:bg-muted hover:border-muted-foreground/20'
+      )}
+    >
+      <Icon className={cn('h-5 w-5', isActive && 'text-primary')} />
+      <span className="text-xs font-medium">{label}</span>
+    </button>
+  );
+}
+
+// スイッチ付き設定行
+function SettingRow({
+  icon: Icon,
+  label,
+  checked,
+  onCheckedChange
+}: {
+  icon: React.ElementType;
+  label: string;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between py-2 px-1 rounded hover:bg-muted/50 transition-colors">
+      <div className="flex items-center gap-2">
+        <Icon className="h-4 w-4 text-muted-foreground" />
+        <Label className="text-sm cursor-pointer">{label}</Label>
+      </div>
+      <Switch checked={checked} onCheckedChange={onCheckedChange} />
+    </div>
+  );
+}
+
 export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSettingsProps) {
   const { t } = useTranslation();
   const { theme: currentTheme, setTheme } = useTheme();
@@ -57,33 +137,43 @@ export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSet
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* テーマ */}
-      <section>
-        <h3 className="text-sm font-medium mb-3">{t('settings.appearance.theme.title')}</h3>
-        <div className="flex items-center gap-3">
-          <Label className="text-sm text-muted-foreground w-28">{t('settings.appearance.theme.label')}</Label>
-          <Select value={currentTheme || settings.theme} onValueChange={handleThemeChange}>
-            <SelectTrigger className="w-40 h-8">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="system">{t('settings.appearance.theme.system')}</SelectItem>
-              <SelectItem value="light">{t('settings.appearance.theme.light')}</SelectItem>
-              <SelectItem value="dark">{t('settings.appearance.theme.dark')}</SelectItem>
-            </SelectContent>
-          </Select>
+      <SettingsSection icon={Palette} title={t('settings.appearance.theme.title')}>
+        <div className="flex gap-2">
+          <ThemeButton
+            value="light"
+            current={currentTheme || settings.theme}
+            icon={Sun}
+            label={t('settings.appearance.theme.light')}
+            onClick={() => handleThemeChange('light')}
+          />
+          <ThemeButton
+            value="dark"
+            current={currentTheme || settings.theme}
+            icon={Moon}
+            label={t('settings.appearance.theme.dark')}
+            onClick={() => handleThemeChange('dark')}
+          />
+          <ThemeButton
+            value="system"
+            current={currentTheme || settings.theme}
+            icon={Laptop}
+            label={t('settings.appearance.theme.system')}
+            onClick={() => handleThemeChange('system')}
+          />
         </div>
-      </section>
+      </SettingsSection>
 
       {/* フォント */}
-      <section>
-        <h3 className="text-sm font-medium mb-3">{t('settings.appearance.font.title')}</h3>
-        <div className="space-y-2">
+      <SettingsSection icon={Type} title={t('settings.appearance.font.title')}>
+        <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <Label className="text-sm text-muted-foreground w-28">{t('settings.appearance.font.family')}</Label>
+            <Label className="text-sm text-muted-foreground w-24 shrink-0">
+              {t('settings.appearance.font.family')}
+            </Label>
             <Select value={settings.fontFamily} onValueChange={(value) => onSettingsChange({ fontFamily: value })}>
-              <SelectTrigger className="w-48 h-8">
+              <SelectTrigger className="flex-1 h-9">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="max-h-60">
@@ -96,46 +186,57 @@ export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSet
             </Select>
           </div>
           <div className="flex items-center gap-3">
-            <Label className="text-sm text-muted-foreground w-28">{t('settings.appearance.font.size')}</Label>
-            <Input
-              type="number"
-              min={8}
-              max={32}
-              value={settings.fontSize}
-              onChange={(e) => onSettingsChange({ fontSize: Number(e.target.value) })}
-              className="w-20 h-8"
-            />
+            <Label className="text-sm text-muted-foreground w-24 shrink-0">
+              {t('settings.appearance.font.size')}
+            </Label>
+            <div className="flex items-center gap-2 flex-1">
+              <Input
+                type="range"
+                min={8}
+                max={24}
+                value={settings.fontSize}
+                onChange={(e) => onSettingsChange({ fontSize: Number(e.target.value) })}
+                className="flex-1 h-2 cursor-pointer"
+              />
+              <span className="text-sm font-mono w-12 text-center bg-muted rounded px-2 py-1">
+                {settings.fontSize}px
+              </span>
+            </div>
+          </div>
+          {/* フォントプレビュー */}
+          <div
+            className="mt-2 p-3 rounded-md bg-muted/50 border text-sm"
+            style={{ fontFamily: settings.fontFamily, fontSize: settings.fontSize }}
+          >
+            ABCDEFG abcdefg 0123456789<br />
+            あいうえお カキクケコ 漢字
           </div>
         </div>
-      </section>
+      </SettingsSection>
 
       {/* 表示オプション */}
-      <section>
-        <h3 className="text-sm font-medium mb-3">{t('settings.appearance.display.title')}</h3>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between py-1">
-            <Label className="text-sm">{t('settings.appearance.display.lineNumbers')}</Label>
-            <Switch
-              checked={settings.showLineNumbers}
-              onCheckedChange={(checked) => onSettingsChange({ showLineNumbers: checked })}
-            />
-          </div>
-          <div className="flex items-center justify-between py-1">
-            <Label className="text-sm">{t('settings.appearance.display.ruler')}</Label>
-            <Switch
-              checked={settings.showRuler}
-              onCheckedChange={(checked) => onSettingsChange({ showRuler: checked })}
-            />
-          </div>
-          <div className="flex items-center justify-between py-1">
-            <Label className="text-sm">{t('settings.appearance.display.wordWrap')}</Label>
-            <Switch
-              checked={settings.wordWrap}
-              onCheckedChange={(checked) => onSettingsChange({ wordWrap: checked })}
-            />
-          </div>
+      <SettingsSection icon={Monitor} title={t('settings.appearance.display.title')}>
+        <div className="space-y-1">
+          <SettingRow
+            icon={Hash}
+            label={t('settings.appearance.display.lineNumbers')}
+            checked={settings.showLineNumbers}
+            onCheckedChange={(checked) => onSettingsChange({ showLineNumbers: checked })}
+          />
+          <SettingRow
+            icon={Ruler}
+            label={t('settings.appearance.display.ruler')}
+            checked={settings.showRuler}
+            onCheckedChange={(checked) => onSettingsChange({ showRuler: checked })}
+          />
+          <SettingRow
+            icon={WrapText}
+            label={t('settings.appearance.display.wordWrap')}
+            checked={settings.wordWrap}
+            onCheckedChange={(checked) => onSettingsChange({ wordWrap: checked })}
+          />
         </div>
-      </section>
+      </SettingsSection>
     </div>
   );
 }
