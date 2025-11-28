@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, useMemo, memo } from 'react';
+import type { editor } from 'monaco-editor';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -112,7 +113,7 @@ export const SearchDialog = memo(({
 
   const dialogRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const decorationsRef = useRef<string[]>([]);
+  const decorationsCollectionRef = useRef<editor.IEditorDecorationsCollection | null>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [query, setQuery] = useState(searchTerm);
@@ -167,36 +168,35 @@ export const SearchDialog = memo(({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- queryを依存配列に入れると無限ループになる
   }, [open, searchTerm]);
 
-  
   const applyHighlights = useCallback((matchList: SearchMatch[], activeIndex: number) => {
-    const editor = getEditorInstance();
-    if (!editor) return;
+    const editorInstance = getEditorInstance();
+    if (!editorInstance) return;
 
-    decorationsRef.current = editor.deltaDecorations(
-      decorationsRef.current,
-      matchList.map((match, index) => ({
-        range: {
-          startLineNumber: match.lineNumber,
-          startColumn: match.startIndex,
-          endLineNumber: match.lineNumber,
-          endColumn: match.endIndex,
-        },
-        options: {
-          inlineClassName: index === activeIndex ? 'search-match-active' : 'search-match-highlight',
-        },
-      }))
-    );
-  }, [getEditorInstance]);
+    const decorations = matchList.map((match, index) => ({
+      range: {
+        startLineNumber: match.lineNumber,
+        startColumn: match.startIndex,
+        endLineNumber: match.lineNumber,
+        endColumn: match.endIndex,
+      },
+      options: {
+        inlineClassName: index === activeIndex ? 'search-match-active' : 'search-match-highlight',
+      },
+    }));
 
-  
-  const clearHighlights = useCallback(() => {
-    const editor = getEditorInstance();
-    if (editor && decorationsRef.current.length > 0) {
-      decorationsRef.current = editor.deltaDecorations(decorationsRef.current, []);
+    if (!decorationsCollectionRef.current) {
+      decorationsCollectionRef.current = editorInstance.createDecorationsCollection(decorations);
+    } else {
+      decorationsCollectionRef.current.set(decorations);
     }
   }, [getEditorInstance]);
 
-  
+  const clearHighlights = useCallback(() => {
+    if (decorationsCollectionRef.current) {
+      decorationsCollectionRef.current.clear();
+    }
+  }, []);
+
   const goToMatch = useCallback((index: number, targetMatches?: SearchMatch[]) => {
     const editor = getEditorInstance();
     const list = targetMatches ?? matches;
@@ -216,7 +216,6 @@ export const SearchDialog = memo(({
     applyHighlights(list, safeIndex);
   }, [applyHighlights, getEditorInstance, matches, setCurrentMatchIndex]);
 
-  
   const performSearch = useCallback((searchQuery: string, immediate = false) => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
@@ -271,7 +270,7 @@ export const SearchDialog = memo(({
 
         onSearch(normalizedQuery, options);
       } catch {
-        
+        // Invalid regex - ignore
       }
     };
 
@@ -282,13 +281,11 @@ export const SearchDialog = memo(({
     }
   }, [getEditorInstance, isRegex, isWholeWord, isCaseSensitive, setMatches, setSearchTerm, setCurrentMatchIndex, goToMatch, applyHighlights, clearHighlights, onSearch, options]);
 
-  
   const handleQueryChange = useCallback((value: string) => {
     setQuery(value);
     performSearch(value);
   }, [performSearch]);
 
-  
   const handleNextMatch = useCallback(() => {
     if (matches.length === 0) {
       performSearch(query, true);
@@ -305,7 +302,6 @@ export const SearchDialog = memo(({
     goToMatch(currentMatchIndex <= 0 ? matches.length - 1 : currentMatchIndex - 1);
   }, [currentMatchIndex, goToMatch, matches.length, performSearch, query]);
 
-  
   const handleReplace = useCallback(() => {
     if (!onReplace || !query.trim()) return;
 
@@ -341,7 +337,6 @@ export const SearchDialog = memo(({
     performSearch(query, true);
   }, [query, replacement, isRegex, isCaseSensitive, getEditorInstance, onReplace, options, performSearch, handleNextMatch]);
 
-  
   const handleReplaceAll = useCallback(() => {
     if (!onReplace || !query.trim()) return;
 
@@ -384,19 +379,16 @@ export const SearchDialog = memo(({
     performSearch(query, true);
   }, [query, replacement, isRegex, isWholeWord, isCaseSensitive, getEditorInstance, onReplace, options, performSearch, toast, t]);
 
-  
   useEffect(() => {
     if (!open) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      
       if (e.key === 'Escape') {
         e.preventDefault();
         onOpenChange(false);
         return;
       }
 
-      
       if (e.key === 'Enter') {
         e.preventDefault();
         if (e.shiftKey) {
@@ -407,14 +399,12 @@ export const SearchDialog = memo(({
         return;
       }
 
-      
       if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
         e.preventDefault();
         setShowReplace(prev => !prev);
         return;
       }
 
-      
       if (e.key === 'F3') {
         e.preventDefault();
         if (e.shiftKey) {
@@ -425,7 +415,6 @@ export const SearchDialog = memo(({
         return;
       }
 
-      
       if (e.altKey && e.key === 'c') {
         e.preventDefault();
         setIsCaseSensitive(!isCaseSensitive);
@@ -433,7 +422,6 @@ export const SearchDialog = memo(({
         return;
       }
 
-      
       if (e.altKey && e.key === 'r') {
         e.preventDefault();
         setIsRegex(!isRegex);
@@ -441,7 +429,6 @@ export const SearchDialog = memo(({
         return;
       }
 
-      
       if (e.altKey && e.key === 'w') {
         e.preventDefault();
         setIsWholeWord(!isWholeWord);
@@ -454,7 +441,6 @@ export const SearchDialog = memo(({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [open, onOpenChange, handleNextMatch, handlePreviousMatch, isCaseSensitive, isRegex, isWholeWord, setIsCaseSensitive, setIsRegex, setIsWholeWord, performSearch, query]);
 
-  
   const handleDragStart = useCallback((e: React.MouseEvent) => {
     if (isMobile) return;
     if ((e.target as HTMLElement).closest('input, button')) return;
@@ -482,7 +468,6 @@ export const SearchDialog = memo(({
     };
   }, [isDragging, dragOffset]);
 
-  
   useEffect(() => {
     if (!open) {
       clearHighlights();
@@ -500,7 +485,6 @@ export const SearchDialog = memo(({
     };
   }, [clearHighlights]);
 
-  
   useEffect(() => {
     if (open && query) {
       performSearch(query, true);
@@ -510,7 +494,6 @@ export const SearchDialog = memo(({
 
   if (!open) return null;
 
-  
   const mobileStyles = isMobile ? {
     position: 'fixed' as const,
     bottom: 0,
@@ -530,7 +513,6 @@ export const SearchDialog = memo(({
 
   return (
     <>
-      {/* オーバーレイ（モバイルのみ） */}
       {isMobile && (
         <div
           className="fixed inset-0 bg-black/30 z-40"
@@ -550,7 +532,6 @@ export const SearchDialog = memo(({
         )}
         style={mobileStyles}
       >
-        {/* ヘッダー */}
         <div
           className={cn(
             'flex items-center justify-between px-3 py-2 border-b bg-muted/50',
@@ -558,7 +539,6 @@ export const SearchDialog = memo(({
           )}
           onMouseDown={handleDragStart}
         >
-          {/* モバイル用ハンドル */}
           {isMobile && (
             <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 bg-muted-foreground/30 rounded-full" />
           )}
@@ -602,9 +582,7 @@ export const SearchDialog = memo(({
           </div>
         </div>
 
-        {/* 検索入力 */}
         <div className="p-2 sm:p-2 space-y-2">
-          {/* 検索フィールド */}
           <div className="flex gap-1 flex-col sm:flex-row">
             <div className="flex-1 relative">
               <Input
@@ -618,7 +596,6 @@ export const SearchDialog = memo(({
                 autoCapitalize="off"
                 autoCorrect="off"
               />
-              {/* デスクトップ: オプションボタンを入力欄内に */}
               <div className="hidden sm:flex absolute right-1 top-1/2 -translate-y-1/2 gap-0.5">
                 <OptionButton
                   active={isCaseSensitive}
@@ -654,7 +631,6 @@ export const SearchDialog = memo(({
             </div>
           </div>
 
-          {/* モバイル: オプションボタンを別行に */}
           <div className="flex sm:hidden gap-1 flex-wrap">
             <OptionButton
               active={isCaseSensitive}
@@ -700,7 +676,6 @@ export const SearchDialog = memo(({
             </button>
           </div>
 
-          {/* 置換入力 */}
           {showReplace && (
             <div className="flex gap-1 flex-col sm:flex-row">
               <div className="flex-1">
@@ -735,7 +710,6 @@ export const SearchDialog = memo(({
             </div>
           )}
 
-          {/* デスクトップ: 置換トグル & 結果なし表示 */}
           <div className="hidden sm:flex items-center gap-2">
             <button
               type="button"
@@ -752,7 +726,6 @@ export const SearchDialog = memo(({
             )}
           </div>
 
-          {/* モバイル: 結果なし表示 */}
           {isMobile && query && matches.length === 0 && (
             <div className="text-xs text-muted-foreground text-center py-1">
               {t('search.results.empty')}
@@ -760,10 +733,8 @@ export const SearchDialog = memo(({
           )}
         </div>
 
-        {/* 検索結果リスト */}
         {matches.length > 0 && (
           <div className="border-t flex flex-col">
-            {/* 結果ヘッダー */}
             <button
               type="button"
               onClick={() => setShowResults(prev => !prev)}
@@ -773,7 +744,6 @@ export const SearchDialog = memo(({
               <ChevronRight className={cn('h-3 w-3 transition-transform', showResults && 'rotate-90')} />
             </button>
 
-            {/* 結果リスト */}
             {showResults && (
               <div className={cn('overflow-y-auto', isMobile ? 'max-h-32' : 'max-h-40')}>
                 <div className="p-1">
@@ -797,7 +767,6 @@ export const SearchDialog = memo(({
           </div>
         )}
 
-        {/* モバイル用セーフエリア */}
         {isMobile && <div className="h-safe-area-inset-bottom" />}
       </div>
     </>

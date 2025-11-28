@@ -88,7 +88,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
   const monacoRef = useRef<Monaco | null>(null);
   const currentFileIdRef = useRef<string | null>(null);
   const currentThemeRef = useRef<string | null>(null);
-  const fullWidthSpaceDecorationsRef = useRef<string[]>([]);
+  const fullWidthSpaceDecorationsRef = useRef<editor.IEditorDecorationsCollection | null>(null);
 
   const targetFileId = fileId ?? activeFileId;
   const activeFile = files.find(f => f.id === targetFileId);
@@ -151,10 +151,9 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
     if (!model) return;
 
     if (settings.showWhitespace === 'none') {
-      fullWidthSpaceDecorationsRef.current = ed.deltaDecorations(
-        fullWidthSpaceDecorationsRef.current,
-        []
-      );
+      if (fullWidthSpaceDecorationsRef.current) {
+        fullWidthSpaceDecorationsRef.current.clear();
+      }
       return;
     }
 
@@ -181,10 +180,11 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       });
     }
 
-    fullWidthSpaceDecorationsRef.current = ed.deltaDecorations(
-      fullWidthSpaceDecorationsRef.current,
-      decorations
-    );
+    if (!fullWidthSpaceDecorationsRef.current) {
+      fullWidthSpaceDecorationsRef.current = ed.createDecorationsCollection(decorations);
+    } else {
+      fullWidthSpaceDecorationsRef.current.set(decorations);
+    }
   }, [settings.showWhitespace]);
 
   /**
