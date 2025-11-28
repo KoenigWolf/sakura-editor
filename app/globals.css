@@ -177,9 +177,18 @@
   }
 }
 
-/* タッチデバイスでのズーム防止 */
+/* タッチデバイスでのダブルタップズーム防止（スワイプは許可） */
 html {
-  touch-action: manipulation;
+  touch-action: pan-x pan-y;
+}
+
+/* Monaco Editorのスクロールを有効化 */
+.monaco-editor {
+  touch-action: pan-x pan-y !important;
+}
+
+.monaco-editor .overflow-guard {
+  touch-action: pan-x pan-y !important;
 }
 
 .sakura-editor-toolbar {
