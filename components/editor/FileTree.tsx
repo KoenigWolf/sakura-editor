@@ -40,7 +40,7 @@ export function FileTree({ className }: FileTreeProps) {
               <Button
                 variant="ghost"
                 className={cn(
-                  'flex-1 justify-start gap-2 h-auto p-0 font-normal',
+                  'flex-1 justify-start gap-2 h-auto p-0 font-normal hover:bg-transparent',
                   file.id === activeFileId && 'bg-transparent'
                 )}
                 onClick={() => handleFileClick(file)}
@@ -51,7 +51,7 @@ export function FileTree({ className }: FileTreeProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 opacity-0 group-hover:opacity-100"
+                className="h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
                 onClick={(e) => handleFileRemove(e, file)}
               >
                 <XIcon className="h-3 w-3" />

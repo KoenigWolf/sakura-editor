@@ -328,11 +328,11 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
           </div>
         </Tabs>
 
-        <div className="flex justify-end gap-2 px-4 py-3 border-t shrink-0">
-          <Button variant="outline" onClick={handleReset}>
+        <div className="flex justify-end gap-3 px-4 py-3 border-t shrink-0">
+          <Button variant="outline" size="sm" onClick={handleReset}>
             {t('settings.actions.reset')}
           </Button>
-          <Button onClick={handleSave}>
+          <Button size="sm" onClick={handleSave}>
             {t('settings.actions.save')}
           </Button>
         </div>

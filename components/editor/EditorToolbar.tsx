@@ -90,7 +90,7 @@ export function EditorToolbar() {
     <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-muted/40">
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleNewFile}>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary" onClick={handleNewFile}>
             <FilePlus2 className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
@@ -99,7 +99,7 @@ export function EditorToolbar() {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleSave}>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary" onClick={handleSave}>
             <HardDriveDownload className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
@@ -108,18 +108,18 @@ export function EditorToolbar() {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleLoad}>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary" onClick={handleLoad}>
             <FolderOpen className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>{t('toolbar.load')} (Ctrl+O)</TooltipContent>
       </Tooltip>
 
-      <div className="w-px h-5 bg-border mx-1" />
+      <div className="w-px h-5 bg-border mx-1.5" />
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleUndo}>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary" onClick={handleUndo}>
             <RotateCcw className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
@@ -128,18 +128,18 @@ export function EditorToolbar() {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleRedo}>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary" onClick={handleRedo}>
             <RotateCw className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>{t('toolbar.redo')} (Ctrl+Y)</TooltipContent>
       </Tooltip>
 
-      <div className="w-px h-5 bg-border mx-1" />
+      <div className="w-px h-5 bg-border mx-1.5" />
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setSearchOpen(true)}>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary" onClick={() => setSearchOpen(true)}>
             <SearchCheck className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
@@ -148,7 +148,7 @@ export function EditorToolbar() {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary">
             <SplitSquareVertical className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
@@ -159,7 +159,7 @@ export function EditorToolbar() {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setShowSettings(true)}>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary" onClick={() => setShowSettings(true)}>
             <Cog className="h-4 w-4" />
           </Button>
         </TooltipTrigger>

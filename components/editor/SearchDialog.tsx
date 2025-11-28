@@ -526,10 +526,11 @@ export const SearchDialog = ({
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
                 size="icon"
+                className="h-8 w-8 rounded-full"
                 onClick={handlePreviousMatch}
                 disabled={matches.length === 0}
                 aria-label={t('search.actions.previous')}
@@ -539,6 +540,7 @@ export const SearchDialog = ({
               <Button
                 variant="ghost"
                 size="icon"
+                className="h-8 w-8 rounded-full"
                 onClick={handleNextMatch}
                 disabled={matches.length === 0}
                 aria-label={t('search.actions.next')}
@@ -570,12 +572,12 @@ export const SearchDialog = ({
                     aria-label={t('search.searchInput')}
                   />
                   <SearchCheck className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => navigateHistory('up')}
-                      className="h-7 w-7 hover:bg-muted"
+                      className="h-6 w-6 rounded-full hover:bg-muted"
                       aria-label={t('search.previousHistory')}
                     >
                       <ChevronUp className="h-3 w-3" />
@@ -584,7 +586,7 @@ export const SearchDialog = ({
                       variant="ghost"
                       size="icon"
                       onClick={() => navigateHistory('down')}
-                      className="h-7 w-7 hover:bg-muted"
+                      className="h-6 w-6 rounded-full hover:bg-muted"
                       aria-label={t('search.nextHistory')}
                     >
                       <ChevronDown className="h-3 w-3" />
@@ -604,7 +606,7 @@ export const SearchDialog = ({
                     <Replace className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   </div>
                   <Button
-                    variant="secondary"
+                    variant={showReplace ? 'default' : 'secondary'}
                     size="sm"
                     onClick={() => setShowReplace((prev) => !prev)}
                   >
@@ -622,7 +624,7 @@ export const SearchDialog = ({
                       setOptions((prev) => ({ ...prev, caseSensitive: !prev.caseSensitive }))
                     }
                   >
-                    <CaseSensitive className="h-3.5 w-3.5 mr-2" />
+                    <CaseSensitive className="h-3.5 w-3.5" />
                     {t('search.options.caseSensitive')}
                   </Button>
                   <Button
@@ -630,7 +632,7 @@ export const SearchDialog = ({
                     size="sm"
                     onClick={() => setOptions((prev) => ({ ...prev, useRegex: !prev.useRegex }))}
                   >
-                    <Regex className="h-3.5 w-3.5 mr-2" />
+                    <Regex className="h-3.5 w-3.5" />
                     {t('search.options.useRegex')}
                   </Button>
                   <Button
@@ -644,19 +646,19 @@ export const SearchDialog = ({
               </div>
 
               <div className="flex items-center gap-2 p-3 border-b">
-                <Button onClick={handleSearch}>{t('search.actions.search')}</Button>
+                <Button size="sm" onClick={handleSearch}>{t('search.actions.search')}</Button>
                 {onReplace && (
                   <>
-                    <Button variant="secondary" onClick={handleReplace}>
+                    <Button variant="secondary" size="sm" onClick={handleReplace}>
                       {t('search.actions.replace')}
                     </Button>
-                    <Button variant="outline" onClick={handleReplaceAll}>
+                    <Button variant="outline" size="sm" onClick={handleReplaceAll}>
                       {t('search.actions.replaceAll')}
                     </Button>
                   </>
                 )}
                 <div className="flex-1" />
-                <Button variant="ghost" onClick={() => onOpenChange(false)}>
+                <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
                   {t('search.actions.cancel')}
                 </Button>
               </div>
