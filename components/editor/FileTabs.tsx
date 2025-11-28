@@ -2,8 +2,7 @@
 
 import { memo, useCallback } from 'react';
 import { useFileStore, type FileData } from '@/lib/store/file-store';
-import { XIcon, FileCode2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { X, FileCode2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const FileTabs = memo(function FileTabs() {
@@ -43,14 +42,21 @@ export const FileTabs = memo(function FileTabs() {
           >
             <FileCode2 className="h-3 w-3 flex-shrink-0" />
             <span className="truncate max-w-[180px] flex-1 text-left">{file.name}</span>
-            <Button
-              variant="ghost"
-              size="icon"
+            <span
+              role="button"
+              tabIndex={0}
               onClick={(event) => handleClose(event, file)}
-              className="ml-auto h-4 w-4 p-0 opacity-0 group-hover:opacity-100"
+              onKeyDown={(e) => e.key === 'Enter' && handleClose(e as unknown as React.MouseEvent, file)}
+              className={cn(
+                'ml-1 h-4 w-4 rounded-full inline-flex items-center justify-center',
+                'opacity-0 group-hover:opacity-100 transition-all duration-150',
+                'hover:bg-destructive/90 hover:text-white',
+                'text-muted-foreground'
+              )}
+              aria-label="閉じる"
             >
-              <XIcon className="h-2.5 w-2.5" />
-            </Button>
+              <X className="h-2.5 w-2.5 stroke-[2.5]" />
+            </span>
           </button>
         ))}
       </div>

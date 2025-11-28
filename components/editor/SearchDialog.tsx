@@ -13,7 +13,8 @@ import { useDraggableDialog } from '@/hooks/use-draggable-dialog';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useSearchStore, type SearchMatch } from '@/lib/store/search-store';
 import { cn } from '@/lib/utils';
-import { SearchCheck, Replace, ChevronDown, ChevronUp, X, Regex, CaseSensitive } from 'lucide-react';
+import { SearchCheck, Replace, ChevronDown, ChevronUp, Regex, CaseSensitive } from 'lucide-react';
+import { CloseButton } from '@/components/ui/close-button';
 
 interface SearchOptions {
   caseSensitive: boolean;
@@ -544,15 +545,12 @@ export const SearchDialog = ({
               >
                 <ChevronDown className="h-4 w-4" />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
+              <CloseButton
                 onClick={() => onOpenChange(false)}
-                className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive"
+                size="sm"
+                variant="default"
                 aria-label={t('search.close')}
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              />
             </div>
           </div>
 

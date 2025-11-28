@@ -17,7 +17,7 @@ import { KeyboardSettings } from './tabs/KeyboardSettings';
 import { FileSettings } from './tabs/FileSettings';
 import { useEditorStore } from '@/lib/store';
 import { useTheme } from 'next-themes';
-import { X } from 'lucide-react';
+import { CloseButton } from '@/components/ui/close-button';
 
 // タブ定義
 const settingsTabs = [
@@ -165,16 +165,15 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
       >
         {/* ドラッグ可能なヘッダー */}
         <div
-          className="px-4 py-3 border-b relative shrink-0 cursor-move select-none"
+          className="px-4 py-3 border-b shrink-0 cursor-move select-none flex items-center justify-between"
           onMouseDown={handleMouseDown}
         >
-          <h2 className="text-base font-semibold pr-8">{t('settings.title')}</h2>
-          <button
+          <h2 className="text-base font-semibold">{t('settings.title')}</h2>
+          <CloseButton
             onClick={() => onOpenChange(false)}
-            className="absolute right-3 top-3 p-1 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <X className="h-4 w-4" />
-          </button>
+            size="sm"
+            variant="default"
+          />
         </div>
 
         <Tabs defaultValue="general" className="flex-1 min-h-0 flex flex-col">

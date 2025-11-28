@@ -12,11 +12,34 @@ import { useTheme } from 'next-themes';
 import type { EditorSettings } from '@/lib/types/editor';
 
 const FONT_FAMILIES = [
-  'monospace',
-  'Consolas',
-  'Courier New',
-  'Source Code Pro',
-  'Fira Code',
+  // 汎用
+  { value: 'monospace', label: 'monospace (システム)' },
+  // Windows
+  { value: 'Consolas', label: 'Consolas' },
+  { value: 'Courier New', label: 'Courier New' },
+  { value: 'MS Gothic', label: 'MS ゴシック' },
+  { value: 'MS Mincho', label: 'MS 明朝' },
+  { value: 'Meiryo', label: 'メイリオ' },
+  { value: 'Yu Gothic', label: '游ゴシック' },
+  { value: 'BIZ UDGothic', label: 'BIZ UDゴシック' },
+  // macOS
+  { value: 'Menlo', label: 'Menlo' },
+  { value: 'Monaco', label: 'Monaco' },
+  { value: 'SF Mono', label: 'SF Mono' },
+  { value: 'Hiragino Kaku Gothic ProN', label: 'ヒラギノ角ゴ ProN' },
+  { value: 'Hiragino Mincho ProN', label: 'ヒラギノ明朝 ProN' },
+  // プログラミング用フォント
+  { value: 'Source Code Pro', label: 'Source Code Pro' },
+  { value: 'Fira Code', label: 'Fira Code' },
+  { value: 'JetBrains Mono', label: 'JetBrains Mono' },
+  { value: 'Cascadia Code', label: 'Cascadia Code' },
+  { value: 'IBM Plex Mono', label: 'IBM Plex Mono' },
+  { value: 'Hack', label: 'Hack' },
+  { value: 'Roboto Mono', label: 'Roboto Mono' },
+  // Linux
+  { value: 'DejaVu Sans Mono', label: 'DejaVu Sans Mono' },
+  { value: 'Ubuntu Mono', label: 'Ubuntu Mono' },
+  { value: 'Noto Sans Mono CJK JP', label: 'Noto Sans Mono CJK JP' },
 ];
 
 interface AppearanceSettingsProps {
@@ -60,12 +83,14 @@ export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSet
           <div className="flex items-center gap-3">
             <Label className="text-sm text-muted-foreground w-28">{t('settings.appearance.font.family')}</Label>
             <Select value={settings.fontFamily} onValueChange={(value) => onSettingsChange({ fontFamily: value })}>
-              <SelectTrigger className="w-40 h-8">
+              <SelectTrigger className="w-48 h-8">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                {FONT_FAMILIES.map((font) => (
-                  <SelectItem key={font} value={font}>{font}</SelectItem>
+              <SelectContent className="max-h-60">
+                {FONT_FAMILIES.map(({ value, label }) => (
+                  <SelectItem key={value} value={value} style={{ fontFamily: value }}>
+                    {label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>

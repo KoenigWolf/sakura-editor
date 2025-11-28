@@ -254,7 +254,7 @@ export function MonacoEditor() {
       editorRef.current.updateOptions({
         theme: isDark ? 'vs-dark' : 'vs-light'
       });
-      
+
       const editorDom = editorRef.current.getDomNode();
       if (editorDom) {
         editorDom.classList.remove('dark-editor', 'light-editor');
@@ -262,6 +262,22 @@ export function MonacoEditor() {
       }
     }
   }, [resolvedTheme]);
+
+  /**
+   * 設定変更時にエディタオプションを更新
+   */
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.updateOptions({
+        fontSize: settings.fontSize,
+        fontFamily: settings.fontFamily,
+        lineHeight: settings.lineHeight,
+        tabSize: settings.tabSize,
+        wordWrap: settings.wordWrap ? 'on' : 'off',
+        lineNumbers: settings.showLineNumbers ? 'on' : 'off',
+      });
+    }
+  }, [settings.fontSize, settings.fontFamily, settings.lineHeight, settings.tabSize, settings.wordWrap, settings.showLineNumbers]);
 
   /**
    * アクティブファイル変更時の処理
