@@ -5,7 +5,7 @@
 export const ja = {
   // 設定全般に関する翻訳
   settings: {
-    title: 'エディタ設定',
+    title: '設定',
     // アクションに関するテキスト
     actions: {
       save: '保存',

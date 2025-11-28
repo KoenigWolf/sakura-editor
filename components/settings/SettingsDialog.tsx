@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { GeneralSettings } from './tabs/GeneralSettings';
 import { AppearanceSettings } from './tabs/AppearanceSettings';
-import { KeyboardSettings } from './tabs/KeyboardSettings';
 import { FileSettings } from './tabs/FileSettings';
 import { useEditorStore } from '@/lib/store';
 import { useTheme } from 'next-themes';
@@ -33,11 +32,6 @@ const settingsTabs = [
     Component: AppearanceSettings,
   },
   {
-    value: 'keyboard',
-    labelKey: 'settings.keyboard.title',
-    Component: KeyboardSettings,
-  },
-  {
     value: 'file',
     labelKey: 'settings.file.encoding.title',
     Component: FileSettings,
@@ -45,10 +39,10 @@ const settingsTabs = [
 ];
 
 // サイズの制限
-const MIN_WIDTH = 360;
-const MIN_HEIGHT = 300;
-const DEFAULT_WIDTH = 480;
-const DEFAULT_HEIGHT = 500;
+const MIN_WIDTH = 400;
+const MIN_HEIGHT = 400;
+const DEFAULT_WIDTH = 560;
+const DEFAULT_HEIGHT = 640;
 
 type ResizeDirection = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null;
 
