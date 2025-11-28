@@ -44,6 +44,10 @@ export const ja = {
         system: 'システム設定に従う',
         light: 'ライト',
         dark: 'ダーク',
+        customThemes: 'カスタムテーマ',
+        darkThemes: 'ダークテーマ',
+        lightThemes: 'ライトテーマ',
+        selectTheme: 'テーマを選択',
       },
       font: {
         title: 'フォント',

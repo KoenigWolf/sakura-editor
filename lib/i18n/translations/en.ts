@@ -44,6 +44,10 @@ export const en = {
         system: 'System',
         light: 'Light',
         dark: 'Dark',
+        customThemes: 'Custom Themes',
+        darkThemes: 'Dark Themes',
+        lightThemes: 'Light Themes',
+        selectTheme: 'Select Theme',
       },
       font: {
         title: 'Font',

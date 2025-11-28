@@ -8,10 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useTheme } from 'next-themes';
-import { Palette, Type, Monitor, Sun, Moon, Laptop, Hash, Ruler, WrapText, Space } from 'lucide-react';
+import { Palette, Type, Monitor, Sun, Moon, Laptop, Hash, Ruler, WrapText, Space, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EditorSettings } from '@/lib/types/editor';
+import { getLightThemes, getDarkThemes, type EditorTheme } from '@/lib/themes';
 
 // フォント一覧
 const FONT_FAMILIES = [
@@ -73,8 +73,8 @@ function SettingsSection({
   );
 }
 
-// テーマ選択ボタン
-function ThemeButton({
+// テーマ選択ボタン（基本テーマ用）
+function BaseThemeButton({
   value,
   current,
   icon: Icon,
@@ -105,6 +105,87 @@ function ThemeButton({
   );
 }
 
+// カスタムテーマカード
+function ThemeCard({
+  theme,
+  isActive,
+  onClick,
+  language,
+}: {
+  theme: EditorTheme;
+  isActive: boolean;
+  onClick: () => void;
+  language: string;
+}) {
+  const displayName = language === 'ja' ? theme.nameJa : theme.name;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'group relative flex flex-col rounded-xl border-2 transition-all duration-200 overflow-hidden',
+        isActive
+          ? 'border-primary ring-2 ring-primary/20 shadow-lg'
+          : 'border-transparent hover:border-muted-foreground/30 hover:shadow-md bg-card'
+      )}
+    >
+      {/* プレビュー */}
+      <div
+        className="h-16 w-full relative"
+        style={{ backgroundColor: theme.preview.bg }}
+      >
+        {/* コードプレビュー風の装飾 */}
+        <div className="absolute inset-2 flex flex-col gap-1">
+          <div className="flex items-center gap-1.5">
+            <div
+              className="w-2 h-2 rounded-full"
+              style={{ backgroundColor: theme.preview.accent }}
+            />
+            <div
+              className="h-1.5 rounded-full w-12"
+              style={{ backgroundColor: theme.preview.text, opacity: 0.6 }}
+            />
+          </div>
+          <div className="flex items-center gap-1.5 pl-3">
+            <div
+              className="h-1.5 rounded-full w-8"
+              style={{ backgroundColor: theme.preview.accent, opacity: 0.8 }}
+            />
+            <div
+              className="h-1.5 rounded-full w-16"
+              style={{ backgroundColor: theme.preview.text, opacity: 0.4 }}
+            />
+          </div>
+          <div className="flex items-center gap-1.5 pl-3">
+            <div
+              className="h-1.5 rounded-full w-10"
+              style={{ backgroundColor: theme.preview.text, opacity: 0.5 }}
+            />
+          </div>
+        </div>
+
+        {/* アクティブチェックマーク */}
+        {isActive && (
+          <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+            <Check className="w-3 h-3 text-primary-foreground" />
+          </div>
+        )}
+      </div>
+
+      {/* テーマ名 */}
+      <div className="px-2 py-1.5 bg-card">
+        <span className={cn(
+          'text-xs font-medium truncate block',
+          isActive ? 'text-primary' : 'text-foreground'
+        )}>
+          {displayName}
+        </span>
+      </div>
+    </button>
+  );
+}
+
 // スイッチ付き設定行
 function SettingRow({
   icon: Icon,
@@ -129,40 +210,83 @@ function SettingRow({
 }
 
 export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSettingsProps) {
-  const { t } = useTranslation();
-  const { theme: currentTheme, setTheme } = useTheme();
+  const { t, i18n } = useTranslation();
 
+  // テーマ変更はストアの更新のみ。実際の適用はThemeProviderで行う
   const handleThemeChange = (value: string) => {
     onSettingsChange({ theme: value });
-    setTheme(value);
   };
+
+  const darkThemes = getDarkThemes();
+  const lightThemes = getLightThemes();
 
   return (
     <div className="space-y-4">
-      {/* テーマ */}
+      {/* 基本テーマ */}
       <SettingsSection icon={Palette} title={t('settings.appearance.theme.title')}>
-        <div className="flex gap-2">
-          <ThemeButton
-            value="light"
-            current={currentTheme || settings.theme}
-            icon={Sun}
-            label={t('settings.appearance.theme.light')}
-            onClick={() => handleThemeChange('light')}
-          />
-          <ThemeButton
-            value="dark"
-            current={currentTheme || settings.theme}
-            icon={Moon}
-            label={t('settings.appearance.theme.dark')}
-            onClick={() => handleThemeChange('dark')}
-          />
-          <ThemeButton
-            value="system"
-            current={currentTheme || settings.theme}
-            icon={Laptop}
-            label={t('settings.appearance.theme.system')}
-            onClick={() => handleThemeChange('system')}
-          />
+        <div className="space-y-4">
+          {/* システム / ライト / ダーク */}
+          <div className="flex gap-2">
+            <BaseThemeButton
+              value="light"
+              current={settings.theme}
+              icon={Sun}
+              label={t('settings.appearance.theme.light')}
+              onClick={() => handleThemeChange('light')}
+            />
+            <BaseThemeButton
+              value="dark"
+              current={settings.theme}
+              icon={Moon}
+              label={t('settings.appearance.theme.dark')}
+              onClick={() => handleThemeChange('dark')}
+            />
+            <BaseThemeButton
+              value="system"
+              current={settings.theme}
+              icon={Laptop}
+              label={t('settings.appearance.theme.system')}
+              onClick={() => handleThemeChange('system')}
+            />
+          </div>
+
+          {/* ダークテーマ */}
+          <div>
+            <h4 className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
+              <Moon className="h-3 w-3" />
+              {t('settings.appearance.theme.darkThemes')}
+            </h4>
+            <div className="grid grid-cols-3 gap-2">
+              {darkThemes.map((theme) => (
+                <ThemeCard
+                  key={theme.id}
+                  theme={theme}
+                  isActive={settings.theme === theme.id}
+                  onClick={() => handleThemeChange(theme.id)}
+                  language={i18n.language}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* ライトテーマ */}
+          <div>
+            <h4 className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
+              <Sun className="h-3 w-3" />
+              {t('settings.appearance.theme.lightThemes')}
+            </h4>
+            <div className="grid grid-cols-3 gap-2">
+              {lightThemes.map((theme) => (
+                <ThemeCard
+                  key={theme.id}
+                  theme={theme}
+                  isActive={settings.theme === theme.id}
+                  onClick={() => handleThemeChange(theme.id)}
+                  language={i18n.language}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </SettingsSection>
 
