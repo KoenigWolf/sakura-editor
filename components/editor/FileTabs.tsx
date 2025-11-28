@@ -1,21 +1,25 @@
 'use client';
 
+import { memo, useCallback } from 'react';
 import { useFileStore, type FileData } from '@/lib/store/file-store';
 import { XIcon, FileCode2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-export function FileTabs() {
-  const { files, activeFileId, setActiveFile, removeFile } = useFileStore();
+export const FileTabs = memo(function FileTabs() {
+  const files = useFileStore((state) => state.files);
+  const activeFileId = useFileStore((state) => state.activeFileId);
+  const setActiveFile = useFileStore((state) => state.setActiveFile);
+  const removeFile = useFileStore((state) => state.removeFile);
 
-  const handleSelect = (file: FileData) => {
+  const handleSelect = useCallback((file: FileData) => {
     setActiveFile(file.id);
-  };
+  }, [setActiveFile]);
 
-  const handleClose = (event: React.MouseEvent, file: FileData) => {
+  const handleClose = useCallback((event: React.MouseEvent, file: FileData) => {
     event.stopPropagation();
     removeFile(file.id);
-  };
+  }, [removeFile]);
 
   if (files.length === 0) {
     return null;
@@ -52,4 +56,4 @@ export function FileTabs() {
       </div>
     </div>
   );
-}
+});

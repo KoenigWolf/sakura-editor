@@ -82,17 +82,26 @@ export const useDraggableDialog = (
   }, [isOpen, dialogRef, getInitialPosition, clampPosition]);
 
   /**
-   * ウィンドウリサイズ時の位置調整
+   * ウィンドウリサイズ時の位置調整（デバウンス付き）
    */
   useEffect(() => {
+    let rafId: number | null = null;
+
     const handleResize = () => {
-      if (isOpen) {
-        setPosition(prev => clampPosition(prev));
-      }
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        if (isOpen) {
+          setPosition(prev => clampPosition(prev));
+        }
+        rafId = null;
+      });
     };
 
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [isOpen, clampPosition]);
 
   /**

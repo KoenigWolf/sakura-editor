@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { memo } from 'react';
 import { EditorToolbar } from '@/components/editor/EditorToolbar';
 import { MonacoEditor } from '@/components/editor/MonacoEditor';
 import { useFileStore } from '@/lib/store/file-store';
@@ -9,91 +9,11 @@ import { useTheme } from 'next-themes';
 import { FileTabs } from '@/components/editor/FileTabs';
 import { useTranslation } from 'react-i18next';
 
-export function EditorContainer() {
-  const { getActiveFile } = useFileStore();
-  const { getEditorInstance } = useEditorInstanceStore();
+export const EditorContainer = memo(function EditorContainer() {
+  const activeFile = useFileStore((state) => state.files.find(f => f.id === state.activeFileId));
+  const statusInfo = useEditorInstanceStore((state) => state.statusInfo);
   const { resolvedTheme } = useTheme();
-  const [cursorPosition, setCursorPosition] = useState({ line: 1, column: 1 });
-  const [documentInfo, setDocumentInfo] = useState({ lines: 0, chars: 0 });
-  const [encoding, setEncoding] = useState('UTF-8');
-  const [eolMode, setEolMode] = useState('LF');
-  const [language, setLanguage] = useState('plaintext');
-  const activeFile = getActiveFile();
-  const themeLabel = resolvedTheme === 'dark' ? 'ダークモード' : 'ライトモード';
   const { t } = useTranslation();
-
-  const lastUpdateRef = useRef({
-    cursorLine: 1,
-    cursorColumn: 1,
-    lines: 0,
-    chars: 0,
-    lang: 'plaintext',
-    eol: 'LF'
-  });
-
-  const updateStatusInfo = useCallback(() => {
-    const editorInstance = getEditorInstance();
-    if (!editorInstance) return;
-    
-    const position = editorInstance.getPosition();
-    if (position) {
-      const line = position.lineNumber;
-      const column = position.column;
-      
-      // 前回と異なる場合のみ更新
-      if (line !== lastUpdateRef.current.cursorLine || 
-          column !== lastUpdateRef.current.cursorColumn) {
-        setCursorPosition({ line, column });
-        lastUpdateRef.current.cursorLine = line;
-        lastUpdateRef.current.cursorColumn = column;
-      }
-    }
-    
-    const model = editorInstance.getModel();
-    if (model) {
-      const lineCount = model.getLineCount();
-      const charCount = model.getValueLength();
-      
-      // 前回と異なる場合のみ更新
-      if (lineCount !== lastUpdateRef.current.lines || 
-          charCount !== lastUpdateRef.current.chars) {
-        setDocumentInfo({ lines: lineCount, chars: charCount });
-        lastUpdateRef.current.lines = lineCount;
-        lastUpdateRef.current.chars = charCount;
-      }
-      
-      // 言語モード
-      const langId = model.getLanguageId();
-      if (langId !== lastUpdateRef.current.lang) {
-        setLanguage(langId);
-        lastUpdateRef.current.lang = langId;
-      }
-      
-      // 改行コード
-      const eol = model.getEOL();
-      const eolType = eol === '\n' ? 'LF' : (eol === '\r\n' ? 'CRLF' : 'CR');
-      if (eolType !== lastUpdateRef.current.eol) {
-        setEolMode(eolType);
-        lastUpdateRef.current.eol = eolType;
-      }
-    }
-  }, [getEditorInstance]);
-  
-  useEffect(() => {
-    updateStatusInfo();
-    
-    const interval = setInterval(() => {
-      updateStatusInfo();
-    }, 250);
-    
-    return () => clearInterval(interval);
-  }, [updateStatusInfo]);
-  
-  useEffect(() => {
-    if (activeFile) {
-      setTimeout(updateStatusInfo, 50);
-    }
-  }, [activeFile, updateStatusInfo]);
 
   return (
     <div className="sakura-editor-container flex flex-col h-full">
@@ -116,19 +36,19 @@ export function EditorContainer() {
           {activeFile?.name || t('status.untitled')}
         </div>
         <div className="sakura-editor-statusbar-item">
-          {t('status.position', { line: cursorPosition.line, col: cursorPosition.column })}
+          {t('status.position', { line: statusInfo.cursorLine, col: statusInfo.cursorColumn })}
         </div>
         <div className="sakura-editor-statusbar-item">
-          {t('status.document', { lines: documentInfo.lines, chars: documentInfo.chars })}
+          {t('status.document', { lines: statusInfo.lineCount, chars: statusInfo.charCount })}
         </div>
         <div className="sakura-editor-statusbar-item">
-          {encoding}
+          UTF-8
         </div>
         <div className="sakura-editor-statusbar-item">
-          {eolMode}
+          {statusInfo.eol}
         </div>
         <div className="sakura-editor-statusbar-item">
-          {language}
+          {statusInfo.language}
         </div>
         <div className="sakura-editor-statusbar-item ml-auto" suppressHydrationWarning>
           {resolvedTheme === 'dark' ? t('status.dark') : t('status.light')}
@@ -136,4 +56,4 @@ export function EditorContainer() {
       </div>
     </div>
   );
-}
+});

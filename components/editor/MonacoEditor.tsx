@@ -64,7 +64,7 @@ const getLanguageFromFilename = (filename: string | null): string => {
 export function MonacoEditor() {
   const { getActiveFile, updateFile } = useFileStore();
   const { settings } = useEditorStore();
-  const { setEditorInstance } = useEditorInstanceStore();
+  const { setEditorInstance, updateStatusInfo } = useEditorInstanceStore();
   const { setIsOpen: setSearchOpen, setSearchTerm } = useSearchStore();
   const { resolvedTheme } = useTheme();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
@@ -72,12 +72,32 @@ export function MonacoEditor() {
   const activeFile = getActiveFile();
 
   /**
-   * エディタ内のカーソル位置を表示するためのステータスバー更新
-   * ステータスバーはEditorContainerで定期的にポーリングして更新
+   * エディタのステータス情報を更新
    */
-  const updateEditorStatus = useCallback(() => {
-    // ステータスバーの更新はEditorContainerで行うため、ここでは何もしない
-  }, []);
+  const syncStatusInfo = useCallback(() => {
+    const ed = editorRef.current;
+    if (!ed) return;
+
+    const position = ed.getPosition();
+    const model = ed.getModel();
+
+    if (position) {
+      updateStatusInfo({
+        cursorLine: position.lineNumber,
+        cursorColumn: position.column,
+      });
+    }
+
+    if (model) {
+      const eol = model.getEOL();
+      updateStatusInfo({
+        lineCount: model.getLineCount(),
+        charCount: model.getValueLength(),
+        language: model.getLanguageId(),
+        eol: eol === '\n' ? 'LF' : eol === '\r\n' ? 'CRLF' : 'CR',
+      });
+    }
+  }, [updateStatusInfo]);
 
   /**
    * エディタが変更されたときのハンドラ
@@ -149,10 +169,41 @@ export function MonacoEditor() {
       editorDom.classList.add(themeClass);
     }
 
-    // カーソル位置変更時のイベントハンドラを設定
+    // イベントリスナーでステータス情報を更新（ポーリング不要）
     editor.onDidChangeCursorPosition(() => {
-      updateEditorStatus();
+      const position = editor.getPosition();
+      if (position) {
+        updateStatusInfo({
+          cursorLine: position.lineNumber,
+          cursorColumn: position.column,
+        });
+      }
     });
+
+    editor.onDidChangeModelContent(() => {
+      const model = editor.getModel();
+      if (model) {
+        updateStatusInfo({
+          lineCount: model.getLineCount(),
+          charCount: model.getValueLength(),
+        });
+      }
+    });
+
+    // 初期ステータス情報を設定
+    const model = editor.getModel();
+    const position = editor.getPosition();
+    if (model && position) {
+      const eol = model.getEOL();
+      updateStatusInfo({
+        cursorLine: position.lineNumber,
+        cursorColumn: position.column,
+        lineCount: model.getLineCount(),
+        charCount: model.getValueLength(),
+        language: model.getLanguageId(),
+        eol: eol === '\n' ? 'LF' : eol === '\r\n' ? 'CRLF' : 'CR',
+      });
+    }
 
     // キーボードショートカットの設定（Ctrl+F で検索ダイアログを開く）
     if (monaco.KeyMod && monaco.KeyCode) {
@@ -169,7 +220,7 @@ export function MonacoEditor() {
         }
       });
     }
-  }, [resolvedTheme, updateEditorStatus, setEditorInstance, setSearchOpen, setSearchTerm]);
+  }, [resolvedTheme, updateStatusInfo, setEditorInstance, setSearchOpen, setSearchTerm]);
 
   /**
    * テーマ変更時の処理
