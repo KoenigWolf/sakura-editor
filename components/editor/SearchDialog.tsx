@@ -361,6 +361,51 @@ export const SearchDialog = ({
     }
   }, [query, replacement, options, onReplace, updateHistory, toast, t, getEditorInstance, handleSearch]);
 
+  const handleReplaceAll = useCallback(() => {
+    const normalizedQuery = query.trim();
+    if (!normalizedQuery || !onReplace) return;
+
+    try {
+      const editor = getEditorInstance();
+      const model = editor?.getModel();
+      if (!editor || !model) return;
+
+      const isRegexMode = options.useRegex || options.wholeWord;
+      const searchString = options.useRegex
+        ? normalizedQuery
+        : options.wholeWord
+          ? `\\b${escapeRegExp(normalizedQuery)}\\b`
+          : normalizedQuery;
+
+      const foundMatches = model.findMatches(
+        searchString,
+        false,
+        isRegexMode,
+        options.caseSensitive,
+        null,
+        false
+      );
+
+      if (foundMatches.length === 0) return;
+
+      const edits = foundMatches.map((match) => ({
+        range: match.range,
+        text: replacement,
+      }));
+
+      editor.executeEdits('replaceAll', edits);
+      onReplace(query, replacement, options);
+      updateHistory(query, options);
+      handleSearch();
+    } catch (error) {
+      toast({
+        title: t('search.errors.replaceFailed'),
+        description: error instanceof Error ? error.message : t('search.errors.unknown'),
+        variant: 'destructive',
+      });
+    }
+  }, [query, replacement, options, onReplace, updateHistory, toast, t, getEditorInstance, handleSearch]);
+
   const navigateHistory = useCallback((direction: 'up' | 'down') => {
     if (history.length === 0) return;
 
@@ -468,199 +513,194 @@ export const SearchDialog = ({
         onMouseLeave={handleMouseUp}
       >
         <div className="flex flex-col h-full">
-          {/* ヘッダー */}
           <div className="dialog-header flex items-center justify-between p-3 border-b bg-muted/50">
             <div className="flex items-center gap-2">
               <SearchCheck className="h-4 w-4 text-muted-foreground" />
-              <h2 className="text-sm font-medium">{t('search.title')}</h2>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-              className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive"
-              aria-label={t('search.close')}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {/* メインコンテンツ */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-            {/* 検索入力エリア */}
-            <div className="p-3 border-b">
-              <div className="relative">
-                <Input
-                  ref={searchInputRef}
-                  value={query}
-                  onChange={(e) => {
-                    setQuery(e.target.value);
-                    setSearchTerm(e.target.value);
-                  }}
-                  placeholder={t('search.placeholder')}
-                  className="pl-8 pr-24 h-9"
-                  aria-label={t('search.searchInput')}
-                />
-                <SearchCheck className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => navigateHistory('up')}
-                    className="h-6 w-6 hover:bg-muted"
-                    aria-label={t('search.previousHistory')}
-                  >
-                    <ChevronUp className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => navigateHistory('down')}
-                    className="h-6 w-6 hover:bg-muted"
-                    aria-label={t('search.nextHistory')}
-                  >
-                    <ChevronDown className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* 置換入力エリア */}
-            {showReplace && (
-              <div className="p-3 border-b bg-muted/30">
-                <div className="relative">
-                  <Input
-                    value={replacement}
-                    onChange={(e) => setReplacement(e.target.value)}
-                    placeholder={t('search.replacePlaceholder')}
-                    className="pl-8 h-9"
-                    aria-label={t('search.replaceInput')}
-                  />
-                  <Replace className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                </div>
-              </div>
-            )}
-
-            {/* 検索オプション */}
-            <div className="p-3 border-b bg-muted/20">
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Switch
-                    id="case-sensitive"
-                    checked={options.caseSensitive}
-                    onCheckedChange={(checked) => setOptions(prev => ({ ...prev, caseSensitive: checked }))}
-                  />
-                  <Label htmlFor="case-sensitive" className="flex items-center gap-1 text-sm">
-                    <CaseSensitive className="h-3.5 w-3.5" />
-                    {t('search.options.caseSensitive')}
-                  </Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Switch
-                    id="use-regex"
-                    checked={options.useRegex}
-                    onCheckedChange={(checked) => setOptions(prev => ({ ...prev, useRegex: checked }))}
-                  />
-                  <Label htmlFor="use-regex" className="flex items-center gap-1 text-sm">
-                    <Regex className="h-3.5 w-3.5" />
-                    {t('search.options.useRegex')}
-                  </Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Switch
-                    id="whole-word"
-                    checked={options.wholeWord}
-                    onCheckedChange={(checked) => setOptions(prev => ({ ...prev, wholeWord: checked }))}
-                  />
-                  <Label htmlFor="whole-word" className="text-sm">
-                    {t('search.options.wholeWord')}
-                  </Label>
-                </div>
-                <div className="flex-1" />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowReplace(prev => !prev)}
-                  className="h-8 w-8 hover:bg-muted"
-                  aria-label={t('search.toggleReplace')}
-                >
-                  <Replace className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            {/* 検索結果エリア */}
-            <ScrollArea className="flex-1">
-              <div className="p-4">
-                {matches.length === 0 && query ? (
-                  <div className="text-sm text-muted-foreground">
-                    {t('search.results.empty')}
-                  </div>
-                ) : matches.length > 0 ? (
-                  <div className="space-y-2">
-                    <div className="text-sm font-medium">
-                      {t('search.results.found', { count: matches.length })}
-                    </div>
-                    <div className="space-y-1 max-h-48 overflow-y-auto">
-                      {matches.map((match: SearchMatch, index: number) => (
-                        <div
-                          key={index}
-                          className={cn(
-                            'text-xs p-2 rounded cursor-pointer hover:bg-accent',
-                            index === currentMatchIndex && 'bg-accent'
-                          )}
-                          onClick={() => goToMatch(index)}
-                        >
-                          {match.lineNumber}: {match.text.substring(0, 50)}
-                          {match.text.length > 50 ? '...' : ''}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            </ScrollArea>
-
-            {/* アクションボタン */}
-            <div className="flex items-center justify-between gap-3 p-3 border-t bg-muted/50">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handlePreviousMatch}
-                  disabled={matches.length === 0}
-                  aria-label={t('search.actions.previous')}
-                >
-                  <ChevronUp className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleNextMatch}
-                  disabled={matches.length === 0}
-                  aria-label={t('search.actions.next')}
-                >
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
+              <div className="flex flex-col">
+                <h2 className="text-sm font-medium">{t('search.title')}</h2>
                 <span className="text-xs text-muted-foreground">
                   {matches.length > 0
-                    ? `${Math.max(currentMatchIndex + 1, 1)} / ${matches.length}`
+                    ? `${Math.max(currentMatchIndex + 1, 1)} / ${matches.length} 件`
                     : t('search.results.empty')}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" onClick={() => onOpenChange(false)}>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handlePreviousMatch}
+                disabled={matches.length === 0}
+                aria-label={t('search.actions.previous')}
+              >
+                <ChevronUp className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleNextMatch}
+                disabled={matches.length === 0}
+                aria-label={t('search.actions.next')}
+              >
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onOpenChange(false)}
+                className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive"
+                aria-label={t('search.close')}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-[2fr,1fr] overflow-hidden">
+            <div className="flex flex-col border-r">
+              <div className="p-3 border-b space-y-2">
+                <div className="relative">
+                  <Input
+                    ref={searchInputRef}
+                    value={query}
+                    onChange={(e) => {
+                      setQuery(e.target.value);
+                      setSearchTerm(e.target.value);
+                    }}
+                    placeholder={t('search.placeholder')}
+                    className="pl-8 pr-24 h-10"
+                    aria-label={t('search.searchInput')}
+                  />
+                  <SearchCheck className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => navigateHistory('up')}
+                      className="h-7 w-7 hover:bg-muted"
+                      aria-label={t('search.previousHistory')}
+                    >
+                      <ChevronUp className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => navigateHistory('down')}
+                      className="h-7 w-7 hover:bg-muted"
+                      aria-label={t('search.nextHistory')}
+                    >
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-[1fr,auto] gap-2 items-center">
+                  <div className="relative">
+                    <Input
+                      value={replacement}
+                      onChange={(e) => setReplacement(e.target.value)}
+                      placeholder={t('search.replacePlaceholder')}
+                      className="pl-8 h-10"
+                      aria-label={t('search.replaceInput')}
+                    />
+                    <Replace className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShowReplace((prev) => !prev)}
+                  >
+                    {showReplace ? t('search.actions.replace') : t('search.toggleReplace')}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="p-3 border-b bg-muted/20">
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant={options.caseSensitive ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() =>
+                      setOptions((prev) => ({ ...prev, caseSensitive: !prev.caseSensitive }))
+                    }
+                  >
+                    <CaseSensitive className="h-3.5 w-3.5 mr-2" />
+                    {t('search.options.caseSensitive')}
+                  </Button>
+                  <Button
+                    variant={options.useRegex ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setOptions((prev) => ({ ...prev, useRegex: !prev.useRegex }))}
+                  >
+                    <Regex className="h-3.5 w-3.5 mr-2" />
+                    {t('search.options.useRegex')}
+                  </Button>
+                  <Button
+                    variant={options.wholeWord ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setOptions((prev) => ({ ...prev, wholeWord: !prev.wholeWord }))}
+                  >
+                    {t('search.options.wholeWord')}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 p-3 border-b">
+                <Button onClick={handleSearch}>{t('search.actions.search')}</Button>
+                {onReplace && (
+                  <>
+                    <Button variant="secondary" onClick={handleReplace}>
+                      {t('search.actions.replace')}
+                    </Button>
+                    <Button variant="outline" onClick={handleReplaceAll}>
+                      {t('search.actions.replaceAll')}
+                    </Button>
+                  </>
+                )}
+                <div className="flex-1" />
+                <Button variant="ghost" onClick={() => onOpenChange(false)}>
                   {t('search.actions.cancel')}
                 </Button>
-                {showReplace && onReplace ? (
-                  <Button onClick={handleReplace}>
-                    {t('search.actions.replace')}
-                  </Button>
-                ) : (
-                  <Button onClick={handleSearch}>
-                    {t('search.actions.search')}
-                  </Button>
-                )}
+              </div>
+
+              <ScrollArea className="flex-1">
+                <div className="p-4 space-y-2">
+                  {matches.length === 0 && query ? (
+                    <div className="text-sm text-muted-foreground">
+                      {t('search.results.empty')}
+                    </div>
+                  ) : (
+                    matches.map((match: SearchMatch, index: number) => (
+                      <div
+                        key={index}
+                        className={cn(
+                          'text-xs p-2 rounded cursor-pointer hover:bg-accent',
+                          index === currentMatchIndex && 'bg-accent'
+                        )}
+                        onClick={() => goToMatch(index)}
+                      >
+                        <span className="font-semibold mr-2">L{match.lineNumber}</span>
+                        {match.text.substring(0, 120)}
+                        {match.text.length > 120 ? '...' : ''}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
+
+            <div className="hidden lg:flex flex-col p-3 space-y-3 bg-muted/30">
+              <div className="text-sm font-medium">{t('search.results.found', { count: matches.length })}</div>
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground">
+                  {t('search.options.caseSensitive')}: {options.caseSensitive ? 'On' : 'Off'}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {t('search.options.useRegex')}: {options.useRegex ? 'On' : 'Off'}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {t('search.options.wholeWord')}: {options.wholeWord ? 'On' : 'Off'}
+                </div>
               </div>
             </div>
           </div>

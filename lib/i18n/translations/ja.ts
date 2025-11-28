@@ -107,4 +107,22 @@ export const ja = {
       unknown: '不明なエラーが発生しました',
     },
   },
+  toolbar: {
+    newFile: '新規作成',
+    save: '保存',
+    load: '読み込み',
+    undo: '元に戻す',
+    redo: 'やり直し',
+    search: '検索',
+    split: '分割',
+    settings: '設定',
+  },
+  status: {
+    loading: '読み込み中...',
+    untitled: 'untitled.txt',
+    dark: 'ダークモード',
+    light: 'ライトモード',
+    position: '{{line}}行, {{col}}列',
+    document: '{{lines}}行 / {{chars}}文字',
+  },
 };

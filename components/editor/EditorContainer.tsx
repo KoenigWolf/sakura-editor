@@ -7,6 +7,7 @@ import { useFileStore } from '@/lib/store/file-store';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useTheme } from 'next-themes';
 import { FileTabs } from '@/components/editor/FileTabs';
+import { useTranslation } from 'react-i18next';
 
 export function EditorContainer() {
   const { getActiveFile } = useFileStore();
@@ -19,6 +20,7 @@ export function EditorContainer() {
   const [language, setLanguage] = useState('plaintext');
   const activeFile = getActiveFile();
   const themeLabel = resolvedTheme === 'dark' ? 'ダークモード' : 'ライトモード';
+  const { t } = useTranslation();
 
   const lastUpdateRef = useRef({
     cursorLine: 1,
@@ -111,13 +113,13 @@ export function EditorContainer() {
       {/* ステータスバー */}
       <div className="sakura-editor-statusbar text-xs flex-shrink-0">
         <div className="sakura-editor-statusbar-item">
-          {activeFile?.name || 'untitled.txt'}
+          {activeFile?.name || t('status.untitled')}
         </div>
         <div className="sakura-editor-statusbar-item">
-          {`${cursorPosition.line}行, ${cursorPosition.column}列`}
+          {t('status.position', { line: cursorPosition.line, col: cursorPosition.column })}
         </div>
         <div className="sakura-editor-statusbar-item">
-          {`${documentInfo.lines}行 / ${documentInfo.chars}文字`}
+          {t('status.document', { lines: documentInfo.lines, chars: documentInfo.chars })}
         </div>
         <div className="sakura-editor-statusbar-item">
           {encoding}
@@ -129,7 +131,7 @@ export function EditorContainer() {
           {language}
         </div>
         <div className="sakura-editor-statusbar-item ml-auto" suppressHydrationWarning>
-          {themeLabel}
+          {resolvedTheme === 'dark' ? t('status.dark') : t('status.light')}
         </div>
       </div>
     </div>

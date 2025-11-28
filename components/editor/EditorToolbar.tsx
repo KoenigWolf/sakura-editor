@@ -12,6 +12,7 @@ import {
   SearchCheck,
   SplitSquareVertical,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useFileStore } from '@/lib/store/file-store';
 import { useSearchStore } from '@/lib/store/search-store';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
@@ -24,6 +25,7 @@ import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { SearchDialog } from '@/components/editor/SearchDialog';
 
 export function EditorToolbar() {
+  const { t } = useTranslation();
   const { addFile, getActiveFile } = useFileStore();
   const { setIsOpen: setSearchOpen, isOpen: searchOpen } = useSearchStore();
   const { getEditorInstance } = useEditorInstanceStore();
@@ -92,7 +94,7 @@ export function EditorToolbar() {
             <FilePlus2 className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>New File (Ctrl+N)</TooltipContent>
+        <TooltipContent>{t('toolbar.newFile')} (Ctrl+N)</TooltipContent>
       </Tooltip>
 
       <Tooltip>
@@ -101,7 +103,7 @@ export function EditorToolbar() {
             <HardDriveDownload className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Save (Ctrl+S)</TooltipContent>
+        <TooltipContent>{t('toolbar.save')} (Ctrl+S)</TooltipContent>
       </Tooltip>
 
       <Tooltip>
@@ -110,7 +112,7 @@ export function EditorToolbar() {
             <FolderOpen className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Load File (Ctrl+O)</TooltipContent>
+        <TooltipContent>{t('toolbar.load')} (Ctrl+O)</TooltipContent>
       </Tooltip>
 
       <div className="w-px h-6 bg-border mx-2" />
@@ -121,7 +123,7 @@ export function EditorToolbar() {
             <RotateCcw className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Undo (Ctrl+Z)</TooltipContent>
+        <TooltipContent>{t('toolbar.undo')} (Ctrl+Z)</TooltipContent>
       </Tooltip>
 
       <Tooltip>
@@ -130,7 +132,7 @@ export function EditorToolbar() {
             <RotateCw className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Redo (Ctrl+Y)</TooltipContent>
+        <TooltipContent>{t('toolbar.redo')} (Ctrl+Y)</TooltipContent>
       </Tooltip>
 
       <div className="w-px h-6 bg-border mx-2" />
@@ -141,7 +143,7 @@ export function EditorToolbar() {
             <SearchCheck className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Find (Ctrl+F)</TooltipContent>
+        <TooltipContent>{t('toolbar.search')} (Ctrl+F)</TooltipContent>
       </Tooltip>
 
       <Tooltip>
@@ -150,7 +152,7 @@ export function EditorToolbar() {
             <SplitSquareVertical className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Split Editor</TooltipContent>
+        <TooltipContent>{t('toolbar.split')}</TooltipContent>
       </Tooltip>
 
       <div className="flex-1" />
@@ -161,7 +163,7 @@ export function EditorToolbar() {
             <Cog className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Settings</TooltipContent>
+        <TooltipContent>{t('toolbar.settings')}</TooltipContent>
       </Tooltip>
 
       <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />

@@ -97,4 +97,22 @@ export const en = {
       unknown: 'An unknown error occurred',
     },
   },
+  toolbar: {
+    newFile: 'New File',
+    save: 'Save',
+    load: 'Load File',
+    undo: 'Undo',
+    redo: 'Redo',
+    search: 'Find',
+    split: 'Split Editor',
+    settings: 'Settings',
+  },
+  status: {
+    loading: 'Loading...',
+    untitled: 'untitled.txt',
+    dark: 'Dark mode',
+    light: 'Light mode',
+    position: '{{line}} ln, {{col}} col',
+    document: '{{lines}} lines / {{chars}} chars',
+  },
 };
