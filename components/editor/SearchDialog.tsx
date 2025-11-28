@@ -1,31 +1,19 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/components/ui/use-toast';
-import { useDraggableDialog } from '@/hooks/use-draggable-dialog';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useSearchStore, type SearchMatch } from '@/lib/store/search-store';
 import { cn } from '@/lib/utils';
-import { SearchCheck, Replace, ChevronDown, ChevronUp, Regex, CaseSensitive } from 'lucide-react';
-import { CloseButton } from '@/components/ui/close-button';
+import { X, ChevronDown, ChevronUp, Regex, CaseSensitive, WholeWord, Replace, Search, ChevronRight } from 'lucide-react';
 
 interface SearchOptions {
   caseSensitive: boolean;
   useRegex: boolean;
   wholeWord: boolean;
-}
-
-interface SearchHistory {
-  query: string;
-  options: SearchOptions;
-  timestamp: number;
 }
 
 interface SearchDialogProps {
@@ -36,36 +24,75 @@ interface SearchDialogProps {
   initialQuery?: string;
 }
 
-const MAX_HISTORY = 10;
-const HISTORY_STORAGE_KEY = 'search-history';
-
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const loadSearchHistory = (): SearchHistory[] => {
-  try {
-    if (typeof window === 'undefined') return [];
-    const history = localStorage.getItem(HISTORY_STORAGE_KEY);
-    return history ? JSON.parse(history) : [];
-  } catch {
-    return [];
-  }
-};
+// 検索結果アイテム（メモ化）
+const SearchResultItem = memo(({
+  match,
+  isActive,
+  onClick
+}: {
+  match: SearchMatch;
+  index: number;
+  isActive: boolean;
+  onClick: () => void;
+}) => (
+  <button
+    type="button"
+    className={cn(
+      'w-full text-left text-xs px-2 py-1.5 rounded transition-colors',
+      'hover:bg-accent/50 focus:bg-accent/50 focus:outline-none',
+      isActive && 'bg-accent text-accent-foreground'
+    )}
+    onClick={onClick}
+  >
+    <span className="font-mono text-muted-foreground mr-2">L{match.lineNumber}</span>
+    <span className="truncate">
+      {match.text.substring(0, 60)}
+      {match.text.length > 60 ? '…' : ''}
+    </span>
+  </button>
+));
+SearchResultItem.displayName = 'SearchResultItem';
 
-const saveSearchHistory = (history: SearchHistory[]) => {
-  try {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
-  } catch (error) {
-    console.error('Failed to save search history:', error);
-  }
-};
+// オプションボタン（メモ化）
+const OptionButton = memo(({
+  active,
+  onClick,
+  icon: Icon,
+  label,
+  shortcut,
+  showLabel = false
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ElementType;
+  label: string;
+  shortcut?: string;
+  showLabel?: boolean;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    title={`${label}${shortcut ? ` (${shortcut})` : ''}`}
+    className={cn(
+      'h-7 rounded flex items-center justify-center transition-colors gap-1',
+      'hover:bg-accent focus:outline-none focus:ring-1 focus:ring-ring',
+      active ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
+      showLabel ? 'px-2' : 'w-7'
+    )}
+  >
+    <Icon className="h-3.5 w-3.5 shrink-0" />
+    {showLabel && <span className="text-xs hidden sm:inline">{label}</span>}
+  </button>
+));
+OptionButton.displayName = 'OptionButton';
 
-export const SearchDialog = ({
+export const SearchDialog = memo(({
   open,
   onOpenChange,
   onSearch,
   onReplace,
-  initialQuery = '',
 }: SearchDialogProps) => {
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -84,59 +111,75 @@ export const SearchDialog = ({
     setIsCaseSensitive,
     setIsWholeWord,
   } = useSearchStore();
+
   const dialogRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const decorationsRef = useRef<string[]>([]);
-  const [query, setQuery] = useState(initialQuery || searchTerm);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [query, setQuery] = useState(searchTerm);
   const [replacement, setReplacement] = useState('');
-  const [options, setOptions] = useState<SearchOptions>({
+  const [showReplace, setShowReplace] = useState(false);
+  const [showResults, setShowResults] = useState(true);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isVisible, setIsVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // オプションをメモ化
+  const options = useMemo(() => ({
     caseSensitive: isCaseSensitive,
     useRegex: isRegex,
     wholeWord: isWholeWord,
-  });
-  const [history, setHistory] = useState<SearchHistory[]>(loadSearchHistory());
-  const [historyIndex, setHistoryIndex] = useState(-1);
-  const [showReplace, setShowReplace] = useState(false);
+  }), [isCaseSensitive, isRegex, isWholeWord]);
 
-  // 外部から渡された検索語（選択テキストなど）を反映
+  // モバイル判定
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // 初期位置設定 & 表示アニメーション
+  useEffect(() => {
+    if (open) {
+      if (isMobile) {
+        // モバイル: 画面下部に固定
+        setPosition({ x: 0, y: 0 });
+      } else {
+        // デスクトップ: 右上に配置
+        const x = window.innerWidth - 420;
+        const y = 60;
+        setPosition({ x: Math.max(10, x), y });
+      }
+
+      // 即座に表示
+      requestAnimationFrame(() => {
+        setIsVisible(true);
+      });
+
+      // フォーカス
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+        searchInputRef.current?.select();
+      }, 50);
+    } else {
+      setIsVisible(false);
+    }
+  }, [open, isMobile]);
+
+  // 外部からの検索語を反映
   useEffect(() => {
     if (open && searchTerm && searchTerm !== query) {
       setQuery(searchTerm);
     }
-  }, [open, searchTerm, query]);
+  }, [open, searchTerm]);
 
-  // ストアとローカルオプションの同期
-  useEffect(() => {
-    setIsRegex(options.useRegex);
-    setIsCaseSensitive(options.caseSensitive);
-    setIsWholeWord(options.wholeWord);
-  }, [options, setIsCaseSensitive, setIsRegex, setIsWholeWord]);
-
-  // ダイアログを開いた際にストアの値を反映
-  useEffect(() => {
-    if (open) {
-      setOptions({
-        caseSensitive: isCaseSensitive,
-        useRegex: isRegex,
-        wholeWord: isWholeWord,
-      });
-      if (searchTerm) {
-        setQuery(searchTerm);
-      }
-    }
-  }, [open, isCaseSensitive, isRegex, isWholeWord, searchTerm]);
-
-  const {
-    position,
-    isDragging,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
-  } = useDraggableDialog(open, dialogRef, {
-    margin: 10,
-    topMargin: 50,
-  });
-
+  // ハイライト適用
   const applyHighlights = useCallback((matchList: SearchMatch[], activeIndex: number) => {
     const editor = getEditorInstance();
     if (!editor) return;
@@ -157,18 +200,18 @@ export const SearchDialog = ({
     );
   }, [getEditorInstance]);
 
+  // ハイライトクリア
   const clearHighlights = useCallback(() => {
     const editor = getEditorInstance();
     if (editor && decorationsRef.current.length > 0) {
       decorationsRef.current = editor.deltaDecorations(decorationsRef.current, []);
     }
-    setMatches([]);
-    setCurrentMatchIndex(-1);
-  }, [getEditorInstance, setMatches, setCurrentMatchIndex]);
+  }, [getEditorInstance]);
 
+  // マッチに移動
   const goToMatch = useCallback((index: number, targetMatches?: SearchMatch[]) => {
     const editor = getEditorInstance();
-    const list = targetMatches && targetMatches.length > 0 ? targetMatches : matches;
+    const list = targetMatches ?? matches;
     if (!editor || list.length === 0) return;
 
     const safeIndex = ((index % list.length) + list.length) % list.length;
@@ -185,527 +228,590 @@ export const SearchDialog = ({
     applyHighlights(list, safeIndex);
   }, [applyHighlights, getEditorInstance, matches, setCurrentMatchIndex]);
 
-  useEffect(() => {
-    if (matches.length === 0) {
-      applyHighlights([], -1);
-      return;
+  // 検索実行（デバウンス付き）
+  const performSearch = useCallback((searchQuery: string, immediate = false) => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
 
-    const clampedIndex = currentMatchIndex >= 0 && currentMatchIndex < matches.length
-      ? currentMatchIndex
-      : 0;
-
-    if (clampedIndex !== currentMatchIndex) {
-      setCurrentMatchIndex(clampedIndex);
-    }
-    goToMatch(clampedIndex, matches);
-  }, [matches, currentMatchIndex, goToMatch, applyHighlights, setCurrentMatchIndex]);
-
-  const updateHistory = useCallback((newQuery: string, newOptions: SearchOptions) => {
-    const newHistory: SearchHistory = {
-      query: newQuery,
-      options: newOptions,
-      timestamp: Date.now(),
-    };
-
-    setHistory(prev => {
-      const filtered = prev.filter(h => h.query !== newQuery);
-      const updated = [newHistory, ...filtered].slice(0, MAX_HISTORY);
-      saveSearchHistory(updated);
-      return updated;
-    });
-  }, []);
-
-  const handleSearch = useCallback(() => {
-    const normalizedQuery = query.trim();
-    if (!normalizedQuery) {
-      toast({
-        title: t('search.errors.emptyQuery'),
-        description: t('search.errors.enterQuery'),
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    try {
-      const editor = getEditorInstance();
-      const model = editor?.getModel();
-      if (!editor || !model) {
-        toast({
-          title: t('search.errors.searchFailed'),
-          description: t('search.errors.unknown'),
-          variant: 'destructive',
-        });
+    const doSearch = () => {
+      const normalizedQuery = searchQuery.trim();
+      if (!normalizedQuery) {
+        setMatches([]);
+        setCurrentMatchIndex(-1);
+        clearHighlights();
         return;
       }
 
-      setSearchTerm(normalizedQuery);
-
-      const isRegexMode = options.useRegex || options.wholeWord;
-      const searchString = options.useRegex
-        ? normalizedQuery
-        : options.wholeWord
-          ? `\\b${escapeRegExp(normalizedQuery)}\\b`
-          : normalizedQuery;
-
-      // 検索を実行
-      const foundMatches = model.findMatches(
-        searchString,
-        false,
-        isRegexMode,
-        options.caseSensitive,
-        null,
-        false
-      );
-
-      const parsedMatches = foundMatches.map((match) => ({
-        lineNumber: match.range.startLineNumber,
-        startIndex: match.range.startColumn,
-        endIndex: match.range.endColumn,
-        text: match.matches?.[0] || model.getValueInRange(match.range),
-      }));
-
-      setMatches(parsedMatches);
-
-      if (parsedMatches.length > 0) {
-        goToMatch(0, parsedMatches);
-      } else {
-        setCurrentMatchIndex(-1);
-        applyHighlights([], -1);
-      }
-
-      onSearch(query, options);
-      updateHistory(query, options);
-    } catch (error) {
-      toast({
-        title: t('search.errors.searchFailed'),
-        description: error instanceof Error ? error.message : t('search.errors.unknown'),
-        variant: 'destructive',
-      });
-    }
-  }, [query, options, onSearch, updateHistory, toast, t, getEditorInstance, setMatches, setCurrentMatchIndex, goToMatch, applyHighlights, setSearchTerm]);
-
-  const handleNextMatch = useCallback(() => {
-    if (matches.length === 0) {
-      handleSearch();
-      return;
-    }
-    goToMatch((currentMatchIndex + 1) % matches.length);
-  }, [currentMatchIndex, goToMatch, handleSearch, matches.length]);
-
-  const handlePreviousMatch = useCallback(() => {
-    if (matches.length === 0) {
-      handleSearch();
-      return;
-    }
-    const prevIndex = currentMatchIndex <= 0 ? matches.length - 1 : currentMatchIndex - 1;
-    goToMatch(prevIndex);
-  }, [currentMatchIndex, goToMatch, handleSearch, matches.length]);
-
-  const handleReplace = useCallback(() => {
-    if (!onReplace) return;
-
-    if (!query.trim()) {
-      toast({
-        title: t('search.errors.emptyQuery'),
-        description: t('search.errors.enterQuery'),
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    try {
-      const editor = getEditorInstance();
-      if (editor) {
-        const model = editor.getModel();
-        if (model) {
-          const selection = editor.getSelection();
-          if (selection && !selection.isEmpty()) {
-            // 選択範囲を置換
-            const selectedText = model.getValueInRange(selection);
-            let replaceText = replacement;
-
-            if (options.useRegex) {
-              try {
-                const regex = new RegExp(query, options.caseSensitive ? 'g' : 'gi');
-                replaceText = selectedText.replace(regex, replacement);
-              } catch {
-                // 正規表現エラーの場合は通常の置換
-                replaceText = selectedText.replace(query, replacement);
-              }
-            } else {
-              if (options.caseSensitive) {
-                replaceText = selectedText.replace(query, replacement);
-              } else {
-                const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-                replaceText = selectedText.replace(regex, replacement);
-              }
-            }
-
-            editor.executeEdits('replace', [{
-              range: selection,
-              text: replaceText,
-            }]);
-          }
-        }
-      }
-
-      onReplace(query, replacement, options);
-      updateHistory(query, options);
-      handleSearch();
-    } catch (error) {
-      toast({
-        title: t('search.errors.replaceFailed'),
-        description: error instanceof Error ? error.message : t('search.errors.unknown'),
-        variant: 'destructive',
-      });
-    }
-  }, [query, replacement, options, onReplace, updateHistory, toast, t, getEditorInstance, handleSearch]);
-
-  const handleReplaceAll = useCallback(() => {
-    const normalizedQuery = query.trim();
-    if (!normalizedQuery || !onReplace) return;
-
-    try {
       const editor = getEditorInstance();
       const model = editor?.getModel();
       if (!editor || !model) return;
 
-      const isRegexMode = options.useRegex || options.wholeWord;
-      const searchString = options.useRegex
-        ? normalizedQuery
-        : options.wholeWord
-          ? `\\b${escapeRegExp(normalizedQuery)}\\b`
-          : normalizedQuery;
+      try {
+        const isRegexMode = isRegex || isWholeWord;
+        const searchString = isRegex
+          ? normalizedQuery
+          : isWholeWord
+            ? `\\b${escapeRegExp(normalizedQuery)}\\b`
+            : normalizedQuery;
 
-      const foundMatches = model.findMatches(
-        searchString,
-        false,
-        isRegexMode,
-        options.caseSensitive,
-        null,
-        false
-      );
+        const foundMatches = model.findMatches(
+          searchString,
+          false,
+          isRegexMode,
+          isCaseSensitive,
+          null,
+          false
+        );
 
-      if (foundMatches.length === 0) return;
+        const parsedMatches = foundMatches.map((match) => ({
+          lineNumber: match.range.startLineNumber,
+          startIndex: match.range.startColumn,
+          endIndex: match.range.endColumn,
+          text: match.matches?.[0] || model.getValueInRange(match.range),
+        }));
 
-      const edits = foundMatches.map((match) => ({
-        range: match.range,
-        text: replacement,
-      }));
+        setMatches(parsedMatches);
+        setSearchTerm(normalizedQuery);
 
-      editor.executeEdits('replaceAll', edits);
-      onReplace(query, replacement, options);
-      updateHistory(query, options);
-      handleSearch();
-    } catch (error) {
-      toast({
-        title: t('search.errors.replaceFailed'),
-        description: error instanceof Error ? error.message : t('search.errors.unknown'),
-        variant: 'destructive',
-      });
-    }
-  }, [query, replacement, options, onReplace, updateHistory, toast, t, getEditorInstance, handleSearch]);
+        if (parsedMatches.length > 0) {
+          goToMatch(0, parsedMatches);
+        } else {
+          setCurrentMatchIndex(-1);
+          applyHighlights([], -1);
+        }
 
-  const navigateHistory = useCallback((direction: 'up' | 'down') => {
-    if (history.length === 0) return;
-
-    setHistoryIndex(prev => {
-      const newIndex = direction === 'up'
-        ? (prev + 1) % history.length
-        : (prev - 1 + history.length) % history.length;
-
-      const item = history[newIndex];
-      setQuery(item.query);
-      setSearchTerm(item.query);
-      setOptions(item.options);
-      return newIndex;
-    });
-  }, [history, setSearchTerm]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!open) return;
-
-      // Enter: 検索実行
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        handleSearch();
+        onSearch(normalizedQuery, options);
+      } catch {
+        // 正規表現エラーは無視
       }
+    };
 
-      // Esc: ダイアログを閉じる
+    if (immediate) {
+      doSearch();
+    } else {
+      searchTimeoutRef.current = setTimeout(doSearch, 100);
+    }
+  }, [getEditorInstance, isRegex, isWholeWord, isCaseSensitive, setMatches, setSearchTerm, setCurrentMatchIndex, goToMatch, applyHighlights, clearHighlights, onSearch, options]);
+
+  // 入力時のリアルタイム検索
+  const handleQueryChange = useCallback((value: string) => {
+    setQuery(value);
+    performSearch(value);
+  }, [performSearch]);
+
+  // 次/前のマッチ
+  const handleNextMatch = useCallback(() => {
+    if (matches.length === 0) {
+      performSearch(query, true);
+      return;
+    }
+    goToMatch((currentMatchIndex + 1) % matches.length);
+  }, [currentMatchIndex, goToMatch, matches.length, performSearch, query]);
+
+  const handlePreviousMatch = useCallback(() => {
+    if (matches.length === 0) {
+      performSearch(query, true);
+      return;
+    }
+    goToMatch(currentMatchIndex <= 0 ? matches.length - 1 : currentMatchIndex - 1);
+  }, [currentMatchIndex, goToMatch, matches.length, performSearch, query]);
+
+  // 置換
+  const handleReplace = useCallback(() => {
+    if (!onReplace || !query.trim()) return;
+
+    const editor = getEditorInstance();
+    const model = editor?.getModel();
+    if (!editor || !model) return;
+
+    const selection = editor.getSelection();
+    if (!selection || selection.isEmpty()) {
+      handleNextMatch();
+      return;
+    }
+
+    const selectedText = model.getValueInRange(selection);
+    let replaceText = replacement;
+
+    if (isRegex) {
+      try {
+        const regex = new RegExp(query, isCaseSensitive ? 'g' : 'gi');
+        replaceText = selectedText.replace(regex, replacement);
+      } catch {
+        replaceText = selectedText.replace(query, replacement);
+      }
+    } else {
+      replaceText = selectedText.replace(
+        isCaseSensitive ? query : new RegExp(escapeRegExp(query), 'gi'),
+        replacement
+      );
+    }
+
+    editor.executeEdits('replace', [{ range: selection, text: replaceText }]);
+    onReplace(query, replacement, options);
+    performSearch(query, true);
+  }, [query, replacement, isRegex, isCaseSensitive, getEditorInstance, onReplace, options, performSearch, handleNextMatch]);
+
+  // 全置換
+  const handleReplaceAll = useCallback(() => {
+    if (!onReplace || !query.trim()) return;
+
+    const editor = getEditorInstance();
+    const model = editor?.getModel();
+    if (!editor || !model) return;
+
+    const isRegexMode = isRegex || isWholeWord;
+    const searchString = isRegex
+      ? query
+      : isWholeWord
+        ? `\\b${escapeRegExp(query)}\\b`
+        : query;
+
+    const foundMatches = model.findMatches(
+      searchString,
+      false,
+      isRegexMode,
+      isCaseSensitive,
+      null,
+      false
+    );
+
+    if (foundMatches.length === 0) return;
+
+    const count = foundMatches.length;
+    const edits = foundMatches.map((match) => ({
+      range: match.range,
+      text: replacement,
+    }));
+
+    editor.executeEdits('replaceAll', edits);
+    onReplace(query, replacement, options);
+
+    toast({
+      title: t('search.replaced', { count }),
+      duration: 2000,
+    });
+
+    performSearch(query, true);
+  }, [query, replacement, isRegex, isWholeWord, isCaseSensitive, getEditorInstance, onReplace, options, performSearch, toast, t]);
+
+  // キーボードショートカット
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Escape: 閉じる
       if (e.key === 'Escape') {
         e.preventDefault();
         onOpenChange(false);
+        return;
       }
 
-      // Ctrl/Cmd + H: 置換モードの切り替え
+      // Enter: 次のマッチ / Shift+Enter: 前のマッチ
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          handlePreviousMatch();
+        } else {
+          handleNextMatch();
+        }
+        return;
+      }
+
+      // Ctrl/Cmd + H: 置換モード切替
       if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
         e.preventDefault();
         setShowReplace(prev => !prev);
+        return;
       }
 
-      // Ctrl/Cmd + G: 次の検索結果
-      if ((e.ctrlKey || e.metaKey) && e.key === 'g') {
+      // F3 / Shift+F3: 次/前のマッチ
+      if (e.key === 'F3') {
         e.preventDefault();
-        handleNextMatch();
+        if (e.shiftKey) {
+          handlePreviousMatch();
+        } else {
+          handleNextMatch();
+        }
+        return;
       }
 
-      // Ctrl/Cmd + Shift + G: 前の検索結果
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'g') {
+      // Alt + C: 大文字小文字
+      if (e.altKey && e.key === 'c') {
         e.preventDefault();
-        handlePreviousMatch();
+        setIsCaseSensitive(!isCaseSensitive);
+        performSearch(query, true);
+        return;
       }
 
-      // 上下キー: 検索履歴のナビゲート
-      if (e.key === 'ArrowUp' && e.ctrlKey) {
+      // Alt + R: 正規表現
+      if (e.altKey && e.key === 'r') {
         e.preventDefault();
-        navigateHistory('up');
+        setIsRegex(!isRegex);
+        performSearch(query, true);
+        return;
       }
-      if (e.key === 'ArrowDown' && e.ctrlKey) {
+
+      // Alt + W: 単語単位
+      if (e.altKey && e.key === 'w') {
         e.preventDefault();
-        navigateHistory('down');
+        setIsWholeWord(!isWholeWord);
+        performSearch(query, true);
+        return;
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [open, handleSearch, handleNextMatch, handlePreviousMatch, navigateHistory, onOpenChange]);
+  }, [open, onOpenChange, handleNextMatch, handlePreviousMatch, isCaseSensitive, isRegex, isWholeWord, setIsCaseSensitive, setIsRegex, setIsWholeWord, performSearch, query]);
+
+  // ドラッグ処理（デスクトップのみ）
+  const handleDragStart = useCallback((e: React.MouseEvent) => {
+    if (isMobile) return;
+    if ((e.target as HTMLElement).closest('input, button')) return;
+    setIsDragging(true);
+    setDragOffset({ x: e.clientX - position.x, y: e.clientY - position.y });
+  }, [position, isMobile]);
 
   useEffect(() => {
-    if (open && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [open]);
+    if (!isDragging) return;
 
+    const handleMove = (e: MouseEvent) => {
+      setPosition({
+        x: Math.max(0, Math.min(window.innerWidth - 400, e.clientX - dragOffset.x)),
+        y: Math.max(0, Math.min(window.innerHeight - 200, e.clientY - dragOffset.y)),
+      });
+    };
+
+    const handleUp = () => setIsDragging(false);
+
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleUp);
+    };
+  }, [isDragging, dragOffset]);
+
+  // クリーンアップ
   useEffect(() => {
     if (!open) {
       clearHighlights();
+      setMatches([]);
+      setCurrentMatchIndex(-1);
     }
-  }, [open, clearHighlights]);
+  }, [open, clearHighlights, setMatches, setCurrentMatchIndex]);
 
   useEffect(() => {
-    return () => clearHighlights();
+    return () => {
+      clearHighlights();
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
   }, [clearHighlights]);
 
+  // オプション変更時に再検索
+  useEffect(() => {
+    if (open && query) {
+      performSearch(query, true);
+    }
+  }, [isCaseSensitive, isRegex, isWholeWord]);
+
+  if (!open) return null;
+
+  // モバイル用スタイル
+  const mobileStyles = isMobile ? {
+    position: 'fixed' as const,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    top: 'auto',
+    width: '100%',
+    maxWidth: '100%',
+    borderRadius: '12px 12px 0 0',
+    maxHeight: '70vh',
+  } : {
+    position: 'fixed' as const,
+    left: position.x,
+    top: position.y,
+    width: 400,
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
+    <>
+      {/* オーバーレイ（モバイルのみ） */}
+      {isMobile && (
+        <div
+          className="fixed inset-0 bg-black/30 z-40"
+          onClick={() => onOpenChange(false)}
+        />
+      )}
+
+      <div
         ref={dialogRef}
-        customPosition
-        hideClose
         className={cn(
-          "search-dialog-content fixed p-0 shadow-lg border border-input rounded-lg",
-          "backdrop-blur-sm bg-background/95",
-          "transition-all duration-200 ease-in-out",
-          "w-[680px] max-w-[96vw]",
-          isDragging && "cursor-grabbing"
+          'z-50 bg-background border shadow-xl flex flex-col',
+          'transition-all duration-150 ease-out',
+          isVisible ? 'opacity-100' : 'opacity-0',
+          isMobile ? 'translate-y-0' : 'rounded-lg',
+          !isVisible && isMobile && 'translate-y-full',
+          isDragging && 'cursor-grabbing select-none'
         )}
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          maxHeight: '80vh',
-          opacity: open ? 1 : 0,
-          transform: 'none',
-        }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        style={mobileStyles}
       >
-        <div className="flex flex-col h-full">
-          <div className="dialog-header flex items-center justify-between p-3 border-b bg-muted/50">
-            <div className="flex items-center gap-2">
-              <SearchCheck className="h-4 w-4 text-muted-foreground" />
-              <div className="flex flex-col">
-                <h2 className="text-sm font-medium">{t('search.title')}</h2>
-                <span className="text-xs text-muted-foreground">
-                  {matches.length > 0
-                    ? `${Math.max(currentMatchIndex + 1, 1)} / ${matches.length} 件`
-                    : t('search.results.empty')}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-full"
-                onClick={handlePreviousMatch}
-                disabled={matches.length === 0}
-                aria-label={t('search.actions.previous')}
-              >
-                <ChevronUp className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-full"
-                onClick={handleNextMatch}
-                disabled={matches.length === 0}
-                aria-label={t('search.actions.next')}
-              >
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-              <CloseButton
-                onClick={() => onOpenChange(false)}
-                size="sm"
-                variant="default"
-                aria-label={t('search.close')}
-              />
-            </div>
+        {/* ヘッダー */}
+        <div
+          className={cn(
+            'flex items-center justify-between px-3 py-2 border-b bg-muted/50',
+            !isMobile && 'cursor-grab rounded-t-lg'
+          )}
+          onMouseDown={handleDragStart}
+        >
+          {/* モバイル用ハンドル */}
+          {isMobile && (
+            <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 bg-muted-foreground/30 rounded-full" />
+          )}
+
+          <div className="flex items-center gap-2">
+            <Search className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">{t('search.title')}</span>
+            {matches.length > 0 && (
+              <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                {currentMatchIndex + 1}/{matches.length}
+              </span>
+            )}
           </div>
-
-          <div className="flex-1 grid grid-cols-1 lg:grid-cols-[2fr,1fr] overflow-hidden">
-            <div className="flex flex-col border-r">
-              <div className="p-3 border-b space-y-2">
-                <div className="relative">
-                  <Input
-                    ref={searchInputRef}
-                    value={query}
-                    onChange={(e) => {
-                      setQuery(e.target.value);
-                      setSearchTerm(e.target.value);
-                    }}
-                    placeholder={t('search.placeholder')}
-                    className="pl-8 pr-24 h-10"
-                    aria-label={t('search.searchInput')}
-                  />
-                  <SearchCheck className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => navigateHistory('up')}
-                      className="h-6 w-6 rounded-full hover:bg-muted"
-                      aria-label={t('search.previousHistory')}
-                    >
-                      <ChevronUp className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => navigateHistory('down')}
-                      className="h-6 w-6 rounded-full hover:bg-muted"
-                      aria-label={t('search.nextHistory')}
-                    >
-                      <ChevronDown className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-[1fr,auto] gap-2 items-center">
-                  <div className="relative">
-                    <Input
-                      value={replacement}
-                      onChange={(e) => setReplacement(e.target.value)}
-                      placeholder={t('search.replacePlaceholder')}
-                      className="pl-8 h-10"
-                      aria-label={t('search.replaceInput')}
-                    />
-                    <Replace className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <Button
-                    variant={showReplace ? 'default' : 'secondary'}
-                    size="sm"
-                    onClick={() => setShowReplace((prev) => !prev)}
-                  >
-                    {showReplace ? t('search.actions.replace') : t('search.toggleReplace')}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="p-3 border-b bg-muted/20">
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    variant={options.caseSensitive ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() =>
-                      setOptions((prev) => ({ ...prev, caseSensitive: !prev.caseSensitive }))
-                    }
-                  >
-                    <CaseSensitive className="h-3.5 w-3.5" />
-                    {t('search.options.caseSensitive')}
-                  </Button>
-                  <Button
-                    variant={options.useRegex ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setOptions((prev) => ({ ...prev, useRegex: !prev.useRegex }))}
-                  >
-                    <Regex className="h-3.5 w-3.5" />
-                    {t('search.options.useRegex')}
-                  </Button>
-                  <Button
-                    variant={options.wholeWord ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setOptions((prev) => ({ ...prev, wholeWord: !prev.wholeWord }))}
-                  >
-                    {t('search.options.wholeWord')}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 p-3 border-b">
-                <Button size="sm" onClick={handleSearch}>{t('search.actions.search')}</Button>
-                {onReplace && (
-                  <>
-                    <Button variant="secondary" size="sm" onClick={handleReplace}>
-                      {t('search.actions.replace')}
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={handleReplaceAll}>
-                      {t('search.actions.replaceAll')}
-                    </Button>
-                  </>
-                )}
-                <div className="flex-1" />
-                <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
-                  {t('search.actions.cancel')}
-                </Button>
-              </div>
-
-              <ScrollArea className="flex-1">
-                <div className="p-4 space-y-2">
-                  {matches.length === 0 && query ? (
-                    <div className="text-sm text-muted-foreground">
-                      {t('search.results.empty')}
-                    </div>
-                  ) : (
-                    matches.map((match: SearchMatch, index: number) => (
-                      <div
-                        key={index}
-                        className={cn(
-                          'text-xs p-2 rounded cursor-pointer hover:bg-accent',
-                          index === currentMatchIndex && 'bg-accent'
-                        )}
-                        onClick={() => goToMatch(index)}
-                      >
-                        <span className="font-semibold mr-2">L{match.lineNumber}</span>
-                        {match.text.substring(0, 120)}
-                        {match.text.length > 120 ? '...' : ''}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </ScrollArea>
-            </div>
-
-            <div className="hidden lg:flex flex-col p-3 space-y-3 bg-muted/30">
-              <div className="text-sm font-medium">{t('search.results.found', { count: matches.length })}</div>
-              <div className="space-y-2">
-                <div className="text-xs text-muted-foreground">
-                  {t('search.options.caseSensitive')}: {options.caseSensitive ? 'On' : 'Off'}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {t('search.options.useRegex')}: {options.useRegex ? 'On' : 'Off'}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {t('search.options.wholeWord')}: {options.wholeWord ? 'On' : 'Off'}
-                </div>
-              </div>
-            </div>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={handlePreviousMatch}
+              disabled={matches.length === 0}
+              className="h-8 w-8 sm:h-6 sm:w-6 rounded hover:bg-accent disabled:opacity-50 flex items-center justify-center"
+              title={`${t('search.actions.previous')} (Shift+Enter)`}
+            >
+              <ChevronUp className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={handleNextMatch}
+              disabled={matches.length === 0}
+              className="h-8 w-8 sm:h-6 sm:w-6 rounded hover:bg-accent disabled:opacity-50 flex items-center justify-center"
+              title={`${t('search.actions.next')} (Enter)`}
+            >
+              <ChevronDown className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="h-8 w-8 sm:h-6 sm:w-6 rounded hover:bg-accent flex items-center justify-center ml-1"
+              title={`${t('search.close')} (Esc)`}
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+
+        {/* 検索入力 */}
+        <div className="p-2 sm:p-2 space-y-2">
+          {/* 検索フィールド */}
+          <div className="flex gap-1 flex-col sm:flex-row">
+            <div className="flex-1 relative">
+              <Input
+                ref={searchInputRef}
+                value={query}
+                onChange={(e) => handleQueryChange(e.target.value)}
+                placeholder={t('search.placeholder')}
+                className="h-10 sm:h-8 text-base sm:text-sm pr-2 sm:pr-24"
+                autoComplete="off"
+                spellCheck={false}
+                autoCapitalize="off"
+                autoCorrect="off"
+              />
+              {/* デスクトップ: オプションボタンを入力欄内に */}
+              <div className="hidden sm:flex absolute right-1 top-1/2 -translate-y-1/2 gap-0.5">
+                <OptionButton
+                  active={isCaseSensitive}
+                  onClick={() => {
+                    setIsCaseSensitive(!isCaseSensitive);
+                    performSearch(query, true);
+                  }}
+                  icon={CaseSensitive}
+                  label={t('search.options.caseSensitive')}
+                  shortcut="Alt+C"
+                />
+                <OptionButton
+                  active={isWholeWord}
+                  onClick={() => {
+                    setIsWholeWord(!isWholeWord);
+                    performSearch(query, true);
+                  }}
+                  icon={WholeWord}
+                  label={t('search.options.wholeWord')}
+                  shortcut="Alt+W"
+                />
+                <OptionButton
+                  active={isRegex}
+                  onClick={() => {
+                    setIsRegex(!isRegex);
+                    performSearch(query, true);
+                  }}
+                  icon={Regex}
+                  label={t('search.options.useRegex')}
+                  shortcut="Alt+R"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* モバイル: オプションボタンを別行に */}
+          <div className="flex sm:hidden gap-1 flex-wrap">
+            <OptionButton
+              active={isCaseSensitive}
+              onClick={() => {
+                setIsCaseSensitive(!isCaseSensitive);
+                performSearch(query, true);
+              }}
+              icon={CaseSensitive}
+              label="Aa"
+              showLabel
+            />
+            <OptionButton
+              active={isWholeWord}
+              onClick={() => {
+                setIsWholeWord(!isWholeWord);
+                performSearch(query, true);
+              }}
+              icon={WholeWord}
+              label="単語"
+              showLabel
+            />
+            <OptionButton
+              active={isRegex}
+              onClick={() => {
+                setIsRegex(!isRegex);
+                performSearch(query, true);
+              }}
+              icon={Regex}
+              label="正規"
+              showLabel
+            />
+            <div className="flex-1" />
+            <button
+              type="button"
+              onClick={() => setShowReplace(prev => !prev)}
+              className={cn(
+                'h-7 px-2 rounded flex items-center gap-1 transition-colors text-xs',
+                showReplace ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+              )}
+            >
+              <Replace className="h-3.5 w-3.5" />
+              {t('search.actions.replace')}
+            </button>
+          </div>
+
+          {/* 置換入力 */}
+          {showReplace && (
+            <div className="flex gap-1 flex-col sm:flex-row">
+              <div className="flex-1">
+                <Input
+                  value={replacement}
+                  onChange={(e) => setReplacement(e.target.value)}
+                  placeholder={t('search.replacePlaceholder')}
+                  className="h-10 sm:h-8 text-base sm:text-sm"
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+              </div>
+              <div className="flex gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReplace}
+                  className="h-10 sm:h-8 flex-1 sm:flex-none sm:px-2"
+                >
+                  <Replace className="h-3.5 w-3.5 sm:mr-0 mr-1" />
+                  <span className="sm:hidden">{t('search.actions.replace')}</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReplaceAll}
+                  className="h-10 sm:h-8 flex-1 sm:flex-none sm:px-2 text-xs"
+                >
+                  {t('search.actions.replaceAll')}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* デスクトップ: 置換トグル & 結果なし表示 */}
+          <div className="hidden sm:flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowReplace(prev => !prev)}
+              className={cn(
+                'text-xs px-2 py-1 rounded transition-colors',
+                showReplace ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent'
+              )}
+            >
+              {showReplace ? t('search.hideReplace') : t('search.showReplace')}
+            </button>
+            {query && matches.length === 0 && (
+              <span className="text-xs text-muted-foreground">{t('search.results.empty')}</span>
+            )}
+          </div>
+
+          {/* モバイル: 結果なし表示 */}
+          {isMobile && query && matches.length === 0 && (
+            <div className="text-xs text-muted-foreground text-center py-1">
+              {t('search.results.empty')}
+            </div>
+          )}
+        </div>
+
+        {/* 検索結果リスト */}
+        {matches.length > 0 && (
+          <div className="border-t flex flex-col">
+            {/* 結果ヘッダー */}
+            <button
+              type="button"
+              onClick={() => setShowResults(prev => !prev)}
+              className="flex items-center justify-between px-3 py-1.5 hover:bg-muted/50 text-xs text-muted-foreground"
+            >
+              <span>{t('search.results.found', { count: matches.length })}</span>
+              <ChevronRight className={cn('h-3 w-3 transition-transform', showResults && 'rotate-90')} />
+            </button>
+
+            {/* 結果リスト */}
+            {showResults && (
+              <div className={cn('overflow-y-auto', isMobile ? 'max-h-32' : 'max-h-40')}>
+                <div className="p-1">
+                  {matches.slice(0, 50).map((match, index) => (
+                    <SearchResultItem
+                      key={`${match.lineNumber}-${match.startIndex}`}
+                      match={match}
+                      index={index}
+                      isActive={index === currentMatchIndex}
+                      onClick={() => goToMatch(index)}
+                    />
+                  ))}
+                  {matches.length > 50 && (
+                    <div className="text-xs text-muted-foreground text-center py-2">
+                      +{matches.length - 50} {t('search.moreResults')}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* モバイル用セーフエリア */}
+        {isMobile && <div className="h-safe-area-inset-bottom" />}
+      </div>
+    </>
   );
-};
+});
+SearchDialog.displayName = 'SearchDialog';
