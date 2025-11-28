@@ -1,8 +1,9 @@
 /**
- * Appearance settings tab for customizing editor visuals
+ * 表示設定タブ
  */
 'use client';
 
+import { useTranslation } from 'react-i18next';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -25,31 +26,37 @@ interface AppearanceSettingsProps {
 }
 
 export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSettingsProps) {
-  const { setTheme, resolvedTheme } = useTheme();
+  const { t } = useTranslation();
+  const { theme: currentTheme, setTheme } = useTheme();
+
+  // テーマ切り替えハンドラー（即座に反映）
+  const handleThemeChange = (value: string) => {
+    onSettingsChange({ theme: value });
+    setTheme(value);
+  };
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Theme</CardTitle>
+          <CardTitle className="text-lg">{t('settings.appearance.theme.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label htmlFor="theme">Color Theme</Label>
+            <Label htmlFor="theme">{t('settings.appearance.theme.label')}</Label>
             <Select
-              value={settings.theme}
-              onValueChange={(value) => {
-                onSettingsChange({ theme: value });
-                setTheme(value);
-              }}
+              value={currentTheme || settings.theme}
+              onValueChange={handleThemeChange}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select theme" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="system">System ({resolvedTheme === 'dark' ? 'Dark' : 'Light'})</SelectItem>
-                <SelectItem value="light">Light</SelectItem>
-                <SelectItem value="dark">Dark</SelectItem>
+                <SelectItem value="system">
+                  {t('settings.appearance.theme.system')}
+                </SelectItem>
+                <SelectItem value="light">{t('settings.appearance.theme.light')}</SelectItem>
+                <SelectItem value="dark">{t('settings.appearance.theme.dark')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -58,18 +65,18 @@ export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSet
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Font</CardTitle>
+          <CardTitle className="text-lg">{t('settings.appearance.font.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="font-family">Font Family</Label>
+              <Label htmlFor="font-family">{t('settings.appearance.font.family')}</Label>
               <Select
                 value={settings.fontFamily}
                 onValueChange={(value) => onSettingsChange({ fontFamily: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select font" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {FONT_FAMILIES.map((font) => (
@@ -81,7 +88,7 @@ export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSet
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="font-size">Font Size</Label>
+              <Label htmlFor="font-size">{t('settings.appearance.font.size')}</Label>
               <Input
                 id="font-size"
                 type="number"
@@ -99,11 +106,11 @@ export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSet
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Display</CardTitle>
+          <CardTitle className="text-lg">{t('settings.appearance.display.title')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
-            <Label htmlFor="show-line-numbers">Show line numbers</Label>
+            <Label htmlFor="show-line-numbers">{t('settings.appearance.display.lineNumbers')}</Label>
             <Switch
               id="show-line-numbers"
               checked={settings.showLineNumbers}
@@ -113,7 +120,7 @@ export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSet
             />
           </div>
           <div className="flex items-center justify-between">
-            <Label htmlFor="show-ruler">Show ruler</Label>
+            <Label htmlFor="show-ruler">{t('settings.appearance.display.ruler')}</Label>
             <Switch
               id="show-ruler"
               checked={settings.showRuler}
@@ -123,7 +130,7 @@ export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSet
             />
           </div>
           <div className="flex items-center justify-between">
-            <Label htmlFor="word-wrap">Word wrap</Label>
+            <Label htmlFor="word-wrap">{t('settings.appearance.display.wordWrap')}</Label>
             <Switch
               id="word-wrap"
               checked={settings.wordWrap}

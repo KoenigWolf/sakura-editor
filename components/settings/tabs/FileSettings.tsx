@@ -1,8 +1,9 @@
 /**
- * File settings tab for managing file encoding and line endings
+ * ファイル設定タブ
  */
 'use client';
 
+import { useTranslation } from 'react-i18next';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,30 +15,26 @@ const ENCODINGS = [
   { value: 'euc-jp', label: 'EUC-JP' },
 ];
 
-const LINE_ENDINGS = [
-  { value: 'lf', label: 'LF (Unix/macOS)' },
-  { value: 'crlf', label: 'CRLF (Windows)' },
-  { value: 'cr', label: 'CR (Classic Mac)' },
-];
-
 interface FileSettingsProps {
   settings: EditorSettings;
   onSettingsChange: (settings: Partial<EditorSettings>) => void;
 }
 
 export function FileSettings({ settings, onSettingsChange }: FileSettingsProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">File Encoding</CardTitle>
+          <CardTitle className="text-lg">{t('settings.file.encoding.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label htmlFor="encoding">Default Encoding</Label>
+            <Label htmlFor="encoding">{t('settings.file.encoding.label')}</Label>
             <Select defaultValue="utf-8">
               <SelectTrigger>
-                <SelectValue placeholder="Select encoding" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {ENCODINGS.map(({ value, label }) => (
@@ -53,21 +50,19 @@ export function FileSettings({ settings, onSettingsChange }: FileSettingsProps) 
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Line Endings</CardTitle>
+          <CardTitle className="text-lg">{t('settings.file.lineEnding.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label htmlFor="line-ending">Default Line Ending</Label>
+            <Label htmlFor="line-ending">{t('settings.file.lineEnding.label')}</Label>
             <Select defaultValue="lf">
               <SelectTrigger>
-                <SelectValue placeholder="Select line ending" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {LINE_ENDINGS.map(({ value, label }) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
+                <SelectItem value="lf">{t('settings.file.lineEnding.options.lf')}</SelectItem>
+                <SelectItem value="crlf">{t('settings.file.lineEnding.options.crlf')}</SelectItem>
+                <SelectItem value="cr">{t('settings.file.lineEnding.options.cr')}</SelectItem>
               </SelectContent>
             </Select>
           </div>

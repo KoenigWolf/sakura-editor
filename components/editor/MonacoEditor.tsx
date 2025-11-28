@@ -62,14 +62,20 @@ const getLanguageFromFilename = (filename: string | null): string => {
  * エディタの初期化と状態管理を担当
  */
 export function MonacoEditor() {
-  const { getActiveFile, updateFile } = useFileStore();
-  const { settings } = useEditorStore();
-  const { setEditorInstance, updateStatusInfo } = useEditorInstanceStore();
-  const { setIsOpen: setSearchOpen, setSearchTerm } = useSearchStore();
+  const activeFile = useFileStore((state) => state.files.find(f => f.id === state.activeFileId));
+  const updateFile = useFileStore((state) => state.updateFile);
+  const settings = useEditorStore((state) => state.settings);
+  const setEditorInstance = useEditorInstanceStore((state) => state.setEditorInstance);
+  const updateStatusInfo = useEditorInstanceStore((state) => state.updateStatusInfo);
+  const setSearchOpen = useSearchStore((state) => state.setIsOpen);
+  const setSearchTerm = useSearchStore((state) => state.setSearchTerm);
   const { resolvedTheme } = useTheme();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
-  const activeFile = getActiveFile();
+  const activeFileIdRef = useRef<string | null>(null);
+
+  // activeFileのIDをrefで保持（handleChangeで最新を参照するため）
+  activeFileIdRef.current = activeFile?.id ?? null;
 
   /**
    * エディタのステータス情報を更新
@@ -100,13 +106,14 @@ export function MonacoEditor() {
   }, [updateStatusInfo]);
 
   /**
-   * エディタが変更されたときのハンドラ
+   * エディタが変更されたときのハンドラ（refベースで再生成を防ぐ）
    */
   const handleChange = useCallback((value: string | undefined) => {
-    if (activeFile && value !== undefined) {
-      updateFile(activeFile.id, value);
+    const id = activeFileIdRef.current;
+    if (id && value !== undefined) {
+      updateFile(id, value);
     }
-  }, [activeFile, updateFile]);
+  }, [updateFile]);
 
   /**
    * 言語モードを設定
@@ -116,7 +123,7 @@ export function MonacoEditor() {
   }, [activeFile]);
 
   /**
-   * モナコエディタのオプション設定
+   * モナコエディタのオプション設定（高速化のための最適化済み）
    */
   const editorOptions = useMemo(() => {
     return {
@@ -125,30 +132,46 @@ export function MonacoEditor() {
       lineHeight: settings.lineHeight,
       tabSize: settings.tabSize,
       wordWrap: settings.wordWrap ? 'on' : 'off',
-      minimap: {
-        enabled: true, // 設定値が無ければデフォルトでは表示する
-        scale: 1,
-        showSlider: 'mouseover',
-      },
+      minimap: { enabled: false }, // 高速化: ミニマップ無効
       lineNumbers: settings.showLineNumbers ? 'on' : 'off',
-      renderLineHighlight: 'all',
-      roundedSelection: true,
+      renderLineHighlight: 'line', // 高速化: 行全体ではなく行番号のみ
+      roundedSelection: false, // 高速化: 角丸無効
       selectOnLineNumbers: true,
-      quickSuggestions: true,
+      quickSuggestions: false, // 高速化: 自動サジェスト無効
       scrollBeyondLastLine: false,
-      cursorBlinking: 'smooth',
-      cursorSmoothCaretAnimation: 'on',
+      cursorBlinking: 'solid', // 高速化: アニメーション無効
+      cursorSmoothCaretAnimation: 'off', // 高速化: カーソルアニメーション無効
+      smoothScrolling: false, // 高速化: スムーススクロール無効
       automaticLayout: true,
       scrollbar: {
         verticalScrollbarSize: 10,
         horizontalScrollbarSize: 10,
         alwaysConsumeMouseWheel: false,
+        useShadows: false, // 高速化: 影無効
       },
-      renderWhitespace: 'all',
-      rulers: [], // 設定値が無ければデフォルトでは非表示
-      bracketPairColorization: {
-        enabled: true,
-      },
+      renderWhitespace: 'none', // 高速化: 空白表示無効
+      rulers: [],
+      bracketPairColorization: { enabled: false }, // 高速化: ブラケット色分け無効
+      folding: false, // 高速化: 折りたたみ無効
+      links: false, // 高速化: リンク検出無効
+      renderControlCharacters: false, // 高速化: 制御文字表示無効
+      renderValidationDecorations: 'off', // 高速化: バリデーション装飾無効
+      occurrencesHighlight: 'off', // 高速化: 出現箇所ハイライト無効
+      selectionHighlight: false, // 高速化: 選択ハイライト無効
+      matchBrackets: 'never', // 高速化: ブラケットマッチ無効
+      codeLens: false, // 高速化: CodeLens無効
+      lightbulb: { enabled: 'off' }, // 高速化: 提案アイコン無効
+      hover: { enabled: false }, // 高速化: ホバー無効
+      parameterHints: { enabled: false }, // 高速化: パラメータヒント無効
+      suggestOnTriggerCharacters: false, // 高速化: トリガー文字でのサジェスト無効
+      acceptSuggestionOnEnter: 'off', // 高速化: Enterでのサジェスト確定無効
+      wordBasedSuggestions: 'off', // 高速化: 単語ベースサジェスト無効
+      formatOnType: false, // 高速化: 入力時フォーマット無効
+      formatOnPaste: false, // 高速化: ペースト時フォーマット無効
+      autoClosingBrackets: 'never', // 高速化: 自動括弧閉じ無効
+      autoClosingQuotes: 'never', // 高速化: 自動引用符閉じ無効
+      autoSurround: 'never', // 高速化: 自動囲み無効
+      autoIndent: 'none', // 高速化: 自動インデント無効
     } as editor.IStandaloneEditorConstructionOptions;
   }, [settings]);
 

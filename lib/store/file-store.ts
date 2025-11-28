@@ -22,6 +22,10 @@ interface FileStore {
   setHasHydrated: (state: boolean) => void;
 }
 
+// updateFileのデバウンス用
+let pendingUpdates: Map<string, string> = new Map();
+let updateRafId: number | null = null;
+
 export const useFileStore = create<FileStore>()(
   persist(
     (set, get) => ({
@@ -36,8 +40,8 @@ export const useFileStore = create<FileStore>()(
       addFile: (file) => {
         const newFile = {
           ...file,
-          id: typeof crypto !== 'undefined' && crypto.randomUUID 
-            ? crypto.randomUUID() 
+          id: typeof crypto !== 'undefined' && crypto.randomUUID
+            ? crypto.randomUUID()
             : `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         };
         set((state) => ({
@@ -47,13 +51,28 @@ export const useFileStore = create<FileStore>()(
       },
 
       updateFile: (id, content) => {
-        set((state) => ({
-          files: state.files.map((file) =>
-            file.id === id
-              ? { ...file, content, lastModified: Date.now() }
-              : file
-          ),
-        }));
+        // 更新をキューに追加
+        pendingUpdates.set(id, content);
+
+        // 既にスケジュール済みならスキップ
+        if (updateRafId !== null) return;
+
+        // 次のフレームでバッチ更新
+        updateRafId = requestAnimationFrame(() => {
+          const updates = pendingUpdates;
+          pendingUpdates = new Map();
+          updateRafId = null;
+
+          set((state) => ({
+            files: state.files.map((file) => {
+              const newContent = updates.get(file.id);
+              if (newContent !== undefined && newContent !== file.content) {
+                return { ...file, content: newContent, lastModified: Date.now() };
+              }
+              return file;
+            }),
+          }));
+        });
       },
 
       removeFile: (id) => {
