@@ -63,6 +63,8 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const { settings: currentSettings, updateSettings } = useEditorStore();
   const { setTheme } = useTheme();
   const [tempSettings, setTempSettings] = useState(currentSettings);
+  // ダイアログを開いた時点の設定を保存（リセット用）
+  const [originalSettings, setOriginalSettings] = useState(currentSettings);
 
   // ドラッグ関連のstate
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -75,7 +77,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const dialogRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // ダイアログを中央に配置
+  // ダイアログを中央に配置 & 開いた時点の設定を保存
   useEffect(() => {
     if (open && !isInitialized) {
       const centerX = (window.innerWidth - DEFAULT_WIDTH) / 2;
@@ -83,16 +85,14 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
       setPosition({ x: centerX, y: centerY });
       setSize({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
       setIsInitialized(true);
+      // ダイアログを開いた時点の設定を保存
+      setOriginalSettings(currentSettings);
+      setTempSettings(currentSettings);
     }
     if (!open) {
       setIsInitialized(false);
     }
-  }, [open, isInitialized]);
-
-  // グローバル設定が更新された場合に、一時設定を同期する
-  useEffect(() => {
-    setTempSettings(currentSettings);
-  }, [currentSettings]);
+  }, [open, isInitialized, currentSettings]);
 
   // ドラッグ開始
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -202,32 +202,45 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
 
   // 保存ボタン押下時の処理
   const handleSave = useCallback(() => {
+    // 現在の設定をoriginalSettingsに保存（これ以降のリセットはこの設定に戻る）
+    setOriginalSettings(tempSettings);
     updateSettings(tempSettings);
-    if (tempSettings.theme) {
-      setTheme(tempSettings.theme);
-    }
     toast({
       title: t('settings.actions.saved'),
       duration: 2000,
     });
-  }, [tempSettings, updateSettings, toast, t, setTheme]);
+  }, [tempSettings, updateSettings, toast, t]);
 
-  // リセットボタン押下時の処理
+  // リセットボタン押下時の処理（ダイアログを開いた時点の設定に戻す）
   const handleReset = useCallback(() => {
-    setTempSettings(currentSettings);
+    setTempSettings(originalSettings);
+    // テーマも元に戻す（リアルタイムプレビュー）
+    updateSettings(originalSettings);
     toast({
       title: t('settings.actions.resetDone'),
       duration: 2000,
     });
-  }, [currentSettings, toast, t]);
+  }, [originalSettings, updateSettings, toast, t]);
 
-  // 各タブの設定変更時のコールバック
+  // 各タブの設定変更時のコールバック（リアルタイムプレビュー）
   const handleSettingsChange = useCallback((newSettings: Partial<typeof currentSettings>) => {
-    setTempSettings(prevSettings => ({
-      ...prevSettings,
-      ...newSettings,
-    }));
-  }, []);
+    setTempSettings(prevSettings => {
+      const updated = { ...prevSettings, ...newSettings };
+      return updated;
+    });
+    // ストアも即座に更新してリアルタイムプレビュー
+    updateSettings(newSettings);
+  }, [updateSettings]);
+
+  // ダイアログを閉じる時の処理
+  const handleClose = useCallback(() => {
+    // 保存されていない変更を破棄（元の設定に戻す）
+    if (JSON.stringify(tempSettings) !== JSON.stringify(originalSettings)) {
+      updateSettings(originalSettings);
+      setTempSettings(originalSettings);
+    }
+    onOpenChange(false);
+  }, [tempSettings, originalSettings, updateSettings, onOpenChange]);
 
   if (!open) return null;
 
@@ -241,7 +254,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
       {/* オーバーレイ */}
       <div
         className="fixed inset-0 bg-black/50 z-40"
-        onClick={() => onOpenChange(false)}
+        onClick={handleClose}
       />
 
       {/* ダイアログ */}
@@ -303,7 +316,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
         >
           <h2 className="text-base font-semibold">{t('settings.title')}</h2>
           <CloseButton
-            onClick={() => onOpenChange(false)}
+            onClick={handleClose}
             size="sm"
             variant="default"
           />

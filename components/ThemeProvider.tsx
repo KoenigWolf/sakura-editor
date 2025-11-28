@@ -11,8 +11,26 @@ const camelToKebab = (str: string): string => {
   return str.replace(/([A-Z])/g, '-$1').toLowerCase();
 };
 
+// テーマで使用するすべてのCSS変数
+const ALL_CSS_VARS = [
+  '--background', '--foreground',
+  '--card', '--card-foreground',
+  '--popover', '--popover-foreground',
+  '--primary', '--primary-foreground',
+  '--secondary', '--secondary-foreground',
+  '--muted', '--muted-foreground',
+  '--accent', '--accent-foreground',
+  '--destructive', '--destructive-foreground',
+  '--border', '--input', '--ring'
+];
+
 const applyThemeColors = (theme: EditorTheme) => {
   const root = document.documentElement;
+
+  // まず既存のカスタムスタイルをクリア
+  ALL_CSS_VARS.forEach(v => root.style.removeProperty(v));
+
+  // 新しいテーマの色を適用
   Object.entries(theme.colors).forEach(([key, value]) => {
     const cssVar = `--${camelToKebab(key)}`;
     root.style.setProperty(cssVar, value);
@@ -21,20 +39,14 @@ const applyThemeColors = (theme: EditorTheme) => {
 
 const resetThemeColors = () => {
   const root = document.documentElement;
-  const cssVars = [
-    '--background', '--foreground', '--card', '--card-foreground',
-    '--popover', '--popover-foreground', '--primary', '--primary-foreground',
-    '--secondary', '--secondary-foreground', '--muted', '--muted-foreground',
-    '--accent', '--accent-foreground', '--destructive', '--destructive-foreground',
-    '--border', '--input', '--ring'
-  ];
-  cssVars.forEach(v => root.style.removeProperty(v));
+  ALL_CSS_VARS.forEach(v => root.style.removeProperty(v));
 };
 
 function ThemeInitializer({ children }: { children: React.ReactNode }) {
   const editorTheme = useEditorStore((state) => state.settings.theme);
-  const { setTheme, resolvedTheme } = useTheme();
+  const { setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
+  const prevThemeRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
     setMounted(true);
@@ -43,16 +55,28 @@ function ThemeInitializer({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     if (!mounted) return;
 
+    // 同じテーマの場合はスキップ
+    if (prevThemeRef.current === editorTheme) return;
+    prevThemeRef.current = editorTheme;
+
     const customTheme = CUSTOM_THEMES.find(t => t.id === editorTheme);
+
     if (customTheme) {
-      // カスタムテーマの場合: ベーステーマ（dark/light）を設定してからCSS変数を適用
+      // カスタムテーマの場合
+      // まずCSS変数をリセット
+      resetThemeColors();
+
+      // ベーステーマ（dark/light）を設定
       setTheme(customTheme.type);
-      // 少し遅延させてdarkクラスが適用されてからCSS変数を上書き
-      setTimeout(() => {
-        applyThemeColors(customTheme);
-      }, 0);
+
+      // requestAnimationFrameを使用して、DOMの更新後にCSS変数を適用
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          applyThemeColors(customTheme);
+        });
+      });
     } else {
-      // 標準テーマの場合: CSS変数をリセットしてnext-themesに任せる
+      // 標準テーマ（light/dark/system）の場合
       resetThemeColors();
       setTheme(editorTheme);
     }
