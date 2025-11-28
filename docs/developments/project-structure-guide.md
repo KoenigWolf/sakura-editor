@@ -1,6 +1,4 @@
-# プロジェクト構造ガイド（sakura-editor）
-
-このガイドは、sakura-editorプロジェクトの構造とコーディング規約をまとめたドキュメントです。
+# プロジェクト構造ガイド
 
 ## 目次
 
@@ -29,6 +27,7 @@ sakura-editor/
 │   ├── editor/               # エディター関連コンポーネント
 │   │   ├── EditorContainer.tsx
 │   │   ├── EditorToolbar.tsx
+│   │   ├── FileTabs.tsx
 │   │   ├── FileTree.tsx
 │   │   ├── MonacoEditor.tsx
 │   │   └── SearchDialog.tsx
@@ -37,13 +36,16 @@ sakura-editor/
 │   │   └── tabs/
 │   │       ├── AppearanceSettings.tsx
 │   │       ├── FileSettings.tsx
-│   │       ├── GeneralSettings.tsx
-│   │       └── KeyboardSettings.tsx
+│   │       └── GeneralSettings.tsx
 │   ├── ui/                   # 汎用UIコンポーネント（shadcn/ui）
 │   └── ThemeProvider.tsx
+├── docs/                     # ドキュメント
+│   ├── README.md             # ドキュメント目次
+│   ├── architecture/         # アーキテクチャ設計
+│   ├── components/           # コンポーネント設計
+│   ├── developments/         # 開発ガイド
+│   └── i18n/                 # 国際化ガイド
 ├── hooks/                    # カスタムフック
-│   ├── use-draggable-dialog.ts
-│   └── use-toast.ts
 ├── lib/                      # ユーティリティ・状態管理
 │   ├── i18n/                 # 国際化設定
 │   │   ├── index.ts
@@ -51,19 +53,19 @@ sakura-editor/
 │   │       ├── en.ts
 │   │       └── ja.ts
 │   ├── store/                # Zustand状態管理
-│   │   ├── editor-instance-store.ts  # Monaco Editorインスタンス管理
-│   │   ├── file-store.ts             # ファイル管理
-│   │   └── search-store.ts           # 検索機能
-│   ├── types/                # 型定義
+│   │   ├── editor-instance-store.ts
+│   │   ├── file-store.ts
+│   │   └── search-store.ts
+│   ├── types/
 │   │   └── editor.ts
-│   ├── store.ts              # エディター設定ストア
-│   └── utils.ts              # 共通ユーティリティ（cn関数等）
-├── .eslintrc.json            # ESLint設定
-├── next.config.js            # Next.js設定
-├── package.json              # 依存関係
-├── postcss.config.js         # PostCSS設定
-├── tailwind.config.ts        # Tailwind CSS設定
-└── tsconfig.json             # TypeScript設定
+│   ├── store.ts
+│   └── utils.ts
+├── public/                   # 静的ファイル
+├── .eslintrc.json
+├── next.config.js
+├── package.json
+├── tailwind.config.ts
+└── tsconfig.json
 ```
 
 ### ディレクトリの役割
@@ -74,6 +76,7 @@ sakura-editor/
 | `components/editor/` | エディター固有のコンポーネント |
 | `components/settings/` | 設定画面のコンポーネント |
 | `components/ui/` | 再利用可能なUIコンポーネント（shadcn/ui） |
+| `docs/` | 開発ドキュメント |
 | `hooks/` | カスタムReactフック |
 | `lib/store/` | Zustandによる状態管理 |
 | `lib/types/` | TypeScript型定義 |
@@ -81,12 +84,12 @@ sakura-editor/
 
 ### ストア構成
 
-| ストア | 役割 |
-|--------|------|
-| `lib/store.ts` | エディター設定（フォント、テーマ等）の永続化 |
-| `lib/store/file-store.ts` | ファイル管理（開いているファイル、アクティブファイル） |
-| `lib/store/search-store.ts` | 検索機能（検索条件、マッチ結果） |
-| `lib/store/editor-instance-store.ts` | Monaco Editorインスタンスの共有 |
+| ストア | 役割 | 永続化 |
+|--------|------|--------|
+| `lib/store.ts` | エディター設定（フォント、テーマ等） | ○ |
+| `lib/store/file-store.ts` | ファイル管理（開いているファイル） | × |
+| `lib/store/search-store.ts` | 検索機能（検索条件、マッチ結果） | × |
+| `lib/store/editor-instance-store.ts` | Monaco Editorインスタンス | × |
 
 ---
 
@@ -99,26 +102,22 @@ sakura-editor/
 
 ### 技術スタック
 
-- **フレームワーク**: Next.js 13.5（App Router）
-- **言語**: TypeScript 5.2
-- **状態管理**: Zustand
-- **UIライブラリ**: shadcn/ui + Radix UI
-- **エディター**: Monaco Editor
-- **スタイリング**: Tailwind CSS
-- **フォーム**: React Hook Form + Zod
-- **国際化**: i18next + react-i18next
+| カテゴリ | 技術 |
+|---------|------|
+| フレームワーク | Next.js 13.5（App Router） |
+| 言語 | TypeScript 5.2 |
+| 状態管理 | Zustand |
+| UIライブラリ | shadcn/ui + Radix UI |
+| エディター | Monaco Editor |
+| スタイリング | Tailwind CSS |
+| 国際化 | i18next + react-i18next |
 
 ### 初期セットアップ
 
 ```bash
-# 1. プロジェクトクローン
 git clone <repository-url>
 cd sakura-editor
-
-# 2. 依存関係インストール
 npm install
-
-# 3. 開発サーバー起動
 npm run dev
 ```
 
@@ -146,212 +145,73 @@ npm run lint     # ESLintによるコードチェック
 
 #### 関数定義
 
-- **原則としてアロー関数を使用**: `const functionName = () => {}`
-- **関数名は意図を表現**: `useCalculatePosition`のように「なぜ」を示す
-- **単一責任原則**: 各関数・コンポーネントは1つの責務のみ
-- **不要なコメントは書かない**: 振る舞いがコードから明確に読み取れる場合はコメントを避ける
+- アロー関数を使用: `const functionName = () => {}`
+- 関数名は意図を表現
+- 単一責任原則
+- 不要なコメントは書かない
 
 ```typescript
 // 良い例
 const calculateTotalPrice = (items: Item[]): number => {
   return items.reduce((sum, item) => sum + item.price, 0)
 }
-
-// 悪い例
-function calc(items) {
-  // 計算と表示を同時に行う（単一責任原則違反）
-}
 ```
 
 #### null/undefined の扱い
 
-- **null合体演算子（??）に頼らずガード節で分岐する**: 意図を明確にし、分岐漏れを防ぐ
-
 ```typescript
-// 悪い例（挙動が読みにくい）
-const value = a?.b?.c ?? d ?? e ?? []
-
 // 良い例（ガード節で明示的に分岐）
 const getValue = () => {
   if (a && a.b && a.b.c) return a.b.c
   if (d) return d
-  if (e) return e
   return []
 }
 ```
 
 #### export規則
 
-- **`export *` は使用禁止**: 必ず名前付きexportを使用
-- **exportは最小限に**: 外部から実際に使用されるもののみexport
-- **内部実装は隠蔽**: 内部でのみ使用されるhooks、コンポーネント、ユーティリティはexportしない
-
-```typescript
-// 良い例
-export const PublicComponent = () => {}
-const InternalHelper = () => {} // exportしない
-
-// 悪い例
-export * from './components' // すべてexportしてしまう
-```
-
-#### ファイル末尾
-
-- **必ず空白行を入れる**
+- `export *` は使用禁止
+- exportは最小限に
+- 内部実装は隠蔽
 
 ### コンポーネント設計
 
-#### 配置原則
-
-- **使用場所の近くに配置**: コンポーネントは使用元のディレクトリ内に配置
-- **Propsの責務分離**: `onAdd`/`onEdit`のように責務を分離
-- **不要な情報を渡さない**: 位置情報などは親で管理
-
-#### 型定義
-
-- **`ComponentProps<typeof Component>` で重複回避**
-
-```typescript
-// 良い例
-type ButtonProps = ComponentProps<typeof Button>
-
-// 悪い例
-type ButtonProps = {
-  onClick: () => void
-  children: ReactNode
-  // ... 重複定義
-}
-```
-
-#### メモ化
-
-- **useMemo/useCallbackは全て使用**: 特に子への props は必須
-
-#### スタイリング
-
-- **Tailwindクラスを使用**: `cva`/`cn`活用
-- **`style`は動的な数値のみ許可**: 静的なスタイルはTailwindクラスで
-
-### ロジックの切り出し方針
-
-#### 純粋関数にする場合
-
-- React依存なし（state、effect不要）
-- テスト容易性を重視
-- 例: `calculateTotal()`, `formatDate()`, `validateInput()`
-
-```typescript
-// 純粋関数の例
-export const calculateTotal = (items: Item[]): number => {
-  return items.reduce((sum, item) => sum + item.price, 0)
-}
-```
-
-#### カスタムフックにする場合
-
-- React機能が必要（useState、useEffect等）
-- コンポーネント間でステートフルなロジック共有
-- 例: `useDraggableDialog()`, `useToast()`
-
-```typescript
-// カスタムフックの例
-export const useDraggableDialog = (isOpen: boolean, dialogRef: RefObject<HTMLDivElement>) => {
-  const [position, setPosition] = useState({ x: 0, y: 0 })
-  // ...
-  return { position, isDragging, handleMouseDown, ... }
-}
-```
+- 使用場所の近くに配置
+- Propsの責務分離
+- `ComponentProps<typeof Component>` で型定義
+- useMemo/useCallbackを活用
+- Tailwindクラスを使用
 
 ---
 
 ## ディレクトリ規約
 
-### コンポーネントの配置
-
-```
-components/
-├── editor/                   # エディター機能のコンポーネント
-│   ├── EditorContainer.tsx   # エディターコンテナ（ステータスバー含む）
-│   ├── EditorToolbar.tsx     # ツールバー
-│   ├── FileTree.tsx          # ファイルツリー
-│   ├── MonacoEditor.tsx      # Monaco Editor ラッパー
-│   └── SearchDialog.tsx      # 検索ダイアログ
-├── settings/                 # 設定機能のコンポーネント
-│   ├── SettingsDialog.tsx
-│   └── tabs/                 # 設定タブのコンポーネント
-├── ui/                       # 汎用UIコンポーネント（shadcn/ui）
-└── ThemeProvider.tsx         # テーマプロバイダー
-```
-
-### カスタムフックの配置
-
-```
-hooks/
-├── use-draggable-dialog.ts   # ドラッグ可能ダイアログ
-└── use-toast.ts              # トースト通知
-```
-
-### ライブラリ・ユーティリティの配置
-
-```
-lib/
-├── i18n/                     # 国際化
-│   ├── index.ts              # i18n設定
-│   └── translations/         # 翻訳ファイル
-├── store/                    # Zustandストア
-│   ├── editor-instance-store.ts  # Monaco Editorインスタンス
-│   ├── file-store.ts             # ファイル管理ストア
-│   └── search-store.ts           # 検索機能ストア
-├── types/                    # 型定義
-│   └── editor.ts             # エディター関連の型
-├── store.ts                  # エディター設定ストア
-└── utils.ts                  # 共通ユーティリティ（cn関数等）
-```
-
 ### ファイル命名規則
 
-- **コンポーネント**: `ComponentName.tsx`（PascalCase）
-- **フック**: `use-hook-name.ts`（ケバブケース、use-プレフィックス）
-- **ストア**: `*-store.ts`（ケバブケース）
-- **型定義**: `types.ts` または機能名.ts 内で定義
-- **テスト**: `*.test.ts` または `*.test.tsx`
+| 種類 | 規則 | 例 |
+|------|------|-----|
+| コンポーネント | PascalCase | `ComponentName.tsx` |
+| フック | ケバブケース + use- | `use-hook-name.ts` |
+| ストア | ケバブケース + -store | `file-store.ts` |
+| 型定義 | 機能名.ts | `editor.ts` |
+| テスト | *.test.ts(x) | `utils.test.ts` |
+
+### インポートパス
+
+```typescript
+// @/* でプロジェクトルートからの絶対パスを使用
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { useEditorStore } from '@/lib/store'
+```
 
 ---
 
 ## 開発ワークフロー
 
-### 開発コマンド
-
-```bash
-# 開発サーバー起動（ホットリロード有効）
-npm run dev
-
-# プロダクションビルド
-npm run build
-
-# プロダクションサーバー起動
-npm run start
-
-# ESLintによるコードチェック
-npm run lint
-```
-
-### パスエイリアス
-
-`tsconfig.json`で設定されたパスエイリアス:
-
-```typescript
-// @/* でプロジェクトルートからの絶対パスを使用可能
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { useEditorStore } from '@/lib/store'
-import { useFileStore } from '@/lib/store/file-store'
-```
-
 ### 状態管理（Zustand）
 
 ```typescript
-// ストアの定義例
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -373,11 +233,17 @@ export const useEditorStore = create<EditorSettingsState>()(
 )
 ```
 
-### UIコンポーネント（shadcn/ui）
+### セレクタの使用
 
-- `components/ui/` 配下にshadcn/uiコンポーネントを配置
-- Radix UIをベースにしたアクセシブルなコンポーネント
-- Tailwind CSSでスタイリング
+```typescript
+// 良い例: 必要なデータのみ取得
+const fontSize = useEditorStore((state) => state.settings.fontSize)
+
+// 悪い例: ストア全体を取得
+const store = useEditorStore()
+```
+
+### UIコンポーネント（shadcn/ui）
 
 ```typescript
 import { Button } from '@/components/ui/button'
@@ -390,28 +256,19 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 
 ### 基本方針
 
-- **UIコンポーネント**: 原則テスト不要（ロジックのみテスト）
-- **ビジネスロジック**: 必ずテストを書く
-- **カスタムフック**: 複雑なロジックを含む場合はテスト推奨
-
-### ファイル命名・配置
-
-- **ファイル名**: `*.test.ts` または `*.test.tsx`
-- **配置**: テスト対象と同じディレクトリに配置
+| 対象 | テスト | 理由 |
+|------|--------|------|
+| ユーティリティ関数 | ○ | 純粋関数、テストしやすい |
+| ストアロジック | ○ | ビジネスロジック集約 |
+| UIコンポーネント | △ | 複雑なロジックのみ |
 
 ### テスト記述
-
-- **describe/it**: 日本語で記述（可読性向上）
-- **テスト構造**: Arrange-Act-Assert パターン
 
 ```typescript
 describe('calculateTotal', () => {
   it('複数のアイテムの合計を正しく計算する', () => {
     // Arrange
-    const items = [
-      { id: '1', price: 100 },
-      { id: '2', price: 200 },
-    ]
+    const items = [{ id: '1', price: 100 }, { id: '2', price: 200 }]
 
     // Act
     const result = calculateTotal(items)
@@ -428,15 +285,14 @@ describe('calculateTotal', () => {
 
 ### ブランチ戦略
 
-- **main**: 本番環境用
-- **feature/**: 機能開発
-- **fix/**: バグ修正
-- **refactor/**: リファクタリング
+| ブランチ | 用途 |
+|---------|------|
+| `main` | 本番環境 |
+| `feature/` | 機能開発 |
+| `fix/` | バグ修正 |
+| `refactor/` | リファクタリング |
 
 ### コミットメッセージ
-
-- **prefix**: 絵文字またはconventional commits形式
-- **本文**: 日本語
 
 ```
 feat: ユーザー一覧画面を追加
@@ -447,18 +303,9 @@ feat: ユーザー一覧画面を追加
 
 ### コミット前の確認
 
-- **型エラーは必ず修正**: TypeScriptの型チェック
-- **リント**: `npm run lint`で確認
-
----
-
-## 設計思想
-
-1. **関数型プログラミング優先**: 純粋関数中心の設計
-2. **コンポーネント分離**: UI・ロジック・状態の明確な分離
-3. **型安全性**: TypeScriptとZodによるランタイム検証
-4. **アクセシビリティ**: Radix UIベースのアクセシブルなUI
-5. **グローバル状態の最小化**: Zustandストアを用途別に分離
+- 型エラーは必ず修正
+- `npm run lint` で確認
+- `npm run build` でビルドエラーがないこと
 
 ---
 
@@ -469,19 +316,20 @@ feat: ユーザー一覧画面を追加
 1. **型エラー**: TypeScriptの型定義を確認
 2. **`Cannot find module`**: `npm install`実行、パスエイリアス確認
 3. **ビルドエラー**: `.next`フォルダを削除して再ビルド
-4. **Monaco Editorエラー**: `@monaco-editor/react`のバージョン確認
+4. **Monaco Editorエラー**: バージョン確認
 
 ### キャッシュクリア
 
 ```bash
-# Next.jsキャッシュクリア
 rm -rf .next
-
-# node_modules再インストール
-rm -rf node_modules
-npm install
+rm -rf node_modules && npm install
 ```
 
 ---
 
-最終更新: 2025-11-28
+## 関連ドキュメント
+
+- [アーキテクチャ](../architecture/README.md)
+- [UIコンポーネント](../components/ui-components.md)
+- [エディタ](../components/editor.md)
+- [国際化](../i18n/README.md)
