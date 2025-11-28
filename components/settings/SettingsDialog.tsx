@@ -2,7 +2,8 @@
  * SettingsDialogコンポーネント
  * サクラエディタスタイルの非モーダル設定ダイアログ
  * エディタの各種設定をタブ切替形式で表示・編集する
- * ドラッグで移動可能、リサイズ可能
+ * モバイル: フルスクリーンボトムシート
+ * デスクトップ: ドラッグ&リサイズ可能なフローティングダイアログ
  */
 'use client';
 
@@ -19,28 +20,33 @@ import { useEditorStore } from '@/lib/store';
 import { useTheme } from 'next-themes';
 import { CloseButton } from '@/components/ui/close-button';
 import { cn } from '@/lib/utils';
+import { Palette, Type, FileText, Settings2 } from 'lucide-react';
 
-// タブ定義
+// タブ定義（アイコン追加）
 const settingsTabs = [
   {
     value: 'theme',
     labelKey: 'settings.tabs.theme',
     Component: ThemeSettings,
+    Icon: Palette,
   },
   {
     value: 'editor',
     labelKey: 'settings.tabs.editor',
     Component: EditorSettings,
+    Icon: Type,
   },
   {
     value: 'file',
     labelKey: 'settings.tabs.file',
     Component: FileSettings,
+    Icon: FileText,
   },
   {
     value: 'general',
     labelKey: 'settings.tabs.general',
     Component: GeneralSettings,
+    Icon: Settings2,
   },
 ];
 
@@ -49,6 +55,10 @@ const MIN_WIDTH = 400;
 const MIN_HEIGHT = 400;
 const DEFAULT_WIDTH = 560;
 const DEFAULT_HEIGHT = 640;
+
+// ブレークポイント
+const MOBILE_BREAKPOINT = 640;
+const TABLET_BREAKPOINT = 1024;
 
 type ResizeDirection = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null;
 
@@ -66,6 +76,11 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   // ダイアログを開いた時点の設定を保存（リセット用）
   const [originalSettings, setOriginalSettings] = useState(currentSettings);
 
+  // レスポンシブ状態
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
   // ドラッグ関連のstate
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [size, setSize] = useState({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
@@ -77,25 +92,59 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const dialogRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // レスポンシブ判定
+  useEffect(() => {
+    const checkResponsive = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < MOBILE_BREAKPOINT);
+      setIsTablet(width >= MOBILE_BREAKPOINT && width < TABLET_BREAKPOINT);
+    };
+    checkResponsive();
+    window.addEventListener('resize', checkResponsive);
+    return () => window.removeEventListener('resize', checkResponsive);
+  }, []);
+
   // ダイアログを中央に配置 & 開いた時点の設定を保存
   useEffect(() => {
     if (open && !isInitialized) {
-      const centerX = (window.innerWidth - DEFAULT_WIDTH) / 2;
-      const centerY = (window.innerHeight - DEFAULT_HEIGHT) / 2;
-      setPosition({ x: centerX, y: centerY });
-      setSize({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
+      if (isMobile) {
+        // モバイル: フルスクリーン
+        setPosition({ x: 0, y: 0 });
+        setSize({ width: window.innerWidth, height: window.innerHeight });
+      } else if (isTablet) {
+        // タブレット: 画面の90%
+        const width = Math.min(DEFAULT_WIDTH, window.innerWidth * 0.9);
+        const height = Math.min(DEFAULT_HEIGHT, window.innerHeight * 0.9);
+        const centerX = (window.innerWidth - width) / 2;
+        const centerY = (window.innerHeight - height) / 2;
+        setPosition({ x: centerX, y: centerY });
+        setSize({ width, height });
+      } else {
+        // デスクトップ: デフォルトサイズで中央
+        const centerX = (window.innerWidth - DEFAULT_WIDTH) / 2;
+        const centerY = (window.innerHeight - DEFAULT_HEIGHT) / 2;
+        setPosition({ x: centerX, y: centerY });
+        setSize({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
+      }
       setIsInitialized(true);
       // ダイアログを開いた時点の設定を保存
       setOriginalSettings(currentSettings);
       setTempSettings(currentSettings);
+
+      // アニメーション用
+      requestAnimationFrame(() => {
+        setIsVisible(true);
+      });
     }
     if (!open) {
       setIsInitialized(false);
+      setIsVisible(false);
     }
-  }, [open, isInitialized, currentSettings]);
+  }, [open, isInitialized, currentSettings, isMobile, isTablet]);
 
-  // ドラッグ開始
+  // ドラッグ開始（デスクトップのみ）
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (isMobile || isTablet) return;
     if (dialogRef.current) {
       setIsDragging(true);
       setDragOffset({
@@ -103,10 +152,11 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
         y: e.clientY - position.y,
       });
     }
-  }, [position]);
+  }, [position, isMobile, isTablet]);
 
-  // リサイズ開始
+  // リサイズ開始（デスクトップのみ）
   const handleResizeStart = useCallback((e: React.MouseEvent, direction: ResizeDirection) => {
+    if (isMobile || isTablet) return;
     e.preventDefault();
     e.stopPropagation();
     setIsResizing(true);
@@ -119,7 +169,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
       posX: position.x,
       posY: position.y,
     });
-  }, [size, position]);
+  }, [size, position, isMobile, isTablet]);
 
   // ドラッグ中
   useEffect(() => {
@@ -246,98 +296,148 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
 
   if (!open) return null;
 
-  // リサイズハンドルのスタイル
+  // リサイズハンドルのスタイル（デスクトップのみ表示）
   const resizeHandleBase = 'absolute z-10';
   const resizeHandleEdge = 'bg-transparent hover:bg-primary/20 transition-colors';
   const resizeHandleCorner = 'w-3 h-3 bg-transparent hover:bg-primary/30 transition-colors rounded-sm';
+
+  // モバイル用スタイル
+  const dialogStyles = isMobile
+    ? {
+        position: 'fixed' as const,
+        inset: 0,
+        width: '100%',
+        height: '100%',
+      }
+    : {
+        position: 'fixed' as const,
+        left: position.x,
+        top: position.y,
+        width: size.width,
+        height: size.height,
+      };
 
   return (
     <>
       {/* オーバーレイ */}
       <div
-        className="fixed inset-0 bg-black/50 z-40"
+        className={cn(
+          'fixed inset-0 z-40 transition-opacity duration-200',
+          isVisible ? 'bg-black/50 opacity-100' : 'bg-black/0 opacity-0'
+        )}
         onClick={handleClose}
       />
 
       {/* ダイアログ */}
       <div
         ref={dialogRef}
-        className="fixed z-50 bg-background border rounded-lg shadow-lg flex flex-col overflow-hidden"
-        style={{
-          left: position.x,
-          top: position.y,
-          width: size.width,
-          height: size.height,
-        }}
+        className={cn(
+          'fixed z-50 bg-background border shadow-lg flex flex-col overflow-hidden',
+          'transition-all duration-200 ease-out',
+          isVisible ? 'opacity-100' : 'opacity-0',
+          isMobile ? 'rounded-none' : 'rounded-lg',
+          isMobile && !isVisible && 'translate-y-full',
+        )}
+        style={dialogStyles}
       >
-        {/* リサイズハンドル - 上 */}
-        <div
-          className={cn(resizeHandleBase, resizeHandleEdge, 'top-0 left-3 right-3 h-1 cursor-n-resize')}
-          onMouseDown={(e) => handleResizeStart(e, 'n')}
-        />
-        {/* リサイズハンドル - 下 */}
-        <div
-          className={cn(resizeHandleBase, resizeHandleEdge, 'bottom-0 left-3 right-3 h-1 cursor-s-resize')}
-          onMouseDown={(e) => handleResizeStart(e, 's')}
-        />
-        {/* リサイズハンドル - 左 */}
-        <div
-          className={cn(resizeHandleBase, resizeHandleEdge, 'left-0 top-3 bottom-3 w-1 cursor-w-resize')}
-          onMouseDown={(e) => handleResizeStart(e, 'w')}
-        />
-        {/* リサイズハンドル - 右 */}
-        <div
-          className={cn(resizeHandleBase, resizeHandleEdge, 'right-0 top-3 bottom-3 w-1 cursor-e-resize')}
-          onMouseDown={(e) => handleResizeStart(e, 'e')}
-        />
-        {/* リサイズハンドル - 左上 */}
-        <div
-          className={cn(resizeHandleBase, resizeHandleCorner, 'top-0 left-0 cursor-nw-resize')}
-          onMouseDown={(e) => handleResizeStart(e, 'nw')}
-        />
-        {/* リサイズハンドル - 右上 */}
-        <div
-          className={cn(resizeHandleBase, resizeHandleCorner, 'top-0 right-0 cursor-ne-resize')}
-          onMouseDown={(e) => handleResizeStart(e, 'ne')}
-        />
-        {/* リサイズハンドル - 左下 */}
-        <div
-          className={cn(resizeHandleBase, resizeHandleCorner, 'bottom-0 left-0 cursor-sw-resize')}
-          onMouseDown={(e) => handleResizeStart(e, 'sw')}
-        />
-        {/* リサイズハンドル - 右下 */}
-        <div
-          className={cn(resizeHandleBase, resizeHandleCorner, 'bottom-0 right-0 cursor-se-resize')}
-          onMouseDown={(e) => handleResizeStart(e, 'se')}
-        />
+        {/* リサイズハンドル - デスクトップのみ */}
+        {!isMobile && !isTablet && (
+          <>
+            {/* 上 */}
+            <div
+              className={cn(resizeHandleBase, resizeHandleEdge, 'top-0 left-3 right-3 h-1 cursor-n-resize')}
+              onMouseDown={(e) => handleResizeStart(e, 'n')}
+            />
+            {/* 下 */}
+            <div
+              className={cn(resizeHandleBase, resizeHandleEdge, 'bottom-0 left-3 right-3 h-1 cursor-s-resize')}
+              onMouseDown={(e) => handleResizeStart(e, 's')}
+            />
+            {/* 左 */}
+            <div
+              className={cn(resizeHandleBase, resizeHandleEdge, 'left-0 top-3 bottom-3 w-1 cursor-w-resize')}
+              onMouseDown={(e) => handleResizeStart(e, 'w')}
+            />
+            {/* 右 */}
+            <div
+              className={cn(resizeHandleBase, resizeHandleEdge, 'right-0 top-3 bottom-3 w-1 cursor-e-resize')}
+              onMouseDown={(e) => handleResizeStart(e, 'e')}
+            />
+            {/* 左上 */}
+            <div
+              className={cn(resizeHandleBase, resizeHandleCorner, 'top-0 left-0 cursor-nw-resize')}
+              onMouseDown={(e) => handleResizeStart(e, 'nw')}
+            />
+            {/* 右上 */}
+            <div
+              className={cn(resizeHandleBase, resizeHandleCorner, 'top-0 right-0 cursor-ne-resize')}
+              onMouseDown={(e) => handleResizeStart(e, 'ne')}
+            />
+            {/* 左下 */}
+            <div
+              className={cn(resizeHandleBase, resizeHandleCorner, 'bottom-0 left-0 cursor-sw-resize')}
+              onMouseDown={(e) => handleResizeStart(e, 'sw')}
+            />
+            {/* 右下 */}
+            <div
+              className={cn(resizeHandleBase, resizeHandleCorner, 'bottom-0 right-0 cursor-se-resize')}
+              onMouseDown={(e) => handleResizeStart(e, 'se')}
+            />
+          </>
+        )}
 
-        {/* ドラッグ可能なヘッダー */}
+        {/* ヘッダー */}
         <div
-          className="px-4 py-3 border-b shrink-0 cursor-move select-none flex items-center justify-between"
+          className={cn(
+            'px-4 py-3 border-b shrink-0 select-none flex items-center justify-between',
+            !isMobile && !isTablet && 'cursor-move'
+          )}
           onMouseDown={handleMouseDown}
         >
-          <h2 className="text-base font-semibold">{t('settings.title')}</h2>
+          {/* モバイル用ハンドル */}
+          {isMobile && (
+            <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 bg-muted-foreground/30 rounded-full" />
+          )}
+          <h2 className={cn('font-semibold', isMobile ? 'text-lg mt-2' : 'text-base')}>
+            {t('settings.title')}
+          </h2>
           <CloseButton
             onClick={handleClose}
-            size="sm"
+            size={isMobile ? 'md' : 'sm'}
             variant="default"
           />
         </div>
 
         <Tabs defaultValue="theme" className="flex-1 min-h-0 flex flex-col">
-          <TabsList className="shrink-0 w-full flex justify-start px-4 pt-2 bg-transparent">
-            {settingsTabs.map(({ value, labelKey }) => (
+          {/* タブリスト */}
+          <TabsList className={cn(
+            'shrink-0 w-full flex bg-transparent border-b',
+            isMobile ? 'justify-around px-0 py-1' : 'justify-start px-4 pt-2'
+          )}>
+            {settingsTabs.map(({ value, labelKey, Icon }) => (
               <TabsTrigger
                 key={value}
                 value={value}
-                className="flex-1 text-sm data-[state=active]:bg-primary/10"
+                className={cn(
+                  'data-[state=active]:bg-primary/10',
+                  isMobile
+                    ? 'flex-1 flex flex-col items-center gap-1 py-2 px-1 text-xs'
+                    : 'flex-1 text-sm'
+                )}
               >
-                {t(labelKey)}
+                {isMobile && <Icon className="h-5 w-5" />}
+                <span className={isMobile ? 'truncate max-w-full' : ''}>
+                  {t(labelKey)}
+                </span>
               </TabsTrigger>
             ))}
           </TabsList>
 
-          <div className="flex-1 min-h-0 overflow-auto px-4 py-3">
+          {/* タブコンテンツ */}
+          <div className={cn(
+            'flex-1 min-h-0 overflow-auto',
+            isMobile ? 'px-4 py-4' : 'px-4 py-3'
+          )}>
             {settingsTabs.map(({ value, Component }) => (
               <TabsContent key={value} value={value} className="mt-0">
                 <Component
@@ -349,11 +449,24 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
           </div>
         </Tabs>
 
-        <div className="flex justify-end gap-3 px-4 py-3 border-t shrink-0">
-          <Button variant="outline" size="sm" onClick={handleReset}>
+        {/* フッター */}
+        <div className={cn(
+          'flex justify-end gap-3 border-t shrink-0',
+          isMobile ? 'px-4 py-4 pb-safe' : 'px-4 py-3'
+        )}>
+          <Button
+            variant="outline"
+            size={isMobile ? 'default' : 'sm'}
+            onClick={handleReset}
+            className={isMobile ? 'flex-1' : ''}
+          >
             {t('settings.actions.reset')}
           </Button>
-          <Button size="sm" onClick={handleSave}>
+          <Button
+            size={isMobile ? 'default' : 'sm'}
+            onClick={handleSave}
+            className={isMobile ? 'flex-1' : ''}
+          >
             {t('settings.actions.save')}
           </Button>
         </div>

@@ -343,7 +343,9 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
     }
 
     // マウント時にカスタムテーマを適用
-    const isDark = resolvedTheme === 'dark';
+    // カスタムテーマの場合はテーマ自体のtypeを使用
+    const customTheme = getThemeById(settings.theme);
+    const isDark = customTheme ? customTheme.type === 'dark' : resolvedTheme === 'dark';
     applyEditorTheme(monaco as Monaco, editor, settings.theme, isDark);
 
     // イベントリスナーでステータス情報を更新（ポーリング不要）
@@ -406,10 +408,15 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
 
   /**
    * テーマ変更時の処理
+   * settings.themeが変更された場合、またはresolvedThemeが確定した時に即座にテーマを適用
    */
   useEffect(() => {
     if (!editorRef.current || !monacoRef.current) return;
-    const isDark = resolvedTheme === 'dark';
+
+    // カスタムテーマの場合はresolvedThemeに関係なく適用
+    const customTheme = getThemeById(settings.theme);
+    const isDark = customTheme ? customTheme.type === 'dark' : resolvedTheme === 'dark';
+
     applyEditorTheme(monacoRef.current, editorRef.current, settings.theme, isDark);
   }, [settings.theme, resolvedTheme, applyEditorTheme]);
 
@@ -449,11 +456,13 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
   }, [activeFile]);
 
   // テーマ名を計算
+  // カスタムテーマの場合はresolvedThemeに依存せず、テーマ自体のtypeを使用
   const monacoThemeName = useMemo(() => {
     const customTheme = getThemeById(settings.theme);
     if (customTheme) {
       return `custom-${customTheme.id}`;
     }
+    // 標準テーマ（light/dark/system）の場合のみresolvedThemeを参照
     const isDark = resolvedTheme === 'dark';
     return `custom-default-${isDark ? 'dark' : 'light'}`;
   }, [settings.theme, resolvedTheme]);

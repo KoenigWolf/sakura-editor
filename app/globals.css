@@ -294,3 +294,12 @@
 .sakura-dialog-content {
   padding: 8px;
 }
+
+/* セーフエリア対応（iPhoneのノッチ・ホームバー） */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.h-safe-area-inset-bottom {
+  height: env(safe-area-inset-bottom, 0px);
+}
