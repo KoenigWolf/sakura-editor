@@ -25,7 +25,9 @@
       "Bash(/Users/toshikisakuta/Documents/sakura-editor/components/ui/alert-dialog.tsx )",
       "Bash(/Users/toshikisakuta/Documents/sakura-editor/components/ui/aspect-ratio.tsx )",
       "Bash(/Users/toshikisakuta/Documents/sakura-editor/components/ui/avatar.tsx)",
-      "Bash(npm install)"
+      "Bash(npm install)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run lint:*)"
     ],
     "deny": [],
     "ask": []
