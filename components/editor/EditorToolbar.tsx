@@ -87,11 +87,11 @@ export function EditorToolbar() {
   };
 
   return (
-    <div className="flex items-center gap-0.5 px-1.5 py-1 border-b bg-muted/40">
+    <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-muted/40">
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={handleNewFile}>
-            <FilePlus2 className="h-3.5 w-3.5" />
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleNewFile}>
+            <FilePlus2 className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>{t('toolbar.newFile')} (Ctrl+N)</TooltipContent>
@@ -99,8 +99,8 @@ export function EditorToolbar() {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={handleSave}>
-            <HardDriveDownload className="h-3.5 w-3.5" />
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleSave}>
+            <HardDriveDownload className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>{t('toolbar.save')} (Ctrl+S)</TooltipContent>
@@ -108,8 +108,8 @@ export function EditorToolbar() {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={handleLoad}>
-            <FolderOpen className="h-3.5 w-3.5" />
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleLoad}>
+            <FolderOpen className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>{t('toolbar.load')} (Ctrl+O)</TooltipContent>
@@ -119,8 +119,8 @@ export function EditorToolbar() {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={handleUndo}>
-            <RotateCcw className="h-3.5 w-3.5" />
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleUndo}>
+            <RotateCcw className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>{t('toolbar.undo')} (Ctrl+Z)</TooltipContent>
@@ -128,8 +128,8 @@ export function EditorToolbar() {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={handleRedo}>
-            <RotateCw className="h-3.5 w-3.5" />
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleRedo}>
+            <RotateCw className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>{t('toolbar.redo')} (Ctrl+Y)</TooltipContent>
@@ -139,8 +139,8 @@ export function EditorToolbar() {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setSearchOpen(true)}>
-            <SearchCheck className="h-3.5 w-3.5" />
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setSearchOpen(true)}>
+            <SearchCheck className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>{t('toolbar.search')} (Ctrl+F)</TooltipContent>
@@ -148,8 +148,8 @@ export function EditorToolbar() {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-            <SplitSquareVertical className="h-3.5 w-3.5" />
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+            <SplitSquareVertical className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>{t('toolbar.split')}</TooltipContent>
@@ -159,8 +159,8 @@ export function EditorToolbar() {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setShowSettings(true)}>
-            <Cog className="h-3.5 w-3.5" />
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setShowSettings(true)}>
+            <Cog className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>{t('toolbar.settings')}</TooltipContent>
