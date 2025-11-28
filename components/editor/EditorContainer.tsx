@@ -21,7 +21,6 @@ export const EditorContainer = memo(function EditorContainer() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // 分割時に別のファイルを自動選択
   useEffect(() => {
     if (splitDirection && !secondaryFileId && files.length > 1) {
       const otherFile = files.find(f => f.id !== activeFile?.id);
@@ -70,20 +69,15 @@ export const EditorContainer = memo(function EditorContainer() {
 
   return (
     <div className="sakura-editor-container flex flex-col h-full w-full max-w-full overflow-hidden">
-      {/* ツールバー */}
       <EditorToolbar />
-
-      {/* ファイルタブ */}
       <FileTabs />
 
-      {/* メインエリア */}
       <div
         ref={containerRef}
         className={`flex-1 overflow-hidden relative min-h-0 min-w-0 flex ${
           splitDirection === 'vertical' ? 'flex-row' : 'flex-col'
         }`}
       >
-        {/* プライマリエディタ */}
         <div
           className="overflow-hidden min-w-0 min-h-0"
           style={{
@@ -97,7 +91,6 @@ export const EditorContainer = memo(function EditorContainer() {
           <MonacoEditor />
         </div>
 
-        {/* スプリッター */}
         {splitDirection && (
           <div
             className={`
@@ -109,18 +102,13 @@ export const EditorContainer = memo(function EditorContainer() {
           />
         )}
 
-        {/* セカンダリエディタ */}
         {splitDirection && (
           <div className="flex-1 overflow-hidden min-w-0 min-h-0">
-            <MonacoEditor
-              fileId={secondaryFileId}
-              isSecondary
-            />
+            <MonacoEditor fileId={secondaryFileId} isSecondary />
           </div>
         )}
       </div>
 
-      {/* ステータスバー */}
       <div className="sakura-editor-statusbar text-xs flex-shrink-0 overflow-x-auto overflow-y-hidden">
         <div className="sakura-editor-statusbar-item truncate max-w-[120px] sm:max-w-none">
           {activeFile?.name || t('status.untitled')}

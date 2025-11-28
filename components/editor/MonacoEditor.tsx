@@ -16,7 +16,6 @@ import { useTheme } from 'next-themes';
 import type { editor } from 'monaco-editor';
 import { getThemeById, DEFAULT_EDITOR_COLORS, CUSTOM_THEMES } from '@/lib/themes';
 
-// 以下の型は、monacoの型参照のために必要
 type Monaco = typeof import('monaco-editor');
 
 /**
@@ -91,11 +90,8 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
   const currentThemeRef = useRef<string | null>(null);
   const fullWidthSpaceDecorationsRef = useRef<string[]>([]);
 
-  // 表示するファイルを決定
   const targetFileId = fileId ?? activeFileId;
   const activeFile = files.find(f => f.id === targetFileId);
-
-  // ファイルIDをrefで保持（handleChangeで最新を参照するため）
   currentFileIdRef.current = activeFile?.id ?? null;
 
   /**
@@ -154,7 +150,6 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
     const model = ed.getModel();
     if (!model) return;
 
-    // 空白文字表示が無効の場合はデコレーションをクリア
     if (settings.showWhitespace === 'none') {
       fullWidthSpaceDecorationsRef.current = ed.deltaDecorations(
         fullWidthSpaceDecorationsRef.current,
@@ -165,8 +160,6 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
 
     const content = model.getValue();
     const decorations: editor.IModelDeltaDecoration[] = [];
-
-    // 全角スペース（U+3000）を検索
     const fullWidthSpaceRegex = /\u3000/g;
     let match;
 
@@ -198,7 +191,6 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
    * Monaco Editorがマウントされる前にすべてのカスタムテーマを定義
    */
   const handleBeforeMount: BeforeMount = useCallback((monaco) => {
-    // すべてのカスタムテーマを事前に定義
     CUSTOM_THEMES.forEach((theme) => {
       const monacoThemeName = `custom-${theme.id}`;
       const baseTheme = theme.type === 'dark' ? 'vs-dark' : 'vs';
@@ -218,7 +210,6 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       });
     });
 
-    // デフォルトテーマも定義
     monaco.editor.defineTheme('custom-default-dark', {
       base: 'vs-dark',
       inherit: true,
@@ -253,20 +244,13 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
    */
   const applyEditorTheme = useCallback((monaco: Monaco, ed: editor.IStandaloneCodeEditor, themeId: string, darkMode: boolean) => {
     const customTheme = getThemeById(themeId);
+    const monacoThemeName = customTheme
+      ? `custom-${customTheme.id}`
+      : `custom-default-${darkMode ? 'dark' : 'light'}`;
 
-    // テーマ名を決定
-    let monacoThemeName: string;
-    if (customTheme) {
-      monacoThemeName = `custom-${customTheme.id}`;
-    } else {
-      monacoThemeName = `custom-default-${darkMode ? 'dark' : 'light'}`;
-    }
-
-    // テーマを適用
     monaco.editor.setTheme(monacoThemeName);
     currentThemeRef.current = themeId;
 
-    // エディタDOMにクラスを適用
     const actualIsDark = customTheme ? customTheme.type === 'dark' : darkMode;
     const editorDom = ed.getDomNode();
     if (editorDom) {
@@ -276,7 +260,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
   }, []);
 
   /**
-   * モナコエディタのオプション設定（高速化のための最適化済み）
+   * エディタオプション（パフォーマンス最適化済み）
    */
   const editorOptions = useMemo(() => {
     return {
@@ -285,46 +269,46 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       lineHeight: settings.lineHeight,
       tabSize: settings.tabSize,
       wordWrap: settings.wordWrap ? 'on' : 'off',
-      minimap: { enabled: false }, // 高速化: ミニマップ無効
       lineNumbers: settings.showLineNumbers ? 'on' : 'off',
-      renderLineHighlight: 'line', // 高速化: 行全体ではなく行番号のみ
-      roundedSelection: false, // 高速化: 角丸無効
+      renderWhitespace: settings.showWhitespace,
       selectOnLineNumbers: true,
-      quickSuggestions: false, // 高速化: 自動サジェスト無効
       scrollBeyondLastLine: false,
-      cursorBlinking: 'solid', // 高速化: アニメーション無効
-      cursorSmoothCaretAnimation: 'off', // 高速化: カーソルアニメーション無効
-      smoothScrolling: false, // 高速化: スムーススクロール無効
       automaticLayout: true,
       scrollbar: {
         verticalScrollbarSize: 10,
         horizontalScrollbarSize: 10,
         alwaysConsumeMouseWheel: false,
-        useShadows: false, // 高速化: 影無効
+        useShadows: false,
       },
-      renderWhitespace: settings.showWhitespace,
       rulers: [],
-      bracketPairColorization: { enabled: false }, // 高速化: ブラケット色分け無効
-      folding: false, // 高速化: 折りたたみ無効
-      links: false, // 高速化: リンク検出無効
-      renderControlCharacters: false, // 高速化: 制御文字表示無効
-      renderValidationDecorations: 'off', // 高速化: バリデーション装飾無効
-      occurrencesHighlight: 'off', // 高速化: 出現箇所ハイライト無効
-      selectionHighlight: false, // 高速化: 選択ハイライト無効
-      matchBrackets: 'never', // 高速化: ブラケットマッチ無効
-      codeLens: false, // 高速化: CodeLens無効
-      lightbulb: { enabled: 'off' }, // 高速化: 提案アイコン無効
-      hover: { enabled: false }, // 高速化: ホバー無効
-      parameterHints: { enabled: false }, // 高速化: パラメータヒント無効
-      suggestOnTriggerCharacters: false, // 高速化: トリガー文字でのサジェスト無効
-      acceptSuggestionOnEnter: 'off', // 高速化: Enterでのサジェスト確定無効
-      wordBasedSuggestions: 'off', // 高速化: 単語ベースサジェスト無効
-      formatOnType: false, // 高速化: 入力時フォーマット無効
-      formatOnPaste: false, // 高速化: ペースト時フォーマット無効
-      autoClosingBrackets: 'never', // 高速化: 自動括弧閉じ無効
-      autoClosingQuotes: 'never', // 高速化: 自動引用符閉じ無効
-      autoSurround: 'never', // 高速化: 自動囲み無効
-      autoIndent: 'none', // 高速化: 自動インデント無効
+      minimap: { enabled: false },
+      renderLineHighlight: 'line',
+      roundedSelection: false,
+      quickSuggestions: false,
+      cursorBlinking: 'solid',
+      cursorSmoothCaretAnimation: 'off',
+      smoothScrolling: false,
+      bracketPairColorization: { enabled: false },
+      folding: false,
+      links: false,
+      renderControlCharacters: false,
+      renderValidationDecorations: 'off',
+      occurrencesHighlight: 'off',
+      selectionHighlight: false,
+      matchBrackets: 'never',
+      codeLens: false,
+      lightbulb: { enabled: 'off' },
+      hover: { enabled: false },
+      parameterHints: { enabled: false },
+      suggestOnTriggerCharacters: false,
+      acceptSuggestionOnEnter: 'off',
+      wordBasedSuggestions: 'off',
+      formatOnType: false,
+      formatOnPaste: false,
+      autoClosingBrackets: 'never',
+      autoClosingQuotes: 'never',
+      autoSurround: 'never',
+      autoIndent: 'none',
     } as editor.IStandaloneEditorConstructionOptions;
   }, [settings]);
 
@@ -335,20 +319,16 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
     editorRef.current = editor;
     monacoRef.current = monaco as Monaco;
 
-    // ストアにエディターインスタンスを保存
     if (isSecondary) {
       setSecondaryEditorInstance(editor);
     } else {
       setEditorInstance(editor);
     }
 
-    // マウント時にカスタムテーマを適用
-    // カスタムテーマの場合はテーマ自体のtypeを使用
     const customTheme = getThemeById(settings.theme);
     const isDark = customTheme ? customTheme.type === 'dark' : resolvedTheme === 'dark';
     applyEditorTheme(monaco as Monaco, editor, settings.theme, isDark);
 
-    // イベントリスナーでステータス情報を更新（ポーリング不要）
     editor.onDidChangeCursorPosition(() => {
       const position = editor.getPosition();
       if (position) {
@@ -367,11 +347,9 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
           charCount: model.getValueLength(),
         });
       }
-      // 全角スペースのデコレーションを更新
       updateFullWidthSpaceDecorations();
     });
 
-    // 初期ステータス情報を設定
     const model = editor.getModel();
     const position = editor.getPosition();
     if (model && position) {
@@ -386,12 +364,9 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       });
     }
 
-    // キーボードショートカットの設定（Ctrl+F で検索ダイアログを開く）
     if (monaco.KeyMod && monaco.KeyCode) {
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
         setSearchOpen(true);
-
-        // 選択テキストがあれば検索語として設定
         const selection = editor.getSelection();
         if (selection && !selection.isEmpty()) {
           const selectedText = editor.getModel()?.getValueInRange(selection);
@@ -402,27 +377,17 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       });
     }
 
-    // 初期表示時に全角スペースのデコレーションを適用
     updateFullWidthSpaceDecorations();
   }, [resolvedTheme, settings.theme, updateStatusInfo, setEditorInstance, setSecondaryEditorInstance, isSecondary, setSearchOpen, setSearchTerm, updateFullWidthSpaceDecorations, applyEditorTheme]);
 
-  /**
-   * テーマ変更時の処理
-   * settings.themeが変更された場合、またはresolvedThemeが確定した時に即座にテーマを適用
-   */
   useEffect(() => {
     if (!editorRef.current || !monacoRef.current) return;
-
-    // カスタムテーマの場合はresolvedThemeに関係なく適用
     const customTheme = getThemeById(settings.theme);
     const isDark = customTheme ? customTheme.type === 'dark' : resolvedTheme === 'dark';
 
     applyEditorTheme(monacoRef.current, editorRef.current, settings.theme, isDark);
   }, [settings.theme, resolvedTheme, applyEditorTheme]);
 
-  /**
-   * 設定変更時にエディタオプションを更新
-   */
   useEffect(() => {
     if (editorRef.current) {
       editorRef.current.updateOptions({
@@ -434,17 +399,12 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
         lineNumbers: settings.showLineNumbers ? 'on' : 'off',
         renderWhitespace: settings.showWhitespace,
       });
-      // 空白文字設定変更時にデコレーションも更新
       updateFullWidthSpaceDecorations();
     }
   }, [settings.fontSize, settings.fontFamily, settings.lineHeight, settings.tabSize, settings.wordWrap, settings.showLineNumbers, settings.showWhitespace, updateFullWidthSpaceDecorations]);
 
-  /**
-   * アクティブファイル変更時の処理
-   */
   useEffect(() => {
     if (editorRef.current && activeFile && monacoRef.current) {
-      // ファイルが変わったら言語モードを更新
       const model = editorRef.current.getModel();
       if (model && monacoRef.current.editor) {
         monacoRef.current.editor.setModelLanguage(
@@ -455,16 +415,10 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
     }
   }, [activeFile]);
 
-  // テーマ名を計算
-  // カスタムテーマの場合はresolvedThemeに依存せず、テーマ自体のtypeを使用
   const monacoThemeName = useMemo(() => {
     const customTheme = getThemeById(settings.theme);
-    if (customTheme) {
-      return `custom-${customTheme.id}`;
-    }
-    // 標準テーマ（light/dark/system）の場合のみresolvedThemeを参照
-    const isDark = resolvedTheme === 'dark';
-    return `custom-default-${isDark ? 'dark' : 'light'}`;
+    if (customTheme) return `custom-${customTheme.id}`;
+    return `custom-default-${resolvedTheme === 'dark' ? 'dark' : 'light'}`;
   }, [settings.theme, resolvedTheme]);
 
   return (

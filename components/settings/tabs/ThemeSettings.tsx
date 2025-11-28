@@ -14,7 +14,6 @@ interface ThemeSettingsProps {
   onSettingsChange: (settings: Partial<EditorSettings>) => void;
 }
 
-// セクションカードのラッパー
 function SettingsSection({
   icon: Icon,
   title,
@@ -37,7 +36,6 @@ function SettingsSection({
   );
 }
 
-// テーマ選択ボタン（基本テーマ用）
 function BaseThemeButton({
   value,
   current,
@@ -69,7 +67,6 @@ function BaseThemeButton({
   );
 }
 
-// カスタムテーマカード
 function ThemeCard({
   theme,
   isActive,
@@ -94,12 +91,10 @@ function ThemeCard({
           : 'border-transparent hover:border-muted-foreground/30 hover:shadow-md bg-card'
       )}
     >
-      {/* プレビュー */}
       <div
         className="h-16 w-full relative"
         style={{ backgroundColor: theme.preview.bg }}
       >
-        {/* コードプレビュー風の装飾 */}
         <div className="absolute inset-2 flex flex-col gap-1">
           <div className="flex items-center gap-1.5">
             <div
@@ -129,7 +124,6 @@ function ThemeCard({
           </div>
         </div>
 
-        {/* アクティブチェックマーク */}
         {isActive && (
           <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
             <Check className="w-3 h-3 text-primary-foreground" />
@@ -137,7 +131,6 @@ function ThemeCard({
         )}
       </div>
 
-      {/* テーマ名 */}
       <div className="px-2 py-1.5 bg-card">
         <span className={cn(
           'text-xs font-medium truncate block',
@@ -162,10 +155,8 @@ export function ThemeSettings({ settings, onSettingsChange }: ThemeSettingsProps
 
   return (
     <div className="space-y-4">
-      {/* 基本テーマ */}
       <SettingsSection icon={Palette} title={t('settings.theme.title')}>
         <div className="space-y-4">
-          {/* システム / ライト / ダーク */}
           <div>
             <p className="text-xs text-muted-foreground mb-2">{t('settings.theme.baseTheme')}</p>
             <div className="flex gap-2">
@@ -193,7 +184,6 @@ export function ThemeSettings({ settings, onSettingsChange }: ThemeSettingsProps
             </div>
           </div>
 
-          {/* ダークテーマ */}
           <div>
             <h4 className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
               <Moon className="h-3 w-3" />
@@ -212,7 +202,6 @@ export function ThemeSettings({ settings, onSettingsChange }: ThemeSettingsProps
             </div>
           </div>
 
-          {/* ライトテーマ */}
           <div>
             <h4 className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
               <Sun className="h-3 w-3" />

@@ -26,7 +26,6 @@ interface SearchDialogProps {
 
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-// 検索結果アイテム（メモ化）
 const SearchResultItem = memo(({
   match,
   isActive,
@@ -55,7 +54,6 @@ const SearchResultItem = memo(({
 ));
 SearchResultItem.displayName = 'SearchResultItem';
 
-// オプションボタン（メモ化）
 const OptionButton = memo(({
   active,
   onClick,
@@ -127,14 +125,12 @@ export const SearchDialog = memo(({
   const [isVisible, setIsVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // オプションをメモ化
   const options = useMemo(() => ({
     caseSensitive: isCaseSensitive,
     useRegex: isRegex,
     wholeWord: isWholeWord,
   }), [isCaseSensitive, isRegex, isWholeWord]);
 
-  // モバイル判定
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640);
@@ -144,25 +140,17 @@ export const SearchDialog = memo(({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // 初期位置設定 & 表示アニメーション
   useEffect(() => {
     if (open) {
       if (isMobile) {
-        // モバイル: 画面下部に固定
         setPosition({ x: 0, y: 0 });
       } else {
-        // デスクトップ: 右上に配置
         const x = window.innerWidth - 420;
-        const y = 60;
-        setPosition({ x: Math.max(10, x), y });
+        setPosition({ x: Math.max(10, x), y: 60 });
       }
 
-      // 即座に表示
-      requestAnimationFrame(() => {
-        setIsVisible(true);
-      });
+      requestAnimationFrame(() => setIsVisible(true));
 
-      // フォーカス
       setTimeout(() => {
         searchInputRef.current?.focus();
         searchInputRef.current?.select();
@@ -172,7 +160,6 @@ export const SearchDialog = memo(({
     }
   }, [open, isMobile]);
 
-  // 外部からの検索語を反映
   useEffect(() => {
     if (open && searchTerm && searchTerm !== query) {
       setQuery(searchTerm);
@@ -180,7 +167,7 @@ export const SearchDialog = memo(({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- queryを依存配列に入れると無限ループになる
   }, [open, searchTerm]);
 
-  // ハイライト適用
+  
   const applyHighlights = useCallback((matchList: SearchMatch[], activeIndex: number) => {
     const editor = getEditorInstance();
     if (!editor) return;
@@ -201,7 +188,7 @@ export const SearchDialog = memo(({
     );
   }, [getEditorInstance]);
 
-  // ハイライトクリア
+  
   const clearHighlights = useCallback(() => {
     const editor = getEditorInstance();
     if (editor && decorationsRef.current.length > 0) {
@@ -209,7 +196,7 @@ export const SearchDialog = memo(({
     }
   }, [getEditorInstance]);
 
-  // マッチに移動
+  
   const goToMatch = useCallback((index: number, targetMatches?: SearchMatch[]) => {
     const editor = getEditorInstance();
     const list = targetMatches ?? matches;
@@ -229,7 +216,7 @@ export const SearchDialog = memo(({
     applyHighlights(list, safeIndex);
   }, [applyHighlights, getEditorInstance, matches, setCurrentMatchIndex]);
 
-  // 検索実行（デバウンス付き）
+  
   const performSearch = useCallback((searchQuery: string, immediate = false) => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
@@ -284,7 +271,7 @@ export const SearchDialog = memo(({
 
         onSearch(normalizedQuery, options);
       } catch {
-        // 正規表現エラーは無視
+        
       }
     };
 
@@ -295,13 +282,13 @@ export const SearchDialog = memo(({
     }
   }, [getEditorInstance, isRegex, isWholeWord, isCaseSensitive, setMatches, setSearchTerm, setCurrentMatchIndex, goToMatch, applyHighlights, clearHighlights, onSearch, options]);
 
-  // 入力時のリアルタイム検索
+  
   const handleQueryChange = useCallback((value: string) => {
     setQuery(value);
     performSearch(value);
   }, [performSearch]);
 
-  // 次/前のマッチ
+  
   const handleNextMatch = useCallback(() => {
     if (matches.length === 0) {
       performSearch(query, true);
@@ -318,7 +305,7 @@ export const SearchDialog = memo(({
     goToMatch(currentMatchIndex <= 0 ? matches.length - 1 : currentMatchIndex - 1);
   }, [currentMatchIndex, goToMatch, matches.length, performSearch, query]);
 
-  // 置換
+  
   const handleReplace = useCallback(() => {
     if (!onReplace || !query.trim()) return;
 
@@ -354,7 +341,7 @@ export const SearchDialog = memo(({
     performSearch(query, true);
   }, [query, replacement, isRegex, isCaseSensitive, getEditorInstance, onReplace, options, performSearch, handleNextMatch]);
 
-  // 全置換
+  
   const handleReplaceAll = useCallback(() => {
     if (!onReplace || !query.trim()) return;
 
@@ -397,19 +384,19 @@ export const SearchDialog = memo(({
     performSearch(query, true);
   }, [query, replacement, isRegex, isWholeWord, isCaseSensitive, getEditorInstance, onReplace, options, performSearch, toast, t]);
 
-  // キーボードショートカット
+  
   useEffect(() => {
     if (!open) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Escape: 閉じる
+      
       if (e.key === 'Escape') {
         e.preventDefault();
         onOpenChange(false);
         return;
       }
 
-      // Enter: 次のマッチ / Shift+Enter: 前のマッチ
+      
       if (e.key === 'Enter') {
         e.preventDefault();
         if (e.shiftKey) {
@@ -420,14 +407,14 @@ export const SearchDialog = memo(({
         return;
       }
 
-      // Ctrl/Cmd + H: 置換モード切替
+      
       if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
         e.preventDefault();
         setShowReplace(prev => !prev);
         return;
       }
 
-      // F3 / Shift+F3: 次/前のマッチ
+      
       if (e.key === 'F3') {
         e.preventDefault();
         if (e.shiftKey) {
@@ -438,7 +425,7 @@ export const SearchDialog = memo(({
         return;
       }
 
-      // Alt + C: 大文字小文字
+      
       if (e.altKey && e.key === 'c') {
         e.preventDefault();
         setIsCaseSensitive(!isCaseSensitive);
@@ -446,7 +433,7 @@ export const SearchDialog = memo(({
         return;
       }
 
-      // Alt + R: 正規表現
+      
       if (e.altKey && e.key === 'r') {
         e.preventDefault();
         setIsRegex(!isRegex);
@@ -454,7 +441,7 @@ export const SearchDialog = memo(({
         return;
       }
 
-      // Alt + W: 単語単位
+      
       if (e.altKey && e.key === 'w') {
         e.preventDefault();
         setIsWholeWord(!isWholeWord);
@@ -467,7 +454,7 @@ export const SearchDialog = memo(({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [open, onOpenChange, handleNextMatch, handlePreviousMatch, isCaseSensitive, isRegex, isWholeWord, setIsCaseSensitive, setIsRegex, setIsWholeWord, performSearch, query]);
 
-  // ドラッグ処理（デスクトップのみ）
+  
   const handleDragStart = useCallback((e: React.MouseEvent) => {
     if (isMobile) return;
     if ((e.target as HTMLElement).closest('input, button')) return;
@@ -495,7 +482,7 @@ export const SearchDialog = memo(({
     };
   }, [isDragging, dragOffset]);
 
-  // クリーンアップ
+  
   useEffect(() => {
     if (!open) {
       clearHighlights();
@@ -513,7 +500,7 @@ export const SearchDialog = memo(({
     };
   }, [clearHighlights]);
 
-  // オプション変更時に再検索
+  
   useEffect(() => {
     if (open && query) {
       performSearch(query, true);
@@ -523,7 +510,7 @@ export const SearchDialog = memo(({
 
   if (!open) return null;
 
-  // モバイル用スタイル
+  
   const mobileStyles = isMobile ? {
     position: 'fixed' as const,
     bottom: 0,

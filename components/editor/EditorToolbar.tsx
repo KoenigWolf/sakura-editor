@@ -34,7 +34,6 @@ import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { SearchDialog } from '@/components/editor/SearchDialog';
 import { cn } from '@/lib/utils';
 
-// ツールバーボタンの共通スタイル
 const toolbarButtonClass = "h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary shrink-0";
 
 export function EditorToolbar() {
@@ -46,7 +45,6 @@ export function EditorToolbar() {
   const [showSettings, setShowSettings] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // モバイル判定
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 480);
@@ -111,11 +109,9 @@ export function EditorToolbar() {
     input.click();
   };
 
-  // モバイル表示（デスクトップと同じレイアウト、ツールチップなし）
   if (isMobile) {
     return (
       <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-muted/40 w-full overflow-hidden">
-        {/* ファイル操作 */}
         <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleNewFile}>
           <FilePlus2 className="h-4 w-4" />
         </Button>
@@ -128,7 +124,6 @@ export function EditorToolbar() {
 
         <div className="w-px h-5 bg-border mx-1 shrink-0" />
 
-        {/* Undo/Redo */}
         <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleUndo}>
           <RotateCcw className="h-4 w-4" />
         </Button>
@@ -138,12 +133,10 @@ export function EditorToolbar() {
 
         <div className="w-px h-5 bg-border mx-1 shrink-0" />
 
-        {/* 検索 */}
         <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={() => setSearchOpen(true)}>
           <SearchCheck className="h-4 w-4" />
         </Button>
 
-        {/* 分割 */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -176,10 +169,8 @@ export function EditorToolbar() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* スペーサー */}
         <div className="flex-1 min-w-0" />
 
-        {/* 右端: 設定 */}
         <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={() => setShowSettings(true)}>
           <Cog className="h-4 w-4" />
         </Button>
@@ -195,7 +186,6 @@ export function EditorToolbar() {
     );
   }
 
-  // デスクトップ表示
   return (
     <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-muted/40 w-full overflow-hidden">
       <Tooltip>

@@ -13,11 +13,8 @@ import { Type, Monitor, Hash, Ruler, WrapText, Space } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EditorSettings as EditorSettingsType } from '@/lib/types/editor';
 
-// フォント一覧
 const FONT_FAMILIES = [
-  // 汎用
   { value: 'monospace', labelKey: 'settings.editor.font.system' },
-  // Windows
   { value: 'Consolas' },
   { value: 'Courier New' },
   { value: 'MS Gothic' },
@@ -25,13 +22,11 @@ const FONT_FAMILIES = [
   { value: 'Meiryo' },
   { value: 'Yu Gothic' },
   { value: 'BIZ UDGothic' },
-  // macOS
   { value: 'Menlo' },
   { value: 'Monaco' },
   { value: 'SF Mono' },
   { value: 'Hiragino Kaku Gothic ProN' },
   { value: 'Hiragino Mincho ProN' },
-  // プログラミング用フォント
   { value: 'Source Code Pro' },
   { value: 'Fira Code' },
   { value: 'JetBrains Mono' },
@@ -39,7 +34,6 @@ const FONT_FAMILIES = [
   { value: 'IBM Plex Mono' },
   { value: 'Hack' },
   { value: 'Roboto Mono' },
-  // Linux
   { value: 'DejaVu Sans Mono' },
   { value: 'Ubuntu Mono' },
   { value: 'Noto Sans Mono CJK JP' },
@@ -50,7 +44,6 @@ interface EditorSettingsProps {
   onSettingsChange: (settings: Partial<EditorSettingsType>) => void;
 }
 
-// セクションカードのラッパー
 function SettingsSection({
   icon: Icon,
   title,
@@ -73,7 +66,6 @@ function SettingsSection({
   );
 }
 
-// スイッチ付き設定行
 function SettingRow({
   icon: Icon,
   label,
@@ -101,7 +93,6 @@ export function EditorSettings({ settings, onSettingsChange }: EditorSettingsPro
 
   return (
     <div className="space-y-4">
-      {/* フォント */}
       <SettingsSection icon={Type} title={t('settings.editor.font.title')}>
         <div className="space-y-3">
           <div className="flex items-center gap-3">
@@ -139,7 +130,6 @@ export function EditorSettings({ settings, onSettingsChange }: EditorSettingsPro
               </span>
             </div>
           </div>
-          {/* フォントプレビュー */}
           <div
             className="mt-2 p-3 rounded-md bg-muted/50 border text-sm"
             style={{ fontFamily: settings.fontFamily, fontSize: settings.fontSize }}
@@ -150,7 +140,6 @@ export function EditorSettings({ settings, onSettingsChange }: EditorSettingsPro
         </div>
       </SettingsSection>
 
-      {/* 表示オプション */}
       <SettingsSection icon={Monitor} title={t('settings.editor.display.title')}>
         <div className="space-y-3">
           <div className="space-y-1">
@@ -176,7 +165,6 @@ export function EditorSettings({ settings, onSettingsChange }: EditorSettingsPro
         </div>
       </SettingsSection>
 
-      {/* 空白文字 */}
       <SettingsSection icon={Space} title={t('settings.editor.whitespace.title')}>
         <div className="flex items-center gap-3 py-1">
           <Label className="text-sm text-muted-foreground shrink-0">
