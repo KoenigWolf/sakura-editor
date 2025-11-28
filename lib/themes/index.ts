@@ -38,6 +38,15 @@ export interface EditorTheme {
     accent: string;
     text: string;
   };
+  // Monaco Editor用の追加カラー
+  editor: {
+    background: string;      // エディタ背景色 (hex)
+    foreground: string;      // エディタ前景色 (hex)
+    whitespace: string;      // 空白文字の色 (hex)
+    lineNumber: string;      // 行番号の色 (hex)
+    selection: string;       // 選択範囲の色 (hex)
+    cursor: string;          // カーソルの色 (hex)
+  };
 }
 
 export const CUSTOM_THEMES: EditorTheme[] = [
@@ -52,6 +61,14 @@ export const CUSTOM_THEMES: EditorTheme[] = [
       bg: '#0f0f23',
       accent: '#64ffda',
       text: '#ccd6f6',
+    },
+    editor: {
+      background: '#0f0f23',
+      foreground: '#ccd6f6',
+      whitespace: '#3d5a80',
+      lineNumber: '#4a5568',
+      selection: '#64ffda33',
+      cursor: '#64ffda',
     },
     colors: {
       background: '234 30% 7%',
@@ -86,6 +103,14 @@ export const CUSTOM_THEMES: EditorTheme[] = [
       accent: '#ff7edb',
       text: '#f4eeff',
     },
+    editor: {
+      background: '#262335',
+      foreground: '#f4eeff',
+      whitespace: '#9d4edd',
+      lineNumber: '#6c5b7b',
+      selection: '#ff7edb33',
+      cursor: '#ff7edb',
+    },
     colors: {
       background: '265 25% 17%',
       foreground: '270 100% 97%',
@@ -118,6 +143,14 @@ export const CUSTOM_THEMES: EditorTheme[] = [
       bg: '#1a1b26',
       accent: '#7aa2f7',
       text: '#c0caf5',
+    },
+    editor: {
+      background: '#1a1b26',
+      foreground: '#c0caf5',
+      whitespace: '#565f89',
+      lineNumber: '#3b4261',
+      selection: '#7aa2f733',
+      cursor: '#c0caf5',
     },
     colors: {
       background: '235 25% 13%',
@@ -152,6 +185,14 @@ export const CUSTOM_THEMES: EditorTheme[] = [
       accent: '#88c0d0',
       text: '#eceff4',
     },
+    editor: {
+      background: '#242933',
+      foreground: '#eceff4',
+      whitespace: '#4c566a',
+      lineNumber: '#4c566a',
+      selection: '#88c0d033',
+      cursor: '#d8dee9',
+    },
     colors: {
       background: '220 20% 17%',
       foreground: '218 27% 94%',
@@ -185,6 +226,14 @@ export const CUSTOM_THEMES: EditorTheme[] = [
       accent: '#58a6ff',
       text: '#c9d1d9',
     },
+    editor: {
+      background: '#0d1117',
+      foreground: '#c9d1d9',
+      whitespace: '#484f58',
+      lineNumber: '#484f58',
+      selection: '#58a6ff33',
+      cursor: '#58a6ff',
+    },
     colors: {
       background: '215 28% 7%',
       foreground: '212 15% 81%',
@@ -217,6 +266,14 @@ export const CUSTOM_THEMES: EditorTheme[] = [
       bg: '#22212c',
       accent: '#ff80bf',
       text: '#f8f8f2',
+    },
+    editor: {
+      background: '#22212c',
+      foreground: '#f8f8f2',
+      whitespace: '#6272a4',
+      lineNumber: '#6272a4',
+      selection: '#44475a',
+      cursor: '#f8f8f2',
     },
     colors: {
       background: '250 15% 15%',
@@ -253,6 +310,14 @@ export const CUSTOM_THEMES: EditorTheme[] = [
       accent: '#e85d8c',
       text: '#4a3f47',
     },
+    editor: {
+      background: '#fef7f9',
+      foreground: '#4a3f47',
+      whitespace: '#e8b4bc',
+      lineNumber: '#c9a0a8',
+      selection: '#e85d8c33',
+      cursor: '#e85d8c',
+    },
     colors: {
       background: '345 60% 98%',
       foreground: '330 12% 27%',
@@ -285,6 +350,14 @@ export const CUSTOM_THEMES: EditorTheme[] = [
       bg: '#f5fafc',
       accent: '#0891b2',
       text: '#1e3a4f',
+    },
+    editor: {
+      background: '#f5fafc',
+      foreground: '#1e3a4f',
+      whitespace: '#7eb8c9',
+      lineNumber: '#6aa3b5',
+      selection: '#0891b233',
+      cursor: '#0891b2',
     },
     colors: {
       background: '195 45% 98%',
@@ -319,6 +392,14 @@ export const CUSTOM_THEMES: EditorTheme[] = [
       accent: '#0969da',
       text: '#24292f',
     },
+    editor: {
+      background: '#ffffff',
+      foreground: '#24292f',
+      whitespace: '#afb8c1',
+      lineNumber: '#8c959f',
+      selection: '#0969da33',
+      cursor: '#0969da',
+    },
     colors: {
       background: '0 0% 100%',
       foreground: '210 12% 16%',
@@ -351,6 +432,14 @@ export const CUSTOM_THEMES: EditorTheme[] = [
       bg: '#f5fdf8',
       accent: '#10b981',
       text: '#1f3d2e',
+    },
+    editor: {
+      background: '#f5fdf8',
+      foreground: '#1f3d2e',
+      whitespace: '#7ac9a7',
+      lineNumber: '#5fb38f',
+      selection: '#10b98133',
+      cursor: '#10b981',
     },
     colors: {
       background: '145 50% 98%',
@@ -385,6 +474,14 @@ export const CUSTOM_THEMES: EditorTheme[] = [
       accent: '#f97316',
       text: '#44321f',
     },
+    editor: {
+      background: '#fffbf5',
+      foreground: '#44321f',
+      whitespace: '#ddb892',
+      lineNumber: '#c9a06a',
+      selection: '#f9731633',
+      cursor: '#f97316',
+    },
     colors: {
       background: '36 100% 98%',
       foreground: '30 40% 20%',
@@ -417,6 +514,14 @@ export const CUSTOM_THEMES: EditorTheme[] = [
       bg: '#faf8ff',
       accent: '#8b5cf6',
       text: '#3b2e5a',
+    },
+    editor: {
+      background: '#faf8ff',
+      foreground: '#3b2e5a',
+      whitespace: '#c4b5fd',
+      lineNumber: '#a78bfa',
+      selection: '#8b5cf633',
+      cursor: '#8b5cf6',
     },
     colors: {
       background: '260 60% 99%',
@@ -455,4 +560,24 @@ export const getLightThemes = (): EditorTheme[] => {
 // ダークテーマのみ取得
 export const getDarkThemes = (): EditorTheme[] => {
   return CUSTOM_THEMES.filter(theme => theme.type === 'dark');
+};
+
+// デフォルトのエディタ色（標準テーマ用）
+export const DEFAULT_EDITOR_COLORS = {
+  light: {
+    background: '#ffffff',
+    foreground: '#24292f',
+    whitespace: '#d0d7de',
+    lineNumber: '#8c959f',
+    selection: '#0969da33',
+    cursor: '#24292f',
+  },
+  dark: {
+    background: '#1e1e1e',
+    foreground: '#d4d4d4',
+    whitespace: '#5a5a5a',
+    lineNumber: '#858585',
+    selection: '#264f7833',
+    cursor: '#d4d4d4',
+  },
 };
