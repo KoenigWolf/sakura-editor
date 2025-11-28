@@ -1,7 +1,7 @@
 'use client';
 
 import { useFileStore, type FileData } from '@/lib/store/file-store';
-import { XIcon, FileIcon } from 'lucide-react';
+import { XIcon, FileCode2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -28,16 +28,16 @@ export function FileTabs() {
           <button
             key={file.id}
             type="button"
-            onClick={() => handleSelect(file)}
-            className={cn(
-              'group flex items-center gap-2 px-3 py-1.5 text-xs rounded-md border transition-colors',
+          onClick={() => handleSelect(file)}
+          className={cn(
+            'group flex items-center gap-2 px-3 py-1.5 text-xs rounded-md border transition-colors',
               'hover:bg-accent hover:text-foreground',
               file.id === activeFileId
                 ? 'bg-background text-foreground border-border'
                 : 'bg-muted/60 text-muted-foreground border-transparent'
             )}
           >
-            <FileIcon className="h-4 w-4 flex-shrink-0" />
+            <FileCode2 className="h-4 w-4 flex-shrink-0" />
             <span className="truncate max-w-[180px]">{file.name}</span>
             <Button
               variant="ghost"

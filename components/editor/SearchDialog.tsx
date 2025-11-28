@@ -13,7 +13,7 @@ import { useDraggableDialog } from '@/hooks/use-draggable-dialog';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useSearchStore, type SearchMatch } from '@/lib/store/search-store';
 import { cn } from '@/lib/utils';
-import { Search, Replace, ChevronDown, ChevronUp, X, Regex, CaseSensitive } from 'lucide-react';
+import { SearchCheck, Replace, ChevronDown, ChevronUp, X, Regex, CaseSensitive } from 'lucide-react';
 
 interface SearchOptions {
   caseSensitive: boolean;
@@ -471,7 +471,7 @@ export const SearchDialog = ({
           {/* ヘッダー */}
           <div className="dialog-header flex items-center justify-between p-3 border-b bg-muted/50">
             <div className="flex items-center gap-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
+              <SearchCheck className="h-4 w-4 text-muted-foreground" />
               <h2 className="text-sm font-medium">{t('search.title')}</h2>
             </div>
             <Button
@@ -501,7 +501,7 @@ export const SearchDialog = ({
                   className="pl-8 pr-24 h-9"
                   aria-label={t('search.searchInput')}
                 />
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <SearchCheck className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                   <Button
                     variant="ghost"

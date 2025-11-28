@@ -3,13 +3,13 @@
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import {
-  Save,
-  FileUp,
-  FilePlus,
-  Settings,
-  Undo,
-  Redo,
-  Search,
+  HardDriveDownload,
+  FolderOpen,
+  FilePlus2,
+  Cog,
+  RotateCcw,
+  RotateCw,
+  SearchCheck,
   SplitSquareVertical,
 } from 'lucide-react';
 import { useFileStore } from '@/lib/store/file-store';
@@ -89,7 +89,7 @@ export function EditorToolbar() {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="ghost" size="icon" onClick={handleNewFile}>
-            <FilePlus className="h-4 w-4" />
+            <FilePlus2 className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>New File (Ctrl+N)</TooltipContent>
@@ -98,7 +98,7 @@ export function EditorToolbar() {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="ghost" size="icon" onClick={handleSave}>
-            <Save className="h-4 w-4" />
+            <HardDriveDownload className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>Save (Ctrl+S)</TooltipContent>
@@ -107,7 +107,7 @@ export function EditorToolbar() {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="ghost" size="icon" onClick={handleLoad}>
-            <FileUp className="h-4 w-4" />
+            <FolderOpen className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>Load File (Ctrl+O)</TooltipContent>
@@ -118,7 +118,7 @@ export function EditorToolbar() {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="ghost" size="icon" onClick={handleUndo}>
-            <Undo className="h-4 w-4" />
+            <RotateCcw className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>Undo (Ctrl+Z)</TooltipContent>
@@ -127,7 +127,7 @@ export function EditorToolbar() {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="ghost" size="icon" onClick={handleRedo}>
-            <Redo className="h-4 w-4" />
+            <RotateCw className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>Redo (Ctrl+Y)</TooltipContent>
@@ -138,7 +138,7 @@ export function EditorToolbar() {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="ghost" size="icon" onClick={() => setSearchOpen(true)}>
-            <Search className="h-4 w-4" />
+            <SearchCheck className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>Find (Ctrl+F)</TooltipContent>
@@ -158,7 +158,7 @@ export function EditorToolbar() {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="ghost" size="icon" onClick={() => setShowSettings(true)}>
-            <Settings className="h-4 w-4" />
+            <Cog className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>Settings</TooltipContent>
