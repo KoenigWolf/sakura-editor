@@ -210,6 +210,11 @@
   border-radius: 2px;
 }
 
+.dark-editor .monaco-editor .vs-whitespace,
+.light-editor .monaco-editor .vs-whitespace {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.5);
 }

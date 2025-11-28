@@ -124,7 +124,7 @@ export function MonacoEditor() {
         horizontalScrollbarSize: 10,
         alwaysConsumeMouseWheel: false,
       },
-      renderWhitespace: 'none',
+      renderWhitespace: 'all',
       rulers: [], // 設定値が無ければデフォルトでは非表示
       bracketPairColorization: {
         enabled: true,
