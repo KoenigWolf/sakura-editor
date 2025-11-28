@@ -1,43 +1,74 @@
-# ドキュメント
+# Mochi Editor ドキュメント
 
-Mochi Editor の開発ドキュメントです。
+## ドキュメント構成
 
-## AI エージェント向け
-
-**重要**: コード変更前に以下を必ず読んでください：
-
-1. [プロジェクト構造](./developments/project-structure-guide.md) - **必読**
-2. [アーキテクチャ](./architecture/README.md) - **必読**
-3. [i18n ガイド](./i18n/README.md) - UI テキスト変更時
-
-AI 用設定ファイル:
-- `CLAUDE.md` - Claude Code
-- `.cursorrules` - Cursor
-- `.github/copilot-instructions.md` - GitHub Copilot
-- `AGENTS.md` - OpenAI Codex / ChatGPT
-
----
-
-## 目次
-
-### 開発ガイド
-
-- [プロジェクト構造](./developments/project-structure-guide.md) - ディレクトリ構成、コーディング規約
-- [アーキテクチャ](./architecture/README.md) - システム設計、状態管理
-
-### コンポーネント
-
-- [UIコンポーネント](./components/ui-components.md) - ボタン、ダイアログ等のUI設計
-- [エディタ](./components/editor.md) - Monaco Editor の統合
-
-### 国際化
-
-- [i18n ガイド](./i18n/README.md) - 翻訳ファイルの管理方法
+```
+docs/
+├── README.md                    # このファイル（目次）
+├── ai/
+│   └── README.md               # AI エージェント向け統合ガイド
+├── architecture/
+│   └── README.md               # システム設計・状態管理
+├── components/
+│   ├── editor.md               # エディタコンポーネント
+│   └── ui-components.md        # UIコンポーネント
+├── developments/
+│   └── project-structure-guide.md  # プロジェクト構造・規約
+└── i18n/
+    └── README.md               # 国際化ガイド
+```
 
 ## クイックリンク
 
+### 開発ガイド
+
 | ドキュメント | 説明 |
 |-------------|------|
-| [開発環境セットアップ](./developments/project-structure-guide.md#開発環境セットアップ) | 初回セットアップ手順 |
-| [コード品質ルール](./developments/project-structure-guide.md#コード品質ルール) | コーディング規約 |
-| [Git運用](./developments/project-structure-guide.md#git運用) | ブランチ戦略、コミットルール |
+| [プロジェクト構造](./developments/project-structure-guide.md) | ディレクトリ構成、コーディング規約、開発環境 |
+| [アーキテクチャ](./architecture/README.md) | レイヤー構成、状態管理、データフロー |
+| [国際化 (i18n)](./i18n/README.md) | 翻訳ファイルの管理、使用方法 |
+
+### コンポーネント
+
+| ドキュメント | 説明 |
+|-------------|------|
+| [エディタ](./components/editor.md) | Monaco Editor 統合、設定、検索機能 |
+| [UIコンポーネント](./components/ui-components.md) | ボタン、ダイアログ、フォーム要素 |
+
+### AI エージェント向け
+
+| ドキュメント | 説明 |
+|-------------|------|
+| [AI 開発ガイド](./ai/README.md) | AI アシスタント向け統合ガイド（推奨） |
+
+## AI エージェント設定ファイル
+
+ルートディレクトリの設定ファイルは `docs/ai/README.md` へのポインタです：
+
+| ファイル | 対象 AI |
+|---------|---------|
+| `CLAUDE.md` | Claude Code |
+| `.cursorrules` | Cursor |
+| `.github/copilot-instructions.md` | GitHub Copilot |
+| `AGENTS.md` | OpenAI Codex / ChatGPT |
+
+## 技術スタック
+
+| カテゴリ | 技術 |
+|---------|------|
+| フレームワーク | Next.js 13.5 (App Router) |
+| 言語 | TypeScript 5.2 |
+| 状態管理 | Zustand |
+| UIライブラリ | shadcn/ui + Radix UI |
+| エディタ | Monaco Editor |
+| スタイリング | Tailwind CSS |
+| 国際化 | i18next + react-i18next |
+
+## 開発コマンド
+
+```bash
+npm run dev      # 開発サーバー起動
+npm run build    # プロダクションビルド
+npm run lint     # コードチェック
+npm start        # プロダクションサーバー
+```
