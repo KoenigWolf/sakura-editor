@@ -6,29 +6,38 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/toaster';
 import '@/lib/i18n';
-import { useEditorStore } from '@/lib/store';
-import { useEffect } from 'react';
-import i18n from '@/lib/i18n';
+import { LanguageSync } from '@/components/LanguageSync';
 
 const inter = Inter({ subsets: ['latin'] });
+
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+  "img-src 'self' data: blob:",
+  "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net",
+  "connect-src 'self' blob: https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net",
+  "worker-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'none'",
+  "frame-ancestors 'none'",
+  "form-action 'self'",
+].join('; ');
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { settings } = useEditorStore();
-  const lang = settings.language ?? 'en';
-
-  useEffect(() => {
-    i18n.changeLanguage(lang);
-    if (typeof document !== 'undefined') {
-      document.documentElement.lang = lang;
-    }
-  }, [lang]);
-
   return (
-    <html lang={lang} className="h-full">
+    <html lang="en" className="h-full">
+      <head>
+        <meta httpEquiv="Content-Security-Policy" content={CSP} />
+        <meta httpEquiv="Referrer-Policy" content="no-referrer" />
+        <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
+        <meta httpEquiv="X-Frame-Options" content="DENY" />
+        <meta httpEquiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()" />
+      </head>
       <body className={`${inter.className} h-full`}>
         <ThemeProvider
           attribute="class"
@@ -37,6 +46,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider>
+            <LanguageSync />
             {children}
             <Toaster />
           </TooltipProvider>

@@ -8,14 +8,15 @@ export default function Home() {
   const { files, addFile } = useFileStore();
 
   useEffect(() => {
-    if (files.length === 0) {
-      addFile({
-        name: 'untitled.txt',
-        content: '',
-        path: '',
-        lastModified: Date.now(),
-      });
-    }
+    if (typeof window === 'undefined') return;
+    if (files.length > 0) return;
+
+    addFile({
+      name: 'untitled.txt',
+      content: '',
+      path: '',
+      lastModified: Date.now(),
+    });
   }, [files.length, addFile]);
 
   return (
