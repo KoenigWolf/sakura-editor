@@ -13,7 +13,6 @@ import {
   SplitSquareVertical,
   SplitSquareHorizontal,
   X,
-  MoreHorizontal,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useFileStore } from '@/lib/store/file-store';
@@ -30,7 +29,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { SearchDialog } from '@/components/editor/SearchDialog';
@@ -113,7 +111,7 @@ export function EditorToolbar() {
     input.click();
   };
 
-  // モバイル表示
+  // モバイル表示（デスクトップと同じレイアウト、ツールチップなし）
   if (isMobile) {
     return (
       <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-muted/40 w-full overflow-hidden">
@@ -145,11 +143,19 @@ export function EditorToolbar() {
           <SearchCheck className="h-4 w-4" />
         </Button>
 
-        {/* その他メニュー（分割など） */}
+        {/* 分割 */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className={toolbarButtonClass}>
-              <MoreHorizontal className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(toolbarButtonClass, splitDirection && 'bg-primary/10 text-primary')}
+            >
+              {splitDirection === 'horizontal' ? (
+                <SplitSquareHorizontal className="h-4 w-4" />
+              ) : (
+                <SplitSquareVertical className="h-4 w-4" />
+              )}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
