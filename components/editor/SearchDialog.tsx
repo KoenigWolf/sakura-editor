@@ -24,10 +24,11 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/components/ui/use-toast';
-import { useDraggableDialog } from '@/hooks/useDraggableDialog';
+import { useDraggableDialog } from '@/hooks/use-draggable-dialog';
+import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
+import { useSearchStore, type SearchMatch } from '@/lib/store/search-store';
 import { cn } from '@/lib/utils';
 import { Search, Replace, ChevronDown, ChevronUp, X, Regex, CaseSensitive } from 'lucide-react';
-import type { SearchMatch } from '@/lib/store/search-store';
 
 // 型定義
 interface SearchOptions {
@@ -54,9 +55,12 @@ interface SearchDialogProps {
 const MAX_HISTORY = 10;
 const HISTORY_STORAGE_KEY = 'search-history';
 
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 // ユーティリティ関数
 const loadSearchHistory = (): SearchHistory[] => {
   try {
+    if (typeof window === 'undefined') return [];
     const history = localStorage.getItem(HISTORY_STORAGE_KEY);
     return history ? JSON.parse(history) : [];
   } catch {
@@ -66,6 +70,7 @@ const loadSearchHistory = (): SearchHistory[] => {
 
 const saveSearchHistory = (history: SearchHistory[]) => {
   try {
+    if (typeof window === 'undefined') return;
     localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
   } catch (error) {
     console.error('Failed to save search history:', error);
@@ -81,8 +86,11 @@ export const SearchDialog = ({
 }: SearchDialogProps) => {
   const { t } = useTranslation();
   const { toast } = useToast();
+  const { getEditorInstance } = useEditorInstanceStore();
+  const { matches, currentMatchIndex, setMatches, setCurrentMatchIndex } = useSearchStore();
   const dialogRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const decorationsRef = useRef<string[]>([]);
   const [query, setQuery] = useState(initialQuery);
   const [replacement, setReplacement] = useState('');
   const [options, setOptions] = useState<SearchOptions>({
@@ -106,6 +114,57 @@ export const SearchDialog = ({
     topMargin: 50,
   });
 
+  // 検索ハイライトをMonaco Editor上に付与
+  const applyHighlights = useCallback((matchList: SearchMatch[], activeIndex: number) => {
+    const editor = getEditorInstance();
+    if (!editor) return;
+
+    decorationsRef.current = editor.deltaDecorations(
+      decorationsRef.current,
+      matchList.map((match, index) => ({
+        range: {
+          startLineNumber: match.lineNumber,
+          startColumn: match.startIndex,
+          endLineNumber: match.lineNumber,
+          endColumn: match.endIndex,
+        },
+        options: {
+          inlineClassName: index === activeIndex ? 'search-match-active' : 'search-match-highlight',
+        },
+      }))
+    );
+  }, [getEditorInstance]);
+
+  // ハイライトを解除
+  const clearHighlights = useCallback(() => {
+    const editor = getEditorInstance();
+    if (editor && decorationsRef.current.length > 0) {
+      decorationsRef.current = editor.deltaDecorations(decorationsRef.current, []);
+    }
+    setMatches([]);
+    setCurrentMatchIndex(-1);
+  }, [getEditorInstance, setMatches, setCurrentMatchIndex]);
+
+  // 指定したマッチ箇所にジャンプ
+  const goToMatch = useCallback((index: number, targetMatches?: SearchMatch[]) => {
+    const editor = getEditorInstance();
+    const list = targetMatches ?? matches;
+    if (!editor || list.length === 0) return;
+
+    const safeIndex = ((index % list.length) + list.length) % list.length;
+    const match = list[safeIndex];
+
+    editor.setSelection({
+      startLineNumber: match.lineNumber,
+      startColumn: match.startIndex,
+      endLineNumber: match.lineNumber,
+      endColumn: match.endIndex,
+    });
+    editor.revealLineInCenter(match.lineNumber);
+    setCurrentMatchIndex(safeIndex);
+    applyHighlights(list, safeIndex);
+  }, [applyHighlights, getEditorInstance, matches, setCurrentMatchIndex]);
+
   // 検索履歴を更新
   const updateHistory = useCallback((newQuery: string, newOptions: SearchOptions) => {
     const newHistory: SearchHistory = {
@@ -124,7 +183,8 @@ export const SearchDialog = ({
 
   // 検索を実行
   const handleSearch = useCallback(() => {
-    if (!query.trim()) {
+    const normalizedQuery = query.trim();
+    if (!normalizedQuery) {
       toast({
         title: t('search.errors.emptyQuery'),
         description: t('search.errors.enterQuery'),
@@ -134,40 +194,45 @@ export const SearchDialog = ({
     }
 
     try {
-      // Monaco Editorの検索機能を使用
-      const win = window as any;
-      const editor = win.__MONACO_EDITOR_INSTANCE__;
+      const editor = getEditorInstance();
       if (editor) {
         const model = editor.getModel();
         if (model) {
-          // 検索オプションを設定
-          const searchOptions: any = {
-            isRegex: options.useRegex,
-            matchCase: options.caseSensitive,
-            wholeWord: options.wholeWord,
-          };
+          const isRegex = options.useRegex || options.wholeWord;
+          const searchString = options.useRegex
+            ? normalizedQuery
+            : options.wholeWord
+              ? `\\b${escapeRegExp(normalizedQuery)}\\b`
+              : normalizedQuery;
 
           // 検索を実行
-          const matches = model.findMatches(query, false, searchOptions.isRegex, searchOptions.matchCase, searchOptions.wholeWord, false);
-          
-          // 検索結果をストアに保存
-          const searchStore = require('@/lib/store/search-store').useSearchStore.getState();
-          searchStore.setMatches(matches.map((match: any) => ({
+          const foundMatches = model.findMatches(
+            searchString,
+            false,
+            isRegex,
+            options.caseSensitive,
+            null,
+            false
+          );
+
+          const parsedMatches = foundMatches.map((match) => ({
             lineNumber: match.range.startLineNumber,
             startIndex: match.range.startColumn,
             endIndex: match.range.endColumn,
-            text: match.matches[0] || '',
-          })));
-          
-          if (matches.length > 0) {
-            // 最初のマッチに移動
-            editor.setPosition({ lineNumber: matches[0].range.startLineNumber, column: matches[0].range.startColumn });
-            editor.revealLineInCenter(matches[0].range.startLineNumber);
-            searchStore.setCurrentMatchIndex(0);
+            text: match.matches?.[0] || model.getValueInRange(match.range),
+          }));
+
+          setMatches(parsedMatches);
+
+          if (parsedMatches.length > 0) {
+            goToMatch(0, parsedMatches);
+          } else {
+            setCurrentMatchIndex(-1);
+            applyHighlights([], -1);
           }
         }
       }
-      
+
       onSearch(query, options);
       updateHistory(query, options);
     } catch (error) {
@@ -177,7 +242,24 @@ export const SearchDialog = ({
         variant: 'destructive',
       });
     }
-  }, [query, options, onSearch, updateHistory, toast, t]);
+  }, [query, options, onSearch, updateHistory, toast, t, getEditorInstance, setMatches, setCurrentMatchIndex, goToMatch, applyHighlights]);
+
+  const handleNextMatch = useCallback(() => {
+    if (matches.length === 0) {
+      handleSearch();
+      return;
+    }
+    goToMatch((currentMatchIndex + 1) % matches.length);
+  }, [currentMatchIndex, goToMatch, handleSearch, matches.length]);
+
+  const handlePreviousMatch = useCallback(() => {
+    if (matches.length === 0) {
+      handleSearch();
+      return;
+    }
+    const prevIndex = currentMatchIndex <= 0 ? matches.length - 1 : currentMatchIndex - 1;
+    goToMatch(prevIndex);
+  }, [currentMatchIndex, goToMatch, handleSearch, matches.length]);
 
   // 置換を実行
   const handleReplace = useCallback(() => {
@@ -193,9 +275,7 @@ export const SearchDialog = ({
     }
 
     try {
-      // Monaco Editorの置換機能を使用
-      const win = window as any;
-      const editor = win.__MONACO_EDITOR_INSTANCE__;
+      const editor = getEditorInstance();
       if (editor) {
         const model = editor.getModel();
         if (model) {
@@ -204,12 +284,12 @@ export const SearchDialog = ({
             // 選択範囲を置換
             const selectedText = model.getValueInRange(selection);
             let replaceText = replacement;
-            
+
             if (options.useRegex) {
               try {
                 const regex = new RegExp(query, options.caseSensitive ? 'g' : 'gi');
                 replaceText = selectedText.replace(regex, replacement);
-              } catch (e) {
+              } catch {
                 // 正規表現エラーの場合は通常の置換
                 replaceText = selectedText.replace(query, replacement);
               }
@@ -221,7 +301,7 @@ export const SearchDialog = ({
                 replaceText = selectedText.replace(regex, replacement);
               }
             }
-            
+
             editor.executeEdits('replace', [{
               range: selection,
               text: replaceText,
@@ -229,9 +309,10 @@ export const SearchDialog = ({
           }
         }
       }
-      
+
       onReplace(query, replacement, options);
       updateHistory(query, options);
+      handleSearch();
     } catch (error) {
       toast({
         title: t('search.errors.replaceFailed'),
@@ -239,7 +320,7 @@ export const SearchDialog = ({
         variant: 'destructive',
       });
     }
-  }, [query, replacement, options, onReplace, updateHistory, toast, t]);
+  }, [query, replacement, options, onReplace, updateHistory, toast, t, getEditorInstance, handleSearch]);
 
   // 検索履歴をナビゲート
   const navigateHistory = useCallback((direction: 'up' | 'down') => {
@@ -283,13 +364,13 @@ export const SearchDialog = ({
       // Ctrl/Cmd + G: 次の検索結果
       if ((e.ctrlKey || e.metaKey) && e.key === 'g') {
         e.preventDefault();
-        handleSearch();
+        handleNextMatch();
       }
 
       // Ctrl/Cmd + Shift + G: 前の検索結果
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'g') {
         e.preventDefault();
-        handleSearch();
+        handlePreviousMatch();
       }
 
       // 上下キー: 検索履歴のナビゲート
@@ -305,7 +386,7 @@ export const SearchDialog = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [open, handleSearch, navigateHistory, onOpenChange]);
+  }, [open, handleSearch, handleNextMatch, handlePreviousMatch, navigateHistory, onOpenChange]);
 
   // ダイアログが開かれたときに検索入力欄にフォーカス
   useEffect(() => {
@@ -313,6 +394,16 @@ export const SearchDialog = ({
       searchInputRef.current.focus();
     }
   }, [open]);
+
+  useEffect(() => {
+    if (!open) {
+      clearHighlights();
+    }
+  }, [open, clearHighlights]);
+
+  useEffect(() => {
+    return () => clearHighlights();
+  }, [clearHighlights]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -460,72 +551,83 @@ export const SearchDialog = ({
             {/* 検索結果エリア */}
             <ScrollArea className="flex-1">
               <div className="p-4">
-                {/* 検索結果の表示エリア */}
-                {(() => {
-                  const win = window as any;
-                  const searchStore = win.__SEARCH_STORE__ || require('@/lib/store/search-store').useSearchStore.getState();
-                  const matches = searchStore.matches || [];
-                  const currentIndex = searchStore.currentMatchIndex || -1;
-                  
-                  if (matches.length === 0 && query) {
-                    return (
-                      <div className="text-sm text-muted-foreground">
-                        {t('search.results.empty')}
-                      </div>
-                    );
-                  }
-                  
-                  if (matches.length > 0) {
-                    return (
-                      <div className="space-y-2">
-                        <div className="text-sm font-medium">
-                          {t('search.results.found', { count: matches.length })}
+                {matches.length === 0 && query ? (
+                  <div className="text-sm text-muted-foreground">
+                    {t('search.results.empty')}
+                  </div>
+                ) : matches.length > 0 ? (
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium">
+                      {t('search.results.found', { count: matches.length })}
+                    </div>
+                    <div className="space-y-1 max-h-48 overflow-y-auto">
+                      {matches.map((match: SearchMatch, index: number) => (
+                        <div
+                          key={index}
+                          className={cn(
+                            'text-xs p-2 rounded cursor-pointer hover:bg-accent',
+                            index === currentMatchIndex && 'bg-accent'
+                          )}
+                          onClick={() => {
+                            const editor = getEditorInstance();
+                            if (editor) {
+                              editor.setPosition({ lineNumber: match.lineNumber, column: match.startIndex });
+                              editor.revealLineInCenter(match.lineNumber);
+                              setCurrentMatchIndex(index);
+                            }
+                          }}
+                        >
+                          {match.lineNumber}: {match.text.substring(0, 50)}
+                          {match.text.length > 50 ? '...' : ''}
                         </div>
-                        <div className="space-y-1 max-h-48 overflow-y-auto">
-                          {matches.map((match: SearchMatch, index: number) => (
-                            <div
-                              key={index}
-                              className={cn(
-                                'text-xs p-2 rounded cursor-pointer hover:bg-accent',
-                                index === currentIndex && 'bg-accent'
-                              )}
-                              onClick={() => {
-                                const editor = win.__MONACO_EDITOR_INSTANCE__;
-                                if (editor) {
-                                  editor.setPosition({ lineNumber: match.lineNumber, column: match.startIndex });
-                                  editor.revealLineInCenter(match.lineNumber);
-                                  searchStore.setCurrentMatchIndex(index);
-                                }
-                              }}
-                            >
-                              {match.lineNumber}: {match.text.substring(0, 50)}
-                              {match.text.length > 50 ? '...' : ''}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  }
-                  
-                  return null;
-                })()}
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </ScrollArea>
 
             {/* アクションボタン */}
-            <div className="flex justify-end gap-2 p-3 border-t bg-muted/50">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                {t('search.actions.cancel')}
-              </Button>
-              {showReplace && onReplace ? (
-                <Button onClick={handleReplace}>
-                  {t('search.actions.replace')}
+            <div className="flex items-center justify-between gap-3 p-3 border-t bg-muted/50">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handlePreviousMatch}
+                  disabled={matches.length === 0}
+                  aria-label={t('search.actions.previous')}
+                >
+                  <ChevronUp className="h-4 w-4" />
                 </Button>
-              ) : (
-                <Button onClick={handleSearch}>
-                  {t('search.actions.search')}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleNextMatch}
+                  disabled={matches.length === 0}
+                  aria-label={t('search.actions.next')}
+                >
+                  <ChevronDown className="h-4 w-4" />
                 </Button>
-              )}
+                <span className="text-xs text-muted-foreground">
+                  {matches.length > 0
+                    ? `${Math.max(currentMatchIndex + 1, 1)} / ${matches.length}`
+                    : t('search.results.empty')}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" onClick={() => onOpenChange(false)}>
+                  {t('search.actions.cancel')}
+                </Button>
+                {showReplace && onReplace ? (
+                  <Button onClick={handleReplace}>
+                    {t('search.actions.replace')}
+                  </Button>
+                ) : (
+                  <Button onClick={handleSearch}>
+                    {t('search.actions.search')}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>

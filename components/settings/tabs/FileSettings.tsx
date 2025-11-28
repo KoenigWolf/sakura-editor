@@ -6,7 +6,7 @@
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { EditorState } from '@/lib/store';
+import type { EditorSettings } from '@/lib/types/editor';
 
 const ENCODINGS = [
   { value: 'utf-8', label: 'UTF-8' },
@@ -21,8 +21,8 @@ const LINE_ENDINGS = [
 ];
 
 interface FileSettingsProps {
-  settings: EditorState['settings'];
-  onSettingsChange: (settings: Partial<EditorState['settings']>) => void;
+  settings: EditorSettings;
+  onSettingsChange: (settings: Partial<EditorSettings>) => void;
 }
 
 export function FileSettings({ settings, onSettingsChange }: FileSettingsProps) {

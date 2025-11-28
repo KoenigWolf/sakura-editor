@@ -199,6 +199,17 @@
   border-radius: 5px;
 }
 
+.monaco-editor .search-match-highlight {
+  background-color: rgba(255, 182, 193, 0.35);
+  border-radius: 2px;
+}
+
+.monaco-editor .search-match-active {
+  background-color: rgba(255, 140, 0, 0.35);
+  outline: 1px solid hsla(var(--primary), 0.6);
+  border-radius: 2px;
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.5);
 }

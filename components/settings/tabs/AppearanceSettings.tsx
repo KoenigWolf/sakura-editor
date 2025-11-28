@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { EditorState } from '@/lib/store';
+import type { EditorSettings } from '@/lib/types/editor';
 
 const FONT_FAMILIES = [
   'monospace',
@@ -19,8 +19,8 @@ const FONT_FAMILIES = [
 ];
 
 interface AppearanceSettingsProps {
-  settings: EditorState['settings'];
-  onSettingsChange: (settings: Partial<EditorState['settings']>) => void;
+  settings: EditorSettings;
+  onSettingsChange: (settings: Partial<EditorSettings>) => void;
 }
 
 export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSettingsProps) {

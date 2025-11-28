@@ -85,6 +85,8 @@ export const en = {
       search: 'Search',
       replace: 'Replace',
       replaceAll: 'Replace All',
+      next: 'Next result',
+      previous: 'Previous result',
       cancel: 'Cancel',
     },
     errors: {

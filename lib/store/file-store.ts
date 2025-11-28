@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { createSafeStorage } from '@/lib/store/storage';
 
 export interface FileData {
   id: string;
@@ -66,6 +67,7 @@ export const useFileStore = create<FileStore>()(
     }),
     {
       name: 'sakura-editor-files',
+      storage: createSafeStorage(),
     }
   )
-); 
+);

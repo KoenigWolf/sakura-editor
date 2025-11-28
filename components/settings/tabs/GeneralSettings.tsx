@@ -10,11 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import type { EditorState } from '@/lib/store';
+import type { EditorSettings } from '@/lib/types/editor';
 
 interface GeneralSettingsProps {
-  settings: EditorState['settings'];
-  onSettingsChange: (settings: Partial<EditorState['settings']>) => void;
+  settings: EditorSettings;
+  onSettingsChange: (settings: Partial<EditorSettings>) => void;
 }
 
 export function GeneralSettings({ settings, onSettingsChange }: GeneralSettingsProps) {

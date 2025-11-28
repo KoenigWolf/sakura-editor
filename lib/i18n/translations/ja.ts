@@ -95,6 +95,8 @@ export const ja = {
       search: '検索',
       replace: '置換',
       replaceAll: 'すべて置換',
+      next: '次を検索',
+      previous: '前を検索',
       cancel: 'キャンセル',
     },
     errors: {

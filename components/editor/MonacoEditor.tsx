@@ -9,15 +9,10 @@ import { Editor } from '@monaco-editor/react';
 import type { OnMount } from '@monaco-editor/react';
 import { useFileStore } from '@/lib/store/file-store';
 import { useEditorStore } from '@/lib/store';
+import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
+import { useSearchStore } from '@/lib/store/search-store';
 import { useTheme } from 'next-themes';
 import type { editor } from 'monaco-editor';
-
-/**
- * Monaco Editorインスタンスをグローバルに保存するためのWindow拡張型
- */
-interface WindowWithMonaco extends Window {
-  __MONACO_EDITOR_INSTANCE__?: editor.IStandaloneCodeEditor;
-}
 
 // 以下の型は、monacoの型参照のために必要
 type Monaco = typeof import('monaco-editor');
@@ -69,6 +64,8 @@ const getLanguageFromFilename = (filename: string | null): string => {
 export function MonacoEditor() {
   const { getActiveFile, updateFile } = useFileStore();
   const { settings } = useEditorStore();
+  const { setEditorInstance } = useEditorInstanceStore();
+  const { setIsOpen: setSearchOpen, setSearchTerm } = useSearchStore();
   const { theme } = useTheme();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
@@ -76,19 +73,10 @@ export function MonacoEditor() {
 
   /**
    * エディタ内のカーソル位置を表示するためのステータスバー更新
+   * ステータスバーはEditorContainerで定期的にポーリングして更新
    */
   const updateEditorStatus = useCallback(() => {
-    if (!editorRef.current) return;
-    
-    const position = editorRef.current.getPosition();
-    if (!position) return;
-    
-    const lineCount = editorRef.current.getModel()?.getLineCount() || 0;
-    const currentLine = position.lineNumber;
-    const currentColumn = position.column;
-    
-    // ステータスバーの更新は別途実装される想定
-    console.log(`行: ${currentLine}/${lineCount} 列: ${currentColumn}`);
+    // ステータスバーの更新はEditorContainerで行うため、ここでは何もしない
   }, []);
 
   /**
@@ -150,15 +138,13 @@ export function MonacoEditor() {
   const handleEditorDidMount: OnMount = useCallback((editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco as Monaco;
-    
-    // グローバル変数にエディターインスタンスを保存（ダイアログとの連携用）
-    const win = window as WindowWithMonaco;
-    win.__MONACO_EDITOR_INSTANCE__ = editor;
+
+    // ストアにエディターインスタンスを保存
+    setEditorInstance(editor);
 
     // エディタのスタイルを設定
     const editorDom = editor.getDomNode();
     if (editorDom) {
-      // エディタの親要素にスタイルクラスを追加
       editorDom.classList.add(theme === 'dark' ? 'dark-editor' : 'light-editor');
     }
 
@@ -167,36 +153,22 @@ export function MonacoEditor() {
       updateEditorStatus();
     });
 
-    // 初期ステータスを更新
-    updateEditorStatus();
-
     // キーボードショートカットの設定（Ctrl+F で検索ダイアログを開く）
     if (monaco.KeyMod && monaco.KeyCode) {
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
-        // 検索ダイアログを開く
-        try {
-          // 動的インポートを使用して検索ストアを取得
-          import('@/lib/store/search-store').then(({ useSearchStore }) => {
-            const searchStore = useSearchStore.getState();
-            searchStore.setIsOpen(true);
-            
-            // 選択テキストがあれば検索語として設定
-            const selection = editor.getSelection();
-            if (selection && !selection.isEmpty()) {
-              const selectedText = editor.getModel()?.getValueInRange(selection);
-              if (selectedText) {
-                searchStore.setSearchTerm(selectedText);
-              }
-            }
-          }).catch((error) => {
-            console.error('検索ダイアログの起動に失敗しました:', error);
-          });
-        } catch (error) {
-          console.error('検索ダイアログの起動に失敗しました:', error);
+        setSearchOpen(true);
+
+        // 選択テキストがあれば検索語として設定
+        const selection = editor.getSelection();
+        if (selection && !selection.isEmpty()) {
+          const selectedText = editor.getModel()?.getValueInRange(selection);
+          if (selectedText) {
+            setSearchTerm(selectedText);
+          }
         }
       });
     }
-  }, [theme, updateEditorStatus]);
+  }, [theme, updateEditorStatus, setEditorInstance, setSearchOpen, setSearchTerm]);
 
   /**
    * テーマ変更時の処理

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Save,
@@ -15,9 +15,9 @@ import {
   SplitSquareVertical,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { useEditorStore } from '@/lib/store';
 import { useFileStore } from '@/lib/store/file-store';
 import { useSearchStore } from '@/lib/store/search-store';
+import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import {
   Tooltip,
   TooltipContent,
@@ -31,9 +31,23 @@ import { SearchDialog } from '@/components/editor/SearchDialog';
  */
 export function EditorToolbar() {
   const { theme, setTheme } = useTheme();
-  const { undo, redo } = useEditorStore();
-  const { addFile, getActiveFile, updateFile } = useFileStore();
+  const { addFile, getActiveFile } = useFileStore();
   const { setIsOpen: setSearchOpen, isOpen: searchOpen } = useSearchStore();
+  const { getEditorInstance } = useEditorInstanceStore();
+
+  const handleUndo = useCallback(() => {
+    const editor = getEditorInstance();
+    if (editor) {
+      editor.trigger('toolbar', 'undo', null);
+    }
+  }, [getEditorInstance]);
+
+  const handleRedo = useCallback(() => {
+    const editor = getEditorInstance();
+    if (editor) {
+      editor.trigger('toolbar', 'redo', null);
+    }
+  }, [getEditorInstance]);
   const [showSettings, setShowSettings] = useState(false);
 
   const handleNewFile = () => {
@@ -110,7 +124,7 @@ export function EditorToolbar() {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" onClick={undo}>
+          <Button variant="ghost" size="icon" onClick={handleUndo}>
             <Undo className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
@@ -119,7 +133,7 @@ export function EditorToolbar() {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" onClick={redo}>
+          <Button variant="ghost" size="icon" onClick={handleRedo}>
             <Redo className="h-4 w-4" />
           </Button>
         </TooltipTrigger>

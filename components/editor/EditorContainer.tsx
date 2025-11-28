@@ -7,25 +7,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { EditorToolbar } from '@/components/editor/EditorToolbar';
 import { MonacoEditor } from '@/components/editor/MonacoEditor';
-import { SearchDialog } from '@/components/editor/SearchDialog';
-import { SettingsDialog } from '@/components/settings/SettingsDialog';
+import { FileTree } from '@/components/editor/FileTree';
 import { useFileStore } from '@/lib/store/file-store';
+import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useTheme } from 'next-themes';
-import type { editor } from 'monaco-editor';
-
-/**
- * Monaco Editorインスタンスへの型定義
- */
-interface WindowWithMonaco extends Window {
-  __MONACO_EDITOR_INSTANCE__?: editor.IStandaloneCodeEditor;
-}
-
-/**
- * Monaco Editorインスタンスをグローバルに取得する
- */
-const getMonacoEditorInstance = (): editor.IStandaloneCodeEditor | undefined => {
-  return (window as WindowWithMonaco).__MONACO_EDITOR_INSTANCE__;
-};
 
 /**
  * エディタコンテナコンポーネント
@@ -33,6 +18,7 @@ const getMonacoEditorInstance = (): editor.IStandaloneCodeEditor | undefined => 
  */
 export function EditorContainer() {
   const { getActiveFile } = useFileStore();
+  const { getEditorInstance } = useEditorInstanceStore();
   const { theme } = useTheme();
   const [cursorPosition, setCursorPosition] = useState({ line: 1, column: 1 });
   const [documentInfo, setDocumentInfo] = useState({ lines: 0, chars: 0 });
@@ -40,7 +26,7 @@ export function EditorContainer() {
   const [eolMode, setEolMode] = useState('LF');
   const [language, setLanguage] = useState('plaintext');
   const activeFile = getActiveFile();
-  
+
   // 前回の更新情報を記憶するためのref
   const lastUpdateRef = useRef({
     cursorLine: 1,
@@ -56,7 +42,7 @@ export function EditorContainer() {
    * 変更があった場合のみstate更新して再レンダリングを最小限に抑える
    */
   const updateStatusInfo = useCallback(() => {
-    const editorInstance = getMonacoEditorInstance();
+    const editorInstance = getEditorInstance();
     if (!editorInstance) return;
     
     // カーソル位置
@@ -103,7 +89,7 @@ export function EditorContainer() {
         lastUpdateRef.current.eol = eolType;
       }
     }
-  }, []);
+  }, [getEditorInstance]);
   
   /**
    * エディタの変更を監視（性能に配慮して更新頻度を制限）
@@ -135,9 +121,16 @@ export function EditorContainer() {
       {/* ツールバー */}
       <EditorToolbar />
       
-      {/* エディタ本体 */}
-      <div className="flex-1 overflow-hidden relative min-h-0">
-        <MonacoEditor />
+      {/* メインエリア */}
+      <div className="flex flex-1 min-h-0">
+        <div className="hidden md:block h-full border-r bg-muted/30 w-64 flex-shrink-0">
+          <FileTree className="h-full" />
+        </div>
+        <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col">
+          <div className="flex-1 overflow-hidden">
+            <MonacoEditor />
+          </div>
+        </div>
       </div>
       
       {/* ステータスバー */}
