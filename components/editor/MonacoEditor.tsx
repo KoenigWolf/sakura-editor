@@ -4,7 +4,7 @@
  */
 'use client';
 
-import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Editor } from '@monaco-editor/react';
 import type { OnMount, BeforeMount } from '@monaco-editor/react';
@@ -84,11 +84,16 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
   const setSearchOpen = useSearchStore((state) => state.setIsOpen);
   const setSearchTerm = useSearchStore((state) => state.setSearchTerm);
   const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
   const currentFileIdRef = useRef<string | null>(null);
   const currentThemeRef = useRef<string | null>(null);
   const fullWidthSpaceDecorationsRef = useRef<editor.IEditorDecorationsCollection | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const targetFileId = fileId ?? activeFileId;
   const activeFile = files.find(f => f.id === targetFileId);
@@ -418,8 +423,17 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
   const monacoThemeName = useMemo(() => {
     const customTheme = getThemeById(settings.theme);
     if (customTheme) return `custom-${customTheme.id}`;
-    return `custom-default-${resolvedTheme === 'dark' ? 'dark' : 'light'}`;
-  }, [settings.theme, resolvedTheme]);
+    const isDark = mounted ? resolvedTheme === 'dark' : false;
+    return `custom-default-${isDark ? 'dark' : 'light'}`;
+  }, [settings.theme, resolvedTheme, mounted]);
+
+  if (!mounted) {
+    return (
+      <div className="relative h-full w-full overflow-hidden flex items-center justify-center bg-background">
+        <div className="text-center p-4 text-muted-foreground">{t('editor.loading')}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-full w-full overflow-hidden">

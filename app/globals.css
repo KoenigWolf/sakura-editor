@@ -290,33 +290,18 @@ html {
 
 /* 全角スペースのハイライト */
 .monaco-editor .full-width-space-highlight {
-  background-color: rgba(255, 100, 100, 0.3);
-  border: 1px dashed rgba(255, 100, 100, 0.6);
-  border-radius: 2px;
+  background-color: rgba(180, 180, 180, 0.15);
+  border-left: 1px solid rgba(150, 150, 150, 0.4);
+  border-right: 1px solid rgba(150, 150, 150, 0.4);
   min-width: 1em;
-}
-
-.monaco-editor .full-width-space-highlight::before {
-  content: '□';
-  color: rgba(255, 100, 100, 0.8);
-  position: absolute;
-  font-size: 0.8em;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
 }
 
 /* ダークテーマ用 */
 .dark .monaco-editor .full-width-space-highlight,
 .dark-editor .full-width-space-highlight {
-  background-color: rgba(255, 150, 100, 0.25);
-  border-color: rgba(255, 150, 100, 0.5);
-}
-
-.dark .monaco-editor .full-width-space-highlight::before,
-.dark-editor .full-width-space-highlight::before {
-  color: rgba(255, 150, 100, 0.8);
+  background-color: rgba(200, 200, 200, 0.12);
+  border-left-color: rgba(180, 180, 180, 0.3);
+  border-right-color: rgba(180, 180, 180, 0.3);
 }
 
 .sakura-dialog {
