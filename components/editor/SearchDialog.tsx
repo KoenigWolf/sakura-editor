@@ -1,18 +1,3 @@
-/**
- * SearchDialogコンポーネント
- * 
- * 高性能な検索機能を提供するダイアログコンポーネント
- * 
- * 主な機能:
- * - リアルタイム検索
- * - 正規表現対応
- * - 大文字小文字区別オプション
- * - 検索履歴管理
- * - キーボードショートカット
- * - 検索結果のハイライト表示
- * - アクセシビリティ対応
- */
-
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -30,7 +15,6 @@ import { useSearchStore, type SearchMatch } from '@/lib/store/search-store';
 import { cn } from '@/lib/utils';
 import { Search, Replace, ChevronDown, ChevronUp, X, Regex, CaseSensitive } from 'lucide-react';
 
-// 型定義
 interface SearchOptions {
   caseSensitive: boolean;
   useRegex: boolean;
@@ -51,13 +35,11 @@ interface SearchDialogProps {
   initialQuery?: string;
 }
 
-// 定数
 const MAX_HISTORY = 10;
 const HISTORY_STORAGE_KEY = 'search-history';
 
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-// ユーティリティ関数
 const loadSearchHistory = (): SearchHistory[] => {
   try {
     if (typeof window === 'undefined') return [];
@@ -143,7 +125,6 @@ export const SearchDialog = ({
     }
   }, [open, isCaseSensitive, isRegex, isWholeWord, searchTerm]);
 
-  // ドラッグ可能なダイアログの位置と動作を管理
   const {
     position,
     isDragging,
@@ -155,7 +136,6 @@ export const SearchDialog = ({
     topMargin: 50,
   });
 
-  // 検索ハイライトをMonaco Editor上に付与
   const applyHighlights = useCallback((matchList: SearchMatch[], activeIndex: number) => {
     const editor = getEditorInstance();
     if (!editor) return;
@@ -176,7 +156,6 @@ export const SearchDialog = ({
     );
   }, [getEditorInstance]);
 
-  // ハイライトを解除
   const clearHighlights = useCallback(() => {
     const editor = getEditorInstance();
     if (editor && decorationsRef.current.length > 0) {
@@ -186,7 +165,6 @@ export const SearchDialog = ({
     setCurrentMatchIndex(-1);
   }, [getEditorInstance, setMatches, setCurrentMatchIndex]);
 
-  // 指定したマッチ箇所にジャンプ
   const goToMatch = useCallback((index: number, targetMatches?: SearchMatch[]) => {
     const editor = getEditorInstance();
     const list = targetMatches && targetMatches.length > 0 ? targetMatches : matches;
@@ -206,7 +184,6 @@ export const SearchDialog = ({
     applyHighlights(list, safeIndex);
   }, [applyHighlights, getEditorInstance, matches, setCurrentMatchIndex]);
 
-  // マッチリストや現在のインデックスが変化したらハイライトとフォーカスを更新
   useEffect(() => {
     if (matches.length === 0) {
       applyHighlights([], -1);
@@ -223,7 +200,6 @@ export const SearchDialog = ({
     goToMatch(clampedIndex, matches);
   }, [matches, currentMatchIndex, goToMatch, applyHighlights, setCurrentMatchIndex]);
 
-  // 検索履歴を更新
   const updateHistory = useCallback((newQuery: string, newOptions: SearchOptions) => {
     const newHistory: SearchHistory = {
       query: newQuery,
@@ -239,7 +215,6 @@ export const SearchDialog = ({
     });
   }, []);
 
-  // 検索を実行
   const handleSearch = useCallback(() => {
     const normalizedQuery = query.trim();
     if (!normalizedQuery) {
@@ -326,7 +301,6 @@ export const SearchDialog = ({
     goToMatch(prevIndex);
   }, [currentMatchIndex, goToMatch, handleSearch, matches.length]);
 
-  // 置換を実行
   const handleReplace = useCallback(() => {
     if (!onReplace) return;
 
@@ -387,7 +361,6 @@ export const SearchDialog = ({
     }
   }, [query, replacement, options, onReplace, updateHistory, toast, t, getEditorInstance, handleSearch]);
 
-  // 検索履歴をナビゲート
   const navigateHistory = useCallback((direction: 'up' | 'down') => {
     if (history.length === 0) return;
 
@@ -404,7 +377,6 @@ export const SearchDialog = ({
     });
   }, [history, setSearchTerm]);
 
-  // キーボードショートカットの処理
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!open) return;
@@ -454,7 +426,6 @@ export const SearchDialog = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [open, handleSearch, handleNextMatch, handlePreviousMatch, navigateHistory, onOpenChange]);
 
-  // ダイアログが開かれたときに検索入力欄にフォーカス
   useEffect(() => {
     if (open && searchInputRef.current) {
       searchInputRef.current.focus();

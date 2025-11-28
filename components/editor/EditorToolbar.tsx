@@ -26,9 +26,6 @@ import {
 import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { SearchDialog } from '@/components/editor/SearchDialog';
 
-/**
- * Editor toolbar with actions and settings
- */
 export function EditorToolbar() {
   const { theme, setTheme } = useTheme();
   const { addFile, getActiveFile } = useFileStore();

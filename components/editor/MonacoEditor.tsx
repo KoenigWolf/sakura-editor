@@ -66,7 +66,7 @@ export function MonacoEditor() {
   const { settings } = useEditorStore();
   const { setEditorInstance } = useEditorInstanceStore();
   const { setIsOpen: setSearchOpen, setSearchTerm } = useSearchStore();
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
   const activeFile = getActiveFile();
@@ -145,7 +145,8 @@ export function MonacoEditor() {
     // エディタのスタイルを設定
     const editorDom = editor.getDomNode();
     if (editorDom) {
-      editorDom.classList.add(theme === 'dark' ? 'dark-editor' : 'light-editor');
+      const themeClass = resolvedTheme === 'dark' ? 'dark-editor' : 'light-editor';
+      editorDom.classList.add(themeClass);
     }
 
     // カーソル位置変更時のイベントハンドラを設定
@@ -168,26 +169,25 @@ export function MonacoEditor() {
         }
       });
     }
-  }, [theme, updateEditorStatus, setEditorInstance, setSearchOpen, setSearchTerm]);
+  }, [resolvedTheme, updateEditorStatus, setEditorInstance, setSearchOpen, setSearchTerm]);
 
   /**
    * テーマ変更時の処理
    */
   useEffect(() => {
     if (editorRef.current) {
-      const isDark = theme === 'dark';
+      const isDark = resolvedTheme === 'dark';
       editorRef.current.updateOptions({
         theme: isDark ? 'vs-dark' : 'vs-light'
       });
       
-      // エディタのDOM要素のクラスを更新
       const editorDom = editorRef.current.getDomNode();
       if (editorDom) {
         editorDom.classList.remove('dark-editor', 'light-editor');
         editorDom.classList.add(isDark ? 'dark-editor' : 'light-editor');
       }
     }
-  }, [theme]);
+  }, [resolvedTheme]);
 
   /**
    * アクティブファイル変更時の処理
@@ -215,7 +215,7 @@ export function MonacoEditor() {
         value={activeFile?.content || ''}
         onChange={handleChange}
         onMount={handleEditorDidMount}
-        theme={theme === 'dark' ? 'vs-dark' : 'vs-light'}
+        theme={resolvedTheme === 'dark' ? 'vs-dark' : 'vs-light'}
         options={editorOptions}
         loading={<div className="text-center p-4">エディタを読み込み中...</div>}
       />
