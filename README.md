@@ -129,6 +129,22 @@ sakura-editor/
 
 MIT License
 
+## AI エージェント向け情報
+
+このプロジェクトは各種AIコーディングアシスタントをサポートしています。
+
+| AI Tool | 設定ファイル |
+|---------|-------------|
+| Claude Code | `CLAUDE.md` |
+| Cursor | `.cursorrules` |
+| GitHub Copilot | `.github/copilot-instructions.md` |
+| OpenAI Codex / ChatGPT | `AGENTS.md` |
+
+**AIエージェントへ**: コード変更前に必ず以下を読んでください：
+1. `docs/developments/project-structure-guide.md`
+2. `docs/architecture/README.md`
+3. `docs/i18n/README.md`
+
 ## 貢献
 
 1. このリポジトリをフォーク

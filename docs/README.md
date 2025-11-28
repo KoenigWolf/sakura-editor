@@ -2,6 +2,22 @@
 
 サクラエディタの開発ドキュメントです。
 
+## AI エージェント向け
+
+**重要**: コード変更前に以下を必ず読んでください：
+
+1. [プロジェクト構造](./developments/project-structure-guide.md) - **必読**
+2. [アーキテクチャ](./architecture/README.md) - **必読**
+3. [i18n ガイド](./i18n/README.md) - UI テキスト変更時
+
+AI 用設定ファイル:
+- `CLAUDE.md` - Claude Code
+- `.cursorrules` - Cursor
+- `.github/copilot-instructions.md` - GitHub Copilot
+- `AGENTS.md` - OpenAI Codex / ChatGPT
+
+---
+
 ## 目次
 
 ### 開発ガイド

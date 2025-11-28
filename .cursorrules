@@ -1,0 +1,96 @@
+# Sakura Editor - Cursor AI Rules
+
+## Required Reading Before Any Changes
+
+Before making any code changes, READ these files first:
+- `docs/developments/project-structure-guide.md` - Project structure and conventions
+- `docs/architecture/README.md` - Architecture and state management
+- `docs/i18n/README.md` - i18n guide (for UI text)
+
+## Project Overview
+
+Web-based code editor built with Next.js 13.5 (App Router), TypeScript, Zustand, shadcn/ui, and Monaco Editor.
+
+## Directory Structure
+
+```
+app/                  → Next.js pages
+components/editor/    → Editor components
+components/settings/  → Settings components
+components/ui/        → shadcn/ui components
+lib/store/            → Zustand stores
+lib/i18n/translations/ → ja.ts, en.ts
+lib/types/            → TypeScript types
+docs/                 → Documentation
+```
+
+## Coding Standards
+
+### Imports
+- Use absolute imports with `@/` prefix
+- Example: `import { Button } from '@/components/ui/button'`
+
+### Functions
+- Use arrow functions: `const fn = () => {}`
+- No unnecessary comments
+
+### State Management (Zustand)
+- Always use selectors: `useStore((state) => state.value)`
+- Never: `const store = useStore()`
+
+### Internationalization
+- NO hardcoded UI text
+- All text via i18n: `const { t } = useTranslation()`
+- Add to BOTH `ja.ts` and `en.ts`
+
+### Styling
+- Use Tailwind CSS classes
+- Follow existing component patterns
+
+## Before Committing
+
+```bash
+npm run build    # Must pass
+npm run lint     # Must pass
+```
+
+## Key Files
+
+| Purpose | File |
+|---------|------|
+| Editor settings type | `lib/types/editor.ts` |
+| Editor settings store | `lib/store.ts` |
+| File management | `lib/store/file-store.ts` |
+| Japanese translations | `lib/i18n/translations/ja.ts` |
+| English translations | `lib/i18n/translations/en.ts` |
+| Main editor | `components/editor/MonacoEditor.tsx` |
+| Settings dialog | `components/settings/SettingsDialog.tsx` |
+
+## Common Patterns
+
+### Adding New Setting
+1. Add type to `lib/types/editor.ts`
+2. Add default to `DEFAULT_EDITOR_SETTINGS`
+3. Add UI in `components/settings/tabs/*.tsx`
+4. Add translations to both language files
+
+### Adding Translation
+```typescript
+// ja.ts
+export const ja = {
+  category: {
+    newKey: '日本語テキスト',
+  },
+}
+
+// en.ts
+export const en = {
+  category: {
+    newKey: 'English text',
+  },
+}
+
+// Component
+const { t } = useTranslation()
+<span>{t('category.newKey')}</span>
+```

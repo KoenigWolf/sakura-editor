@@ -1,47 +1,56 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
+# Dependencies
+node_modules/
 /.pnp
 .pnp.js
+.yarn/install-state.gz
 
-# testing
+# Testing
 /coverage
+*.lcov
 
-# next.js
+# Next.js
 /.next/
 /out/
+next-env.d.ts
 
-# production
+# Production
 /build
+/dist
 
-# misc
-.DS_Store
-*.pem
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# debug
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# local env files
-.env*.local
-.env
+# TypeScript
+*.tsbuildinfo
 
-# vercel
+# ESLint / Prettier
+.eslintcache
+.prettiercache
+
+# Vercel
 .vercel
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# Turbo
+.turbo
 
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
+# Misc cache
+.cache
+.parcel-cache
+.serverless/
+.netlify
 
-# OS generated files
+# OS
 .DS_Store
 .DS_Store?
 ._*
@@ -49,36 +58,56 @@ next-env.d.ts
 .Trashes
 ehthumbs.db
 Thumbs.db
+Desktop.ini
+
+# IDE / Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+*.code-workspace
+
+# Vim
+*~
+*.vim
+Session.vim
+.netrwhist
 
 # Logs
-logs
+logs/
 *.log
 
-# Optional npm cache directory
+# npm
 .npm
-
-# Optional eslint cache
-.eslintcache
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
 *.tgz
-
-# Yarn Integrity file
 .yarn-integrity
 
-# parcel-bundler cache (https://parceljs.org/)
-.cache
-.parcel-cache
+# Optional files
+.node_repl_history
+*.pem
 
-# Next.js build output
-.next
-out
+# Sentry
+.sentryclirc
 
-# Serverless directories
-.serverless/
+# PWA
+**/public/sw.js
+**/public/workbox-*.js
+**/public/sw.js.map
+**/public/workbox-*.js.map
 
-# Local Netlify folder
-.netlify
+# Storybook
+storybook-static/
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# Cypress
+/cypress/videos/
+/cypress/screenshots/
+
+# Docker
+docker-compose.override.yml
