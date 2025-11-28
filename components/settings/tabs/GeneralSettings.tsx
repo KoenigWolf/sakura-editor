@@ -1,13 +1,11 @@
 /**
  * 一般設定タブ
+ * 言語設定のみ
  */
 'use client';
 
 import { useTranslation } from 'react-i18next';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Input } from '@/components/ui/input';
-import { Globe, Save, Clock, HardDrive, Timer } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EditorSettings } from '@/lib/types/editor';
 
@@ -35,36 +33,6 @@ function SettingsSection({
       <div className="p-3">
         {children}
       </div>
-    </div>
-  );
-}
-
-// スイッチ付き設定行
-function SettingRow({
-  icon: Icon,
-  label,
-  description,
-  checked,
-  onCheckedChange
-}: {
-  icon: React.ElementType;
-  label: string;
-  description?: string;
-  checked: boolean;
-  onCheckedChange: (checked: boolean) => void;
-}) {
-  return (
-    <div className="flex items-center justify-between py-2 px-1 rounded hover:bg-muted/50 transition-colors">
-      <div className="flex items-center gap-2 flex-1">
-        <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
-        <div className="flex flex-col">
-          <Label className="text-sm cursor-pointer">{label}</Label>
-          {description && (
-            <span className="text-xs text-muted-foreground">{description}</span>
-          )}
-        </div>
-      </div>
-      <Switch checked={checked} onCheckedChange={onCheckedChange} />
     </div>
   );
 }
@@ -112,70 +80,26 @@ export function GeneralSettings({ settings, onSettingsChange }: GeneralSettingsP
   return (
     <div className="space-y-4">
       {/* 言語 */}
-      <SettingsSection icon={Globe} title={t('settings.general.language.label')}>
-        <div className="flex gap-2">
-          <LanguageButton
-            value="ja"
-            current={settings.language}
-            label={t('settings.general.language.options.ja')}
-            flag="🇯🇵"
-            onClick={() => handleLanguageChange('ja')}
-          />
-          <LanguageButton
-            value="en"
-            current={settings.language}
-            label={t('settings.general.language.options.en')}
-            flag="🇺🇸"
-            onClick={() => handleLanguageChange('en')}
-          />
-        </div>
-      </SettingsSection>
-
-      {/* 自動保存 */}
-      <SettingsSection icon={Save} title={t('settings.general.autoSave.label')}>
-        <div className="space-y-3">
-          <SettingRow
-            icon={Clock}
-            label={t('settings.general.autoSave.label')}
-            checked={settings.autoSave}
-            onCheckedChange={(checked) => onSettingsChange({ autoSave: checked })}
-          />
-          <div className={cn(
-            'flex items-center gap-3 pl-6 transition-opacity',
-            !settings.autoSave && 'opacity-50 pointer-events-none'
-          )}>
-            <Timer className="h-4 w-4 text-muted-foreground shrink-0" />
-            <Label className="text-sm text-muted-foreground shrink-0">
-              {t('settings.general.autoSave.interval')}
-            </Label>
-            <div className="flex items-center gap-2 flex-1">
-              <Input
-                type="range"
-                min={5}
-                max={300}
-                step={5}
-                value={settings.autoSaveInterval}
-                onChange={(e) => onSettingsChange({ autoSaveInterval: Number(e.target.value) })}
-                className="flex-1 h-2 cursor-pointer"
-                disabled={!settings.autoSave}
-              />
-              <span className="text-sm font-mono w-14 text-center bg-muted rounded px-2 py-1">
-                {settings.autoSaveInterval}{t('settings.general.autoSave.unit')}
-              </span>
-            </div>
+      <SettingsSection icon={Globe} title={t('settings.general.language.title')}>
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">{t('settings.general.language.label')}</p>
+          <div className="flex gap-2">
+            <LanguageButton
+              value="ja"
+              current={settings.language}
+              label={t('settings.general.language.options.ja')}
+              flag="🇯🇵"
+              onClick={() => handleLanguageChange('ja')}
+            />
+            <LanguageButton
+              value="en"
+              current={settings.language}
+              label={t('settings.general.language.options.en')}
+              flag="🇺🇸"
+              onClick={() => handleLanguageChange('en')}
+            />
           </div>
         </div>
-      </SettingsSection>
-
-      {/* バックアップ */}
-      <SettingsSection icon={HardDrive} title={t('settings.backup.title')}>
-        <SettingRow
-          icon={HardDrive}
-          label={t('settings.general.backup.createBackup')}
-          description={t('settings.general.backup.description')}
-          checked={settings.createBackup}
-          onCheckedChange={(checked) => onSettingsChange({ createBackup: checked })}
-        />
       </SettingsSection>
     </div>
   );

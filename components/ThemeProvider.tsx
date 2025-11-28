@@ -6,10 +6,15 @@ import { type ThemeProviderProps } from 'next-themes/dist/types';
 import { useEditorStore } from '@/lib/store';
 import { CUSTOM_THEMES, type EditorTheme } from '@/lib/themes';
 
+// camelCase を kebab-case に変換
+const camelToKebab = (str: string): string => {
+  return str.replace(/([A-Z])/g, '-$1').toLowerCase();
+};
+
 const applyThemeColors = (theme: EditorTheme) => {
   const root = document.documentElement;
   Object.entries(theme.colors).forEach(([key, value]) => {
-    const cssVar = `--${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
+    const cssVar = `--${camelToKebab(key)}`;
     root.style.setProperty(cssVar, value);
   });
 };

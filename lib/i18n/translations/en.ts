@@ -8,51 +8,32 @@ export const en = {
   settings: {
     title: 'Settings',
     actions: {
-      save: 'Save Settings',
-      reset: 'Reset Settings',
-      saved: 'Settings saved successfully',
-      resetDone: 'Settings have been reset',
+      save: 'Save',
+      reset: 'Reset',
+      saved: 'Settings saved',
+      resetDone: 'Settings reset',
     },
-    backup: {
-      title: 'Backup',
+    tabs: {
+      theme: 'Theme',
+      editor: 'Editor',
+      file: 'File',
+      general: 'General',
     },
-    general: {
-      title: 'General',
-      language: {
-        label: 'Language',
-        options: {
-          en: 'English',
-          ja: '日本語',
-        },
-      },
-      autoSave: {
-        label: 'Enable auto-save',
-        interval: 'Auto-save interval',
-        unit: 'sec',
-      },
-      backup: {
-        title: 'Backup',
-        createBackup: 'Create backup files',
-        description: 'Automatically backup files before editing',
-      },
+    theme: {
+      title: 'Color Theme',
+      baseTheme: 'Base Theme',
+      system: 'System',
+      light: 'Light',
+      dark: 'Dark',
+      darkThemes: 'Dark Themes',
+      lightThemes: 'Light Themes',
     },
-    appearance: {
-      title: 'Appearance',
-      theme: {
-        title: 'Theme',
-        label: 'Color Theme',
-        system: 'System',
-        light: 'Light',
-        dark: 'Dark',
-        customThemes: 'Custom Themes',
-        darkThemes: 'Dark Themes',
-        lightThemes: 'Light Themes',
-        selectTheme: 'Select Theme',
-      },
+    editor: {
       font: {
         title: 'Font',
         family: 'Font Family',
         size: 'Font Size',
+        lineHeight: 'Line Height',
         system: 'System',
         preview: {
           alphabet: 'ABCDEFG abcdefg 0123456789',
@@ -61,50 +42,66 @@ export const en = {
       },
       display: {
         title: 'Display',
-        lineNumbers: 'Show line numbers',
-        ruler: 'Show ruler',
+        lineNumbers: 'Line numbers',
+        ruler: 'Ruler',
         wordWrap: 'Word wrap',
-        whitespace: {
-          label: 'Show whitespace',
-          options: {
-            none: 'None',
-            boundary: 'Boundary only',
-            selection: 'Selection only',
-            trailing: 'Trailing only',
-            all: 'All',
-          },
+        tabSize: 'Tab size',
+      },
+      whitespace: {
+        title: 'Whitespace',
+        label: 'Show whitespace',
+        options: {
+          none: 'None',
+          boundary: 'Boundary',
+          selection: 'Selection',
+          trailing: 'Trailing',
+          all: 'All',
         },
       },
     },
-    keyboard: {
-      title: 'Keyboard Shortcuts',
-      saveFile: 'Save File',
-      find: 'Find',
-      undo: 'Undo',
-      redo: 'Redo',
-      reset: 'Reset to Defaults',
-    },
     file: {
+      title: 'File',
+      autoSave: {
+        title: 'Auto Save',
+        enable: 'Enable auto-save',
+        interval: 'Interval',
+        unit: 'sec',
+      },
+      backup: {
+        title: 'Backup',
+        enable: 'Create backup',
+        description: 'Backup files before editing',
+      },
       encoding: {
-        title: 'File Encoding',
-        label: 'Default Encoding',
+        title: 'Encoding',
+        label: 'Default',
         options: {
-          'utf-8': { label: 'UTF-8', description: 'Recommended - International standard' },
-          'utf-8-bom': { label: 'UTF-8 (BOM)', description: 'Windows compatible' },
-          'shift-jis': { label: 'Shift JIS', description: 'Japanese Windows' },
-          'euc-jp': { label: 'EUC-JP', description: 'Japanese Unix' },
+          'utf-8': { label: 'UTF-8', description: 'Recommended' },
+          'utf-8-bom': { label: 'UTF-8 (BOM)', description: 'Windows' },
+          'shift-jis': { label: 'Shift JIS', description: 'Japanese' },
+          'euc-jp': { label: 'EUC-JP', description: 'Unix' },
         },
       },
       lineEnding: {
-        title: 'Line Endings',
-        label: 'Default Line Ending',
+        title: 'Line Ending',
+        label: 'Default',
         options: {
-          lf: { label: 'LF', description: 'Unix / macOS / Linux' },
+          lf: { label: 'LF', description: 'Unix / macOS' },
           crlf: { label: 'CRLF', description: 'Windows' },
           cr: { label: 'CR', description: 'Classic Mac' },
         },
       },
-      preview: 'New files will be created with UTF-8 + LF',
+    },
+    general: {
+      title: 'General',
+      language: {
+        title: 'Language',
+        label: 'Interface language',
+        options: {
+          en: 'English',
+          ja: '日本語',
+        },
+      },
     },
   },
   search: {

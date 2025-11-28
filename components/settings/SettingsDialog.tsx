@@ -11,9 +11,10 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { GeneralSettings } from './tabs/GeneralSettings';
-import { AppearanceSettings } from './tabs/AppearanceSettings';
+import { ThemeSettings } from './tabs/ThemeSettings';
+import { EditorSettings } from './tabs/EditorSettings';
 import { FileSettings } from './tabs/FileSettings';
+import { GeneralSettings } from './tabs/GeneralSettings';
 import { useEditorStore } from '@/lib/store';
 import { useTheme } from 'next-themes';
 import { CloseButton } from '@/components/ui/close-button';
@@ -22,19 +23,24 @@ import { cn } from '@/lib/utils';
 // タブ定義
 const settingsTabs = [
   {
-    value: 'general',
-    labelKey: 'settings.general.title',
-    Component: GeneralSettings,
+    value: 'theme',
+    labelKey: 'settings.tabs.theme',
+    Component: ThemeSettings,
   },
   {
-    value: 'appearance',
-    labelKey: 'settings.appearance.title',
-    Component: AppearanceSettings,
+    value: 'editor',
+    labelKey: 'settings.tabs.editor',
+    Component: EditorSettings,
   },
   {
     value: 'file',
-    labelKey: 'settings.file.encoding.title',
+    labelKey: 'settings.tabs.file',
     Component: FileSettings,
+  },
+  {
+    value: 'general',
+    labelKey: 'settings.tabs.general',
+    Component: GeneralSettings,
   },
 ];
 
@@ -303,7 +309,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
           />
         </div>
 
-        <Tabs defaultValue="general" className="flex-1 min-h-0 flex flex-col">
+        <Tabs defaultValue="theme" className="flex-1 min-h-0 flex flex-col">
           <TabsList className="shrink-0 w-full flex justify-start px-4 pt-2 bg-transparent">
             {settingsTabs.map(({ value, labelKey }) => (
               <TabsTrigger

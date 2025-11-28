@@ -13,46 +13,27 @@ export const ja = {
       saved: '設定を保存しました',
       resetDone: '設定をリセットしました',
     },
-    backup: {
-      title: 'バックアップ',
+    tabs: {
+      theme: 'テーマ',
+      editor: 'エディタ',
+      file: 'ファイル',
+      general: '一般',
     },
-    general: {
-      title: '一般',
-      language: {
-        label: '言語',
-        options: {
-          en: 'English',
-          ja: '日本語',
-        },
-      },
-      autoSave: {
-        label: '自動保存を有効にする',
-        interval: '自動保存の間隔',
-        unit: '秒',
-      },
-      backup: {
-        title: 'バックアップ',
-        createBackup: 'バックアップファイルを作成',
-        description: '編集前のファイルを自動でバックアップ',
-      },
+    theme: {
+      title: 'カラーテーマ',
+      baseTheme: '基本テーマ',
+      system: 'システム',
+      light: 'ライト',
+      dark: 'ダーク',
+      darkThemes: 'ダークテーマ',
+      lightThemes: 'ライトテーマ',
     },
-    appearance: {
-      title: '表示',
-      theme: {
-        title: 'テーマ',
-        label: 'カラーテーマ',
-        system: 'システム設定に従う',
-        light: 'ライト',
-        dark: 'ダーク',
-        customThemes: 'カスタムテーマ',
-        darkThemes: 'ダークテーマ',
-        lightThemes: 'ライトテーマ',
-        selectTheme: 'テーマを選択',
-      },
+    editor: {
       font: {
         title: 'フォント',
         family: 'フォント名',
         size: 'フォントサイズ',
+        lineHeight: '行の高さ',
         system: 'システム',
         preview: {
           alphabet: 'ABCDEFG abcdefg 0123456789',
@@ -64,30 +45,36 @@ export const ja = {
         lineNumbers: '行番号を表示',
         ruler: 'ルーラーを表示',
         wordWrap: '右端で折り返す',
-        whitespace: {
-          label: '空白文字を表示',
-          options: {
-            none: '表示しない',
-            boundary: '単語間のみ',
-            selection: '選択範囲のみ',
-            trailing: '末尾のみ',
-            all: 'すべて表示',
-          },
+        tabSize: 'タブサイズ',
+      },
+      whitespace: {
+        title: '空白文字',
+        label: '空白文字の表示',
+        options: {
+          none: '表示しない',
+          boundary: '単語間のみ',
+          selection: '選択範囲のみ',
+          trailing: '末尾のみ',
+          all: 'すべて表示',
         },
       },
     },
-    keyboard: {
-      title: 'キーボードショートカット',
-      saveFile: 'ファイルを保存',
-      find: '検索',
-      undo: '元に戻す',
-      redo: 'やり直し',
-      reset: 'デフォルトに戻す',
-    },
     file: {
+      title: 'ファイル',
+      autoSave: {
+        title: '自動保存',
+        enable: '自動保存を有効にする',
+        interval: '保存間隔',
+        unit: '秒',
+      },
+      backup: {
+        title: 'バックアップ',
+        enable: 'バックアップを作成',
+        description: '編集前のファイルを自動でバックアップ',
+      },
       encoding: {
-        title: 'ファイルエンコーディング',
-        label: 'デフォルトエンコーディング',
+        title: 'エンコーディング',
+        label: 'デフォルト',
         options: {
           'utf-8': { label: 'UTF-8', description: '推奨 - 国際標準' },
           'utf-8-bom': { label: 'UTF-8 (BOM)', description: 'Windows互換' },
@@ -97,14 +84,24 @@ export const ja = {
       },
       lineEnding: {
         title: '改行コード',
-        label: 'デフォルトの改行コード',
+        label: 'デフォルト',
         options: {
           lf: { label: 'LF', description: 'Unix / macOS / Linux' },
           crlf: { label: 'CRLF', description: 'Windows' },
           cr: { label: 'CR', description: 'Classic Mac' },
         },
       },
-      preview: '新規ファイルは UTF-8 + LF で作成されます',
+    },
+    general: {
+      title: '一般',
+      language: {
+        title: '言語',
+        label: 'インターフェース言語',
+        options: {
+          en: 'English',
+          ja: '日本語',
+        },
+      },
     },
   },
   search: {

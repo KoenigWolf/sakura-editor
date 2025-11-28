@@ -1,15 +1,18 @@
 /**
  * ファイル設定タブ
+ * 自動保存、バックアップ、エンコーディング、改行コード
  */
 'use client';
 
 import { useTranslation } from 'react-i18next';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, FileCode, CornerDownLeft } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
+import { FileCode, CornerDownLeft, Save, HardDrive, Clock, Timer } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import type { EditorSettings } from '@/lib/types/editor';
 
-// エンコーディングと改行コードの値リスト（ラベルは翻訳から取得）
+// エンコーディングと改行コードの値リスト
 const ENCODING_VALUES = ['utf-8', 'utf-8-bom', 'shift-jis', 'euc-jp'] as const;
 const LINE_ENDING_VALUES = ['lf', 'crlf', 'cr'] as const;
 
@@ -60,15 +63,46 @@ function SelectionCard({
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col items-start p-3 rounded-lg border-2 transition-all text-left w-full ${
+      className={cn(
+        'flex flex-col items-start p-3 rounded-lg border-2 transition-all text-left w-full',
         isActive
           ? 'border-primary bg-primary/10'
           : 'border-transparent bg-muted/50 hover:bg-muted hover:border-muted-foreground/20'
-      }`}
+      )}
     >
       <span className="text-sm font-medium">{label}</span>
       <span className="text-xs text-muted-foreground">{description}</span>
     </button>
+  );
+}
+
+// スイッチ付き設定行
+function SettingRow({
+  icon: Icon,
+  label,
+  description,
+  checked,
+  onCheckedChange
+}: {
+  icon: React.ElementType;
+  label: string;
+  description?: string;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between py-2 px-1 rounded hover:bg-muted/50 transition-colors">
+      <div className="flex items-center gap-2 flex-1">
+        <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
+        <div className="flex flex-col">
+          <Label className="text-sm cursor-pointer">{label}</Label>
+          {description && (
+            <span className="text-xs text-muted-foreground">{description}</span>
+          )}
+        </div>
+      </div>
+      <Switch checked={checked} onCheckedChange={onCheckedChange} />
+    </div>
   );
 }
 
@@ -77,6 +111,53 @@ export function FileSettings({ settings, onSettingsChange }: FileSettingsProps) 
 
   return (
     <div className="space-y-4">
+      {/* 自動保存 */}
+      <SettingsSection icon={Save} title={t('settings.file.autoSave.title')}>
+        <div className="space-y-3">
+          <SettingRow
+            icon={Clock}
+            label={t('settings.file.autoSave.enable')}
+            checked={settings.autoSave}
+            onCheckedChange={(checked) => onSettingsChange({ autoSave: checked })}
+          />
+          <div className={cn(
+            'flex items-center gap-3 pl-6 transition-opacity',
+            !settings.autoSave && 'opacity-50 pointer-events-none'
+          )}>
+            <Timer className="h-4 w-4 text-muted-foreground shrink-0" />
+            <Label className="text-sm text-muted-foreground shrink-0">
+              {t('settings.file.autoSave.interval')}
+            </Label>
+            <div className="flex items-center gap-2 flex-1">
+              <Input
+                type="range"
+                min={5}
+                max={300}
+                step={5}
+                value={settings.autoSaveInterval}
+                onChange={(e) => onSettingsChange({ autoSaveInterval: Number(e.target.value) })}
+                className="flex-1 h-2 cursor-pointer"
+                disabled={!settings.autoSave}
+              />
+              <span className="text-sm font-mono w-14 text-center bg-muted rounded px-2 py-1">
+                {settings.autoSaveInterval}{t('settings.file.autoSave.unit')}
+              </span>
+            </div>
+          </div>
+        </div>
+      </SettingsSection>
+
+      {/* バックアップ */}
+      <SettingsSection icon={HardDrive} title={t('settings.file.backup.title')}>
+        <SettingRow
+          icon={HardDrive}
+          label={t('settings.file.backup.enable')}
+          description={t('settings.file.backup.description')}
+          checked={settings.createBackup}
+          onCheckedChange={(checked) => onSettingsChange({ createBackup: checked })}
+        />
+      </SettingsSection>
+
       {/* エンコーディング */}
       <SettingsSection icon={FileCode} title={t('settings.file.encoding.title')}>
         <div className="space-y-2">
@@ -118,14 +199,6 @@ export function FileSettings({ settings, onSettingsChange }: FileSettingsProps) 
           </div>
         </div>
       </SettingsSection>
-
-      {/* プレビュー */}
-      <div className="rounded-lg border bg-muted/30 p-3">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <FileText className="h-3.5 w-3.5" />
-          <span>{t('settings.file.preview')}</span>
-        </div>
-      </div>
     </div>
   );
 }
