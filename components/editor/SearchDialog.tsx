@@ -113,6 +113,7 @@ export const SearchDialog = memo(({
 
   const dialogRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const replaceInputRef = useRef<HTMLInputElement>(null);
   const decorationsCollectionRef = useRef<editor.IEditorDecorationsCollection | null>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -303,7 +304,7 @@ export const SearchDialog = memo(({
   }, [currentMatchIndex, goToMatch, matches.length, performSearch, query]);
 
   const handleReplace = useCallback(() => {
-    if (!onReplace || !query.trim()) return;
+    if (!query.trim()) return;
 
     const editor = getEditorInstance();
     const model = editor?.getModel();
@@ -315,46 +316,32 @@ export const SearchDialog = memo(({
       return;
     }
 
-    const selectedText = model.getValueInRange(selection);
-    let replaceText = replacement;
+    editor.executeEdits('replace', [{ range: selection, text: replacement }]);
 
-    if (isRegex) {
-      try {
-        const regex = new RegExp(query, isCaseSensitive ? 'g' : 'gi');
-        replaceText = selectedText.replace(regex, replacement);
-      } catch {
-        replaceText = selectedText.replace(query, replacement);
-      }
-    } else {
-      replaceText = selectedText.replace(
-        isCaseSensitive ? query : new RegExp(escapeRegExp(query), 'gi'),
-        replacement
-      );
+    if (onReplace) {
+      onReplace(query, replacement, options);
     }
 
-    editor.executeEdits('replace', [{ range: selection, text: replaceText }]);
-    onReplace(query, replacement, options);
     performSearch(query, true);
-  }, [query, replacement, isRegex, isCaseSensitive, getEditorInstance, onReplace, options, performSearch, handleNextMatch]);
+  }, [query, replacement, getEditorInstance, onReplace, options, performSearch, handleNextMatch]);
 
   const handleReplaceAll = useCallback(() => {
-    if (!onReplace || !query.trim()) return;
+    if (!query.trim()) return;
 
     const editor = getEditorInstance();
     const model = editor?.getModel();
     if (!editor || !model) return;
 
-    const isRegexMode = isRegex || isWholeWord;
     const searchString = isRegex
       ? query
       : isWholeWord
         ? `\\b${escapeRegExp(query)}\\b`
-        : query;
+        : escapeRegExp(query);
 
     const foundMatches = model.findMatches(
       searchString,
       false,
-      isRegexMode,
+      true,
       isCaseSensitive,
       null,
       false
@@ -369,7 +356,10 @@ export const SearchDialog = memo(({
     }));
 
     editor.executeEdits('replaceAll', edits);
-    onReplace(query, replacement, options);
+
+    if (onReplace) {
+      onReplace(query, replacement, options);
+    }
 
     toast({
       title: t('search.replaced', { count }),
@@ -589,6 +579,17 @@ export const SearchDialog = memo(({
                 ref={searchInputRef}
                 value={query}
                 onChange={(e) => handleQueryChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Tab' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!showReplace) {
+                      setShowReplace(true);
+                      setTimeout(() => replaceInputRef.current?.focus(), 0);
+                    } else {
+                      replaceInputRef.current?.focus();
+                    }
+                  }
+                }}
                 placeholder={t('search.placeholder')}
                 className="h-10 sm:h-8 text-base sm:text-sm pr-2 sm:pr-24"
                 autoComplete="off"
@@ -680,8 +681,15 @@ export const SearchDialog = memo(({
             <div className="flex gap-1 flex-col sm:flex-row">
               <div className="flex-1">
                 <Input
+                  ref={replaceInputRef}
                   value={replacement}
                   onChange={(e) => setReplacement(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Tab' && e.shiftKey) {
+                      e.preventDefault();
+                      searchInputRef.current?.focus();
+                    }
+                  }}
                   placeholder={t('search.replacePlaceholder')}
                   className="h-10 sm:h-8 text-base sm:text-sm"
                   autoComplete="off"
