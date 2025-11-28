@@ -92,7 +92,7 @@ export function EditorToolbar() {
   };
 
   return (
-    <div className="flex items-center gap-2 p-2 border-b">
+    <div className="flex items-center gap-1 px-2 py-1 border-b bg-muted/40">
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="ghost" size="icon" onClick={handleNewFile}>

@@ -7,10 +7,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { EditorToolbar } from '@/components/editor/EditorToolbar';
 import { MonacoEditor } from '@/components/editor/MonacoEditor';
-import { FileTree } from '@/components/editor/FileTree';
 import { useFileStore } from '@/lib/store/file-store';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useTheme } from 'next-themes';
+import { FileTabs } from '@/components/editor/FileTabs';
 
 /**
  * エディタコンテナコンポーネント
@@ -120,16 +120,14 @@ export function EditorContainer() {
     <div className="sakura-editor-container flex flex-col h-full">
       {/* ツールバー */}
       <EditorToolbar />
+
+      {/* ファイルタブ */}
+      <FileTabs />
       
       {/* メインエリア */}
-      <div className="flex flex-1 min-h-0">
-        <div className="hidden md:block h-full border-r bg-muted/30 w-64 flex-shrink-0">
-          <FileTree className="h-full" />
-        </div>
-        <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col">
-          <div className="flex-1 overflow-hidden">
-            <MonacoEditor />
-          </div>
+      <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col">
+        <div className="flex-1 overflow-hidden">
+          <MonacoEditor />
         </div>
       </div>
       

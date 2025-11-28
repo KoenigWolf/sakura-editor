@@ -14,7 +14,6 @@ interface SearchStore {
   isRegex: boolean;
   isCaseSensitive: boolean;
   isWholeWord: boolean;
-  wholeWordBoundary: boolean;
   matches: SearchMatch[];
   currentMatchIndex: number;
   setIsOpen: (isOpen: boolean) => void;
