@@ -163,6 +163,23 @@
   .monaco-editor .lines-content {
     max-width: calc(100vw - 60px) !important;
   }
+
+  /* モバイルでの自動ズーム防止 */
+  .monaco-editor .inputarea {
+    font-size: 16px !important;
+  }
+}
+
+/* iOS/Androidでの自動ズーム防止 */
+@supports (-webkit-touch-callout: none) {
+  .monaco-editor .inputarea {
+    font-size: 16px !important;
+  }
+}
+
+/* タッチデバイスでのズーム防止 */
+html {
+  touch-action: manipulation;
 }
 
 .sakura-editor-toolbar {

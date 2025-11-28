@@ -32,6 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <meta httpEquiv="Content-Security-Policy" content={CSP} />
         <meta httpEquiv="Referrer-Policy" content="no-referrer" />
         <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
