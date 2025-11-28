@@ -5,6 +5,7 @@
 'use client';
 
 import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Editor } from '@monaco-editor/react';
 import type { OnMount } from '@monaco-editor/react';
 import { useFileStore } from '@/lib/store/file-store';
@@ -62,6 +63,7 @@ const getLanguageFromFilename = (filename: string | null): string => {
  * エディタの初期化と状態管理を担当
  */
 export function MonacoEditor() {
+  const { t } = useTranslation();
   const activeFile = useFileStore((state) => state.files.find(f => f.id === state.activeFileId));
   const updateFile = useFileStore((state) => state.updateFile);
   const settings = useEditorStore((state) => state.settings);
@@ -307,7 +309,7 @@ export function MonacoEditor() {
         onMount={handleEditorDidMount}
         theme={resolvedTheme === 'dark' ? 'vs-dark' : 'vs-light'}
         options={editorOptions}
-        loading={<div className="text-center p-4">エディタを読み込み中...</div>}
+        loading={<div className="text-center p-4">{t('editor.loading')}</div>}
       />
     </div>
   );

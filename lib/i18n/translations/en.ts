@@ -1,9 +1,22 @@
 export const en = {
+  // Common
+  common: {
+    close: 'Close',
+  },
+  // Editor
+  editor: {
+    loading: 'Loading editor...',
+  },
   settings: {
+    title: 'Settings',
     actions: {
       save: 'Save Settings',
       reset: 'Reset Settings',
-      saved: 'Settings saved successfully'
+      saved: 'Settings saved successfully',
+      resetDone: 'Settings have been reset',
+    },
+    backup: {
+      title: 'Backup',
     },
     general: {
       title: 'General',
@@ -16,19 +29,33 @@ export const en = {
       },
       autoSave: {
         label: 'Enable auto-save',
-        interval: 'Auto-save interval (seconds)'
+        interval: 'Auto-save interval',
+        unit: 'sec',
       },
       backup: {
         title: 'Backup',
-        createBackup: 'Create backup files'
+        createBackup: 'Create backup files',
+        description: 'Automatically backup files before editing'
       }
     },
     appearance: {
       title: 'Appearance',
+      theme: {
+        title: 'Theme',
+        label: 'Color Theme',
+        system: 'System',
+        light: 'Light',
+        dark: 'Dark',
+      },
       font: {
         title: 'Font',
         family: 'Font Family',
-        size: 'Font Size'
+        size: 'Font Size',
+        preview: {
+          alphabet: 'ABCDEFG abcdefg 0123456789',
+          japanese: 'あいうえお カキクケコ 漢字',
+        },
+        system: 'System',
       },
       display: {
         title: 'Display',
@@ -48,17 +75,24 @@ export const en = {
     file: {
       encoding: {
         title: 'File Encoding',
-        label: 'Default Encoding'
+        label: 'Default Encoding',
+        options: {
+          'utf-8': { label: 'UTF-8', description: 'Recommended - International standard' },
+          'utf-8-bom': { label: 'UTF-8 (BOM)', description: 'Windows compatible' },
+          'shift-jis': { label: 'Shift JIS', description: 'Japanese Windows' },
+          'euc-jp': { label: 'EUC-JP', description: 'Japanese Unix' },
+        },
       },
       lineEnding: {
         title: 'Line Endings',
         label: 'Default Line Ending',
         options: {
-          lf: 'LF (Unix/macOS)',
-          crlf: 'CRLF (Windows)',
-          cr: 'CR (Classic Mac)'
+          lf: { label: 'LF', description: 'Unix / macOS / Linux' },
+          crlf: { label: 'CRLF', description: 'Windows' },
+          cr: { label: 'CR', description: 'Classic Mac' },
         }
-      }
+      },
+      preview: 'New files will be created with UTF-8 + LF',
     }
   },
   // Search dialog translations

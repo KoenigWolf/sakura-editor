@@ -3,6 +3,14 @@
  * 各セクションごとに、設定画面で利用する文言をまとめています。
  */
 export const ja = {
+  // 共通
+  common: {
+    close: '閉じる',
+  },
+  // エディタ
+  editor: {
+    loading: 'エディタを読み込み中...',
+  },
   // 設定全般に関する翻訳
   settings: {
     title: '設定',
@@ -19,21 +27,23 @@ export const ja = {
     },
     // 一般設定に関するテキスト
     general: {
-      title: '一般', // 一般設定セクションのタイトル
+      title: '一般',
       language: {
-        label: '言語', // 言語選択のラベル
+        label: '言語',
         options: {
-          en: 'English', // 英語表記
-          ja: '日本語'   // 日本語表記
+          en: 'English',
+          ja: '日本語'
         }
       },
       autoSave: {
-        label: '自動保存を有効にする',    // 自動保存機能の有効化ラベル
-        interval: '自動保存の間隔（秒）'   // 自動保存間隔の説明
+        label: '自動保存を有効にする',
+        interval: '自動保存の間隔',
+        unit: '秒',
       },
       backup: {
-        title: 'バックアップ',           // バックアップ設定セクションのタイトル
-        createBackup: 'バックアップファイルを作成' // バックアップ作成のオプション
+        title: 'バックアップ',
+        createBackup: 'バックアップファイルを作成',
+        description: '編集前のファイルを自動でバックアップ'
       }
     },
     // 表示（アピアランス）に関する翻訳
@@ -49,7 +59,12 @@ export const ja = {
       font: {
         title: 'フォント',     // フォント設定のセクションタイトル
         family: 'フォント名',  // フォントファミリーのラベル
-        size: 'フォントサイズ' // フォントサイズのラベル
+        size: 'フォントサイズ', // フォントサイズのラベル
+        preview: {
+          alphabet: 'ABCDEFG abcdefg 0123456789',
+          japanese: 'あいうえお カキクケコ 漢字',
+        },
+        system: 'システム',
       },
       display: {
         title: '表示設定',      // 表示オプションのセクションタイトル
@@ -71,17 +86,24 @@ export const ja = {
     file: {
       encoding: {
         title: 'ファイルエンコーディング', // エンコーディング設定のタイトル
-        label: 'デフォルトエンコーディング' // デフォルトエンコーディングのラベル
+        label: 'デフォルトエンコーディング', // デフォルトエンコーディングのラベル
+        options: {
+          'utf-8': { label: 'UTF-8', description: '推奨 - 国際標準' },
+          'utf-8-bom': { label: 'UTF-8 (BOM)', description: 'Windows互換' },
+          'shift-jis': { label: 'Shift JIS', description: '日本語Windows' },
+          'euc-jp': { label: 'EUC-JP', description: '日本語Unix' },
+        },
       },
       lineEnding: {
         title: '改行コード',          // 改行コード設定のタイトル
         label: 'デフォルトの改行コード', // 改行コード選択のラベル
         options: {
-          lf: 'LF (Unix/macOS)',      // LF (Unix/macOS) の表示テキスト
-          crlf: 'CRLF (Windows)',     // CRLF (Windows) の表示テキスト
-          cr: 'CR (Classic Mac)'      // CR (Classic Mac) の表示テキスト
+          lf: { label: 'LF', description: 'Unix / macOS / Linux' },
+          crlf: { label: 'CRLF', description: 'Windows' },
+          cr: { label: 'CR', description: 'Classic Mac' },
         }
-      }
+      },
+      preview: '新規ファイルは UTF-8 + LF で作成されます',
     }
   },
   // 検索ダイアログに関する翻訳

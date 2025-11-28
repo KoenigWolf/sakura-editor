@@ -13,35 +13,36 @@ import { Palette, Type, Monitor, Sun, Moon, Laptop, Hash, Ruler, WrapText } from
 import { cn } from '@/lib/utils';
 import type { EditorSettings } from '@/lib/types/editor';
 
+// フォント一覧
 const FONT_FAMILIES = [
   // 汎用
-  { value: 'monospace', label: 'monospace (システム)' },
+  { value: 'monospace', labelKey: 'settings.appearance.font.system' },
   // Windows
-  { value: 'Consolas', label: 'Consolas' },
-  { value: 'Courier New', label: 'Courier New' },
-  { value: 'MS Gothic', label: 'MS ゴシック' },
-  { value: 'MS Mincho', label: 'MS 明朝' },
-  { value: 'Meiryo', label: 'メイリオ' },
-  { value: 'Yu Gothic', label: '游ゴシック' },
-  { value: 'BIZ UDGothic', label: 'BIZ UDゴシック' },
+  { value: 'Consolas' },
+  { value: 'Courier New' },
+  { value: 'MS Gothic' },
+  { value: 'MS Mincho' },
+  { value: 'Meiryo' },
+  { value: 'Yu Gothic' },
+  { value: 'BIZ UDGothic' },
   // macOS
-  { value: 'Menlo', label: 'Menlo' },
-  { value: 'Monaco', label: 'Monaco' },
-  { value: 'SF Mono', label: 'SF Mono' },
-  { value: 'Hiragino Kaku Gothic ProN', label: 'ヒラギノ角ゴ ProN' },
-  { value: 'Hiragino Mincho ProN', label: 'ヒラギノ明朝 ProN' },
+  { value: 'Menlo' },
+  { value: 'Monaco' },
+  { value: 'SF Mono' },
+  { value: 'Hiragino Kaku Gothic ProN' },
+  { value: 'Hiragino Mincho ProN' },
   // プログラミング用フォント
-  { value: 'Source Code Pro', label: 'Source Code Pro' },
-  { value: 'Fira Code', label: 'Fira Code' },
-  { value: 'JetBrains Mono', label: 'JetBrains Mono' },
-  { value: 'Cascadia Code', label: 'Cascadia Code' },
-  { value: 'IBM Plex Mono', label: 'IBM Plex Mono' },
-  { value: 'Hack', label: 'Hack' },
-  { value: 'Roboto Mono', label: 'Roboto Mono' },
+  { value: 'Source Code Pro' },
+  { value: 'Fira Code' },
+  { value: 'JetBrains Mono' },
+  { value: 'Cascadia Code' },
+  { value: 'IBM Plex Mono' },
+  { value: 'Hack' },
+  { value: 'Roboto Mono' },
   // Linux
-  { value: 'DejaVu Sans Mono', label: 'DejaVu Sans Mono' },
-  { value: 'Ubuntu Mono', label: 'Ubuntu Mono' },
-  { value: 'Noto Sans Mono CJK JP', label: 'Noto Sans Mono CJK JP' },
+  { value: 'DejaVu Sans Mono' },
+  { value: 'Ubuntu Mono' },
+  { value: 'Noto Sans Mono CJK JP' },
 ];
 
 interface AppearanceSettingsProps {
@@ -177,9 +178,9 @@ export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSet
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="max-h-60">
-                {FONT_FAMILIES.map(({ value, label }) => (
-                  <SelectItem key={value} value={value} style={{ fontFamily: value }}>
-                    {label}
+                {FONT_FAMILIES.map((font) => (
+                  <SelectItem key={font.value} value={font.value} style={{ fontFamily: font.value }}>
+                    {font.labelKey ? t(font.labelKey) : font.value}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -208,8 +209,8 @@ export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSet
             className="mt-2 p-3 rounded-md bg-muted/50 border text-sm"
             style={{ fontFamily: settings.fontFamily, fontSize: settings.fontSize }}
           >
-            ABCDEFG abcdefg 0123456789<br />
-            あいうえお カキクケコ 漢字
+            {t('settings.appearance.font.preview.alphabet')}<br />
+            {t('settings.appearance.font.preview.japanese')}
           </div>
         </div>
       </SettingsSection>

@@ -160,7 +160,7 @@ export function GeneralSettings({ settings, onSettingsChange }: GeneralSettingsP
                 disabled={!settings.autoSave}
               />
               <span className="text-sm font-mono w-14 text-center bg-muted rounded px-2 py-1">
-                {settings.autoSaveInterval}秒
+                {settings.autoSaveInterval}{t('settings.general.autoSave.unit')}
               </span>
             </div>
           </div>
@@ -172,7 +172,7 @@ export function GeneralSettings({ settings, onSettingsChange }: GeneralSettingsP
         <SettingRow
           icon={HardDrive}
           label={t('settings.general.backup.createBackup')}
-          description="編集前のファイルを自動でバックアップ"
+          description={t('settings.general.backup.description')}
           checked={settings.createBackup}
           onCheckedChange={(checked) => onSettingsChange({ createBackup: checked })}
         />

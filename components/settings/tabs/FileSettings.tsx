@@ -9,18 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FileText, FileCode, CornerDownLeft } from 'lucide-react';
 import type { EditorSettings } from '@/lib/types/editor';
 
-const ENCODINGS = [
-  { value: 'utf-8', label: 'UTF-8', description: '推奨 - 国際標準' },
-  { value: 'utf-8-bom', label: 'UTF-8 (BOM)', description: 'Windows互換' },
-  { value: 'shift-jis', label: 'Shift JIS', description: '日本語Windows' },
-  { value: 'euc-jp', label: 'EUC-JP', description: '日本語Unix' },
-];
-
-const LINE_ENDINGS = [
-  { value: 'lf', label: 'LF', description: 'Unix / macOS / Linux' },
-  { value: 'crlf', label: 'CRLF', description: 'Windows' },
-  { value: 'cr', label: 'CR', description: 'Classic Mac' },
-];
+// エンコーディングと改行コードの値リスト（ラベルは翻訳から取得）
+const ENCODING_VALUES = ['utf-8', 'utf-8-bom', 'shift-jis', 'euc-jp'] as const;
+const LINE_ENDING_VALUES = ['lf', 'crlf', 'cr'] as const;
 
 interface FileSettingsProps {
   settings: EditorSettings;
@@ -93,13 +84,13 @@ export function FileSettings({ settings, onSettingsChange }: FileSettingsProps) 
             {t('settings.file.encoding.label')}
           </Label>
           <div className="grid grid-cols-2 gap-2">
-            {ENCODINGS.map(({ value, label, description }) => (
+            {ENCODING_VALUES.map((value) => (
               <SelectionCard
                 key={value}
                 value={value}
                 current="utf-8"
-                label={label}
-                description={description}
+                label={t(`settings.file.encoding.options.${value}.label`)}
+                description={t(`settings.file.encoding.options.${value}.description`)}
                 onClick={() => {}}
               />
             ))}
@@ -114,13 +105,13 @@ export function FileSettings({ settings, onSettingsChange }: FileSettingsProps) 
             {t('settings.file.lineEnding.label')}
           </Label>
           <div className="grid grid-cols-3 gap-2">
-            {LINE_ENDINGS.map(({ value, label, description }) => (
+            {LINE_ENDING_VALUES.map((value) => (
               <SelectionCard
                 key={value}
                 value={value}
                 current="lf"
-                label={label}
-                description={description}
+                label={t(`settings.file.lineEnding.options.${value}.label`)}
+                description={t(`settings.file.lineEnding.options.${value}.description`)}
                 onClick={() => {}}
               />
             ))}
@@ -132,7 +123,7 @@ export function FileSettings({ settings, onSettingsChange }: FileSettingsProps) 
       <div className="rounded-lg border bg-muted/30 p-3">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <FileText className="h-3.5 w-3.5" />
-          <span>新規ファイルは UTF-8 + LF で作成されます</span>
+          <span>{t('settings.file.preview')}</span>
         </div>
       </div>
     </div>

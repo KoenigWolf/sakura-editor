@@ -1,11 +1,13 @@
 'use client';
 
 import { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFileStore, type FileData } from '@/lib/store/file-store';
 import { X, FileCode2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const FileTabs = memo(function FileTabs() {
+  const { t } = useTranslation();
   const files = useFileStore((state) => state.files);
   const activeFileId = useFileStore((state) => state.activeFileId);
   const setActiveFile = useFileStore((state) => state.setActiveFile);
@@ -53,7 +55,7 @@ export const FileTabs = memo(function FileTabs() {
                 'hover:bg-destructive/90 hover:text-white',
                 'text-muted-foreground'
               )}
-              aria-label="閉じる"
+              aria-label={t('common.close')}
             >
               <X className="h-2.5 w-2.5 stroke-[2.5]" />
             </span>
