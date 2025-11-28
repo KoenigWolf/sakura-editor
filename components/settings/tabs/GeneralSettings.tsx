@@ -1,5 +1,5 @@
 /**
- * General settings tab including auto-save, backup, and basic editor behavior
+ * 一般設定タブ
  */
 'use client';
 
@@ -8,8 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import type { EditorSettings } from '@/lib/types/editor';
 
 interface GeneralSettingsProps {
@@ -26,72 +24,59 @@ export function GeneralSettings({ settings, onSettingsChange }: GeneralSettingsP
   };
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">{t('settings.general.title')}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>{t('settings.general.language.label')}</Label>
-            <Select
-              value={settings.language}
-              onValueChange={handleLanguageChange}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">{t('settings.general.language.options.en')}</SelectItem>
-                <SelectItem value="ja">{t('settings.general.language.options.ja')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="space-y-5">
+      {/* 言語 */}
+      <section>
+        <h3 className="text-sm font-medium mb-3">{t('settings.general.title')}</h3>
+        <div className="flex items-center gap-3">
+          <Label className="text-sm text-muted-foreground w-28">{t('settings.general.language.label')}</Label>
+          <Select value={settings.language} onValueChange={handleLanguageChange}>
+            <SelectTrigger className="w-40 h-8">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">{t('settings.general.language.options.en')}</SelectItem>
+              <SelectItem value="ja">{t('settings.general.language.options.ja')}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">{t('settings.general.autoSave.label')}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="auto-save">{t('settings.general.autoSave.label')}</Label>
+      {/* 自動保存 */}
+      <section>
+        <h3 className="text-sm font-medium mb-3">{t('settings.general.autoSave.label')}</h3>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between py-1">
+            <Label className="text-sm">{t('settings.general.autoSave.label')}</Label>
             <Switch
-              id="auto-save"
               checked={settings.autoSave}
               onCheckedChange={(checked) => onSettingsChange({ autoSave: checked })}
             />
           </div>
-          <div className="flex items-center gap-4">
-            <Label htmlFor="auto-save-interval">{t('settings.general.autoSave.interval')}</Label>
+          <div className="flex items-center gap-3">
+            <Label className="text-sm text-muted-foreground w-32">{t('settings.general.autoSave.interval')}</Label>
             <Input
-              id="auto-save-interval"
               type="number"
               min={1}
               value={settings.autoSaveInterval}
               onChange={(e) => onSettingsChange({ autoSaveInterval: Number(e.target.value) })}
-              className="w-24"
+              className="w-20 h-8"
             />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">{t('settings.backup.title')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="create-backup">{t('settings.general.backup.createBackup')}</Label>
-            <Switch
-              id="create-backup"
-              checked={settings.createBackup}
-              onCheckedChange={(checked) => onSettingsChange({ createBackup: checked })}
-            />
-          </div>
-        </CardContent>
-      </Card>
+      {/* バックアップ */}
+      <section>
+        <h3 className="text-sm font-medium mb-3">{t('settings.backup.title')}</h3>
+        <div className="flex items-center justify-between py-1">
+          <Label className="text-sm">{t('settings.general.backup.createBackup')}</Label>
+          <Switch
+            checked={settings.createBackup}
+            onCheckedChange={(checked) => onSettingsChange({ createBackup: checked })}
+          />
+        </div>
+      </section>
     </div>
   );
 }

@@ -65,7 +65,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   // ダイアログを中央に配置
   useEffect(() => {
     if (open && !isInitialized) {
-      const centerX = (window.innerWidth - 672) / 2; // max-w-2xl = 672px
+      const centerX = (window.innerWidth - 480) / 2;
       const centerY = (window.innerHeight - window.innerHeight * 0.8) / 2;
       setPosition({ x: centerX, y: centerY });
       setIsInitialized(true);
@@ -157,7 +157,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
       {/* ダイアログ */}
       <div
         ref={dialogRef}
-        className="fixed z-50 bg-background border rounded-lg shadow-lg max-w-2xl w-full h-[80vh] flex flex-col overflow-hidden"
+        className="fixed z-50 bg-background border rounded-lg shadow-lg w-[480px] max-h-[80vh] flex flex-col overflow-hidden"
         style={{
           left: position.x,
           top: position.y,
@@ -165,46 +165,44 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
       >
         {/* ドラッグ可能なヘッダー */}
         <div
-          className="px-6 pt-6 pb-4 border-b relative shrink-0 cursor-move select-none"
+          className="px-4 py-3 border-b relative shrink-0 cursor-move select-none"
           onMouseDown={handleMouseDown}
         >
-          <h2 className="text-lg font-semibold pr-8">{t('settings.title')}</h2>
+          <h2 className="text-base font-semibold pr-8">{t('settings.title')}</h2>
           <button
             onClick={() => onOpenChange(false)}
-            className="absolute right-4 top-4 p-1 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+            className="absolute right-3 top-3 p-1 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-auto">
-          <div className="p-6">
-            <Tabs defaultValue="general" className="w-full">
-              <TabsList className="w-full flex justify-start mb-4">
-                {settingsTabs.map(({ value, labelKey }) => (
-                  <TabsTrigger
-                    key={value}
-                    value={value}
-                    className="flex-1 data-[state=active]:bg-primary/10"
-                  >
-                    {t(labelKey)}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+        <Tabs defaultValue="general" className="flex-1 min-h-0 flex flex-col">
+          <TabsList className="shrink-0 w-full flex justify-start px-4 pt-2 bg-transparent">
+            {settingsTabs.map(({ value, labelKey }) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                className="flex-1 text-sm data-[state=active]:bg-primary/10"
+              >
+                {t(labelKey)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-              {settingsTabs.map(({ value, Component }) => (
-                <TabsContent key={value} value={value}>
-                  <Component
-                    settings={tempSettings}
-                    onSettingsChange={handleSettingsChange}
-                  />
-                </TabsContent>
-              ))}
-            </Tabs>
+          <div className="flex-1 min-h-0 overflow-auto px-4 py-3">
+            {settingsTabs.map(({ value, Component }) => (
+              <TabsContent key={value} value={value} className="mt-0">
+                <Component
+                  settings={tempSettings}
+                  onSettingsChange={handleSettingsChange}
+                />
+              </TabsContent>
+            ))}
           </div>
-        </div>
+        </Tabs>
 
-        <div className="flex justify-end gap-2 px-6 py-4 border-t shrink-0">
+        <div className="flex justify-end gap-2 px-4 py-3 border-t shrink-0">
           <Button variant="outline" onClick={handleReset}>
             {t('settings.actions.reset')}
           </Button>

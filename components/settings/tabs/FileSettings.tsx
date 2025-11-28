@@ -6,7 +6,6 @@
 import { useTranslation } from 'react-i18next';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { EditorSettings } from '@/lib/types/editor';
 
 const ENCODINGS = [
@@ -24,50 +23,42 @@ export function FileSettings({ settings, onSettingsChange }: FileSettingsProps) 
   const { t } = useTranslation();
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">{t('settings.file.encoding.title')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <Label htmlFor="encoding">{t('settings.file.encoding.label')}</Label>
-            <Select defaultValue="utf-8">
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {ENCODINGS.map(({ value, label }) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="space-y-5">
+      {/* エンコーディング */}
+      <section>
+        <h3 className="text-sm font-medium mb-3">{t('settings.file.encoding.title')}</h3>
+        <div className="flex items-center gap-3">
+          <Label className="text-sm text-muted-foreground w-36">{t('settings.file.encoding.label')}</Label>
+          <Select defaultValue="utf-8">
+            <SelectTrigger className="w-40 h-8">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ENCODINGS.map(({ value, label }) => (
+                <SelectItem key={value} value={value}>{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">{t('settings.file.lineEnding.title')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <Label htmlFor="line-ending">{t('settings.file.lineEnding.label')}</Label>
-            <Select defaultValue="lf">
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="lf">{t('settings.file.lineEnding.options.lf')}</SelectItem>
-                <SelectItem value="crlf">{t('settings.file.lineEnding.options.crlf')}</SelectItem>
-                <SelectItem value="cr">{t('settings.file.lineEnding.options.cr')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+      {/* 改行コード */}
+      <section>
+        <h3 className="text-sm font-medium mb-3">{t('settings.file.lineEnding.title')}</h3>
+        <div className="flex items-center gap-3">
+          <Label className="text-sm text-muted-foreground w-36">{t('settings.file.lineEnding.label')}</Label>
+          <Select defaultValue="lf">
+            <SelectTrigger className="w-40 h-8">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="lf">{t('settings.file.lineEnding.options.lf')}</SelectItem>
+              <SelectItem value="crlf">{t('settings.file.lineEnding.options.crlf')}</SelectItem>
+              <SelectItem value="cr">{t('settings.file.lineEnding.options.cr')}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </section>
     </div>
   );
 }
