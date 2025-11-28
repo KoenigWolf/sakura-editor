@@ -27,7 +27,7 @@ export const FileTabs = memo(function FileTabs() {
   }
 
   return (
-    <div className="border-b bg-muted/30">
+    <div className="border-b bg-muted/30 w-full max-w-full overflow-hidden">
       <div className="flex items-center gap-0.5 px-1.5 py-1 overflow-x-auto scrollbar-thin">
         {files.map((file) => (
           <button
