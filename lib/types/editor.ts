@@ -28,11 +28,12 @@ export interface EditorSettings {
   lineHeight: number;
   tabSize: number;
   autoSave: boolean;
-  autoSaveInterval: number; // In seconds
+  autoSaveInterval: number;
   createBackup: boolean;
   wordWrap: boolean;
   showLineNumbers: boolean;
   showRuler: boolean;
+  showWhitespace: 'none' | 'boundary' | 'selection' | 'trailing' | 'all';
   theme: 'system' | 'light' | 'dark' | string;
   language: 'en' | 'ja';
 }
@@ -51,6 +52,7 @@ export const DEFAULT_EDITOR_SETTINGS: EditorSettings = {
   wordWrap: true,
   showLineNumbers: true,
   showRuler: true,
+  showWhitespace: 'all',
   theme: 'system',
   language: 'en',
 }; 

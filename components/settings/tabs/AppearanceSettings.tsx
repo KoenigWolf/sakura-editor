@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTheme } from 'next-themes';
-import { Palette, Type, Monitor, Sun, Moon, Laptop, Hash, Ruler, WrapText } from 'lucide-react';
+import { Palette, Type, Monitor, Sun, Moon, Laptop, Hash, Ruler, WrapText, Space } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EditorSettings } from '@/lib/types/editor';
 
@@ -217,25 +217,48 @@ export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSet
 
       {/* 表示オプション */}
       <SettingsSection icon={Monitor} title={t('settings.appearance.display.title')}>
-        <div className="space-y-1">
-          <SettingRow
-            icon={Hash}
-            label={t('settings.appearance.display.lineNumbers')}
-            checked={settings.showLineNumbers}
-            onCheckedChange={(checked) => onSettingsChange({ showLineNumbers: checked })}
-          />
-          <SettingRow
-            icon={Ruler}
-            label={t('settings.appearance.display.ruler')}
-            checked={settings.showRuler}
-            onCheckedChange={(checked) => onSettingsChange({ showRuler: checked })}
-          />
-          <SettingRow
-            icon={WrapText}
-            label={t('settings.appearance.display.wordWrap')}
-            checked={settings.wordWrap}
-            onCheckedChange={(checked) => onSettingsChange({ wordWrap: checked })}
-          />
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <SettingRow
+              icon={Hash}
+              label={t('settings.appearance.display.lineNumbers')}
+              checked={settings.showLineNumbers}
+              onCheckedChange={(checked) => onSettingsChange({ showLineNumbers: checked })}
+            />
+            <SettingRow
+              icon={Ruler}
+              label={t('settings.appearance.display.ruler')}
+              checked={settings.showRuler}
+              onCheckedChange={(checked) => onSettingsChange({ showRuler: checked })}
+            />
+            <SettingRow
+              icon={WrapText}
+              label={t('settings.appearance.display.wordWrap')}
+              checked={settings.wordWrap}
+              onCheckedChange={(checked) => onSettingsChange({ wordWrap: checked })}
+            />
+          </div>
+          <div className="flex items-center gap-3 py-2 px-1">
+            <Space className="h-4 w-4 text-muted-foreground shrink-0" />
+            <Label className="text-sm shrink-0">
+              {t('settings.appearance.display.whitespace.label')}
+            </Label>
+            <Select
+              value={settings.showWhitespace}
+              onValueChange={(value) => onSettingsChange({ showWhitespace: value as EditorSettings['showWhitespace'] })}
+            >
+              <SelectTrigger className="flex-1 h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t('settings.appearance.display.whitespace.options.none')}</SelectItem>
+                <SelectItem value="boundary">{t('settings.appearance.display.whitespace.options.boundary')}</SelectItem>
+                <SelectItem value="selection">{t('settings.appearance.display.whitespace.options.selection')}</SelectItem>
+                <SelectItem value="trailing">{t('settings.appearance.display.whitespace.options.trailing')}</SelectItem>
+                <SelectItem value="all">{t('settings.appearance.display.whitespace.options.all')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </SettingsSection>
     </div>

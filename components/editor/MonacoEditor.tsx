@@ -151,7 +151,7 @@ export function MonacoEditor() {
         alwaysConsumeMouseWheel: false,
         useShadows: false, // 高速化: 影無効
       },
-      renderWhitespace: 'none', // 高速化: 空白表示無効
+      renderWhitespace: settings.showWhitespace,
       rulers: [],
       bracketPairColorization: { enabled: false }, // 高速化: ブラケット色分け無効
       folding: false, // 高速化: 折りたたみ無効
@@ -277,9 +277,10 @@ export function MonacoEditor() {
         tabSize: settings.tabSize,
         wordWrap: settings.wordWrap ? 'on' : 'off',
         lineNumbers: settings.showLineNumbers ? 'on' : 'off',
+        renderWhitespace: settings.showWhitespace,
       });
     }
-  }, [settings.fontSize, settings.fontFamily, settings.lineHeight, settings.tabSize, settings.wordWrap, settings.showLineNumbers]);
+  }, [settings.fontSize, settings.fontFamily, settings.lineHeight, settings.tabSize, settings.wordWrap, settings.showLineNumbers, settings.showWhitespace]);
 
   /**
    * アクティブファイル変更時の処理

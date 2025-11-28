@@ -60,6 +60,16 @@ export const ja = {
         lineNumbers: '行番号を表示',
         ruler: 'ルーラーを表示',
         wordWrap: '右端で折り返す',
+        whitespace: {
+          label: '空白文字を表示',
+          options: {
+            none: '表示しない',
+            boundary: '単語間のみ',
+            selection: '選択範囲のみ',
+            trailing: '末尾のみ',
+            all: 'すべて表示',
+          },
+        },
       },
     },
     keyboard: {

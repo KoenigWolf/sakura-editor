@@ -60,6 +60,16 @@ export const en = {
         lineNumbers: 'Show line numbers',
         ruler: 'Show ruler',
         wordWrap: 'Word wrap',
+        whitespace: {
+          label: 'Show whitespace',
+          options: {
+            none: 'None',
+            boundary: 'Boundary only',
+            selection: 'Selection only',
+            trailing: 'Trailing only',
+            all: 'All',
+          },
+        },
       },
     },
     keyboard: {
