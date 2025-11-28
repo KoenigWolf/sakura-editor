@@ -112,6 +112,12 @@ export function EditorToolbar() {
   if (isMobile) {
     return (
       <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-muted/40 w-full overflow-hidden">
+        <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={() => setShowSettings(true)}>
+          <Cog className="h-4 w-4" />
+        </Button>
+
+        <div className="w-px h-5 bg-border mx-1 shrink-0" />
+
         <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleNewFile}>
           <FilePlus2 className="h-4 w-4" />
         </Button>
@@ -169,12 +175,6 @@ export function EditorToolbar() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <div className="flex-1 min-w-0" />
-
-        <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={() => setShowSettings(true)}>
-          <Cog className="h-4 w-4" />
-        </Button>
-
         <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
         <SearchDialog
           open={searchOpen}
@@ -188,6 +188,17 @@ export function EditorToolbar() {
 
   return (
     <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-muted/40 w-full overflow-hidden">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={() => setShowSettings(true)}>
+            <Cog className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{t('toolbar.settings')}</TooltipContent>
+      </Tooltip>
+
+      <div className="w-px h-5 bg-border mx-1.5 shrink-0" />
+
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleNewFile}>
@@ -282,17 +293,6 @@ export function EditorToolbar() {
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <div className="flex-1 min-w-0" />
-
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={() => setShowSettings(true)}>
-            <Cog className="h-4 w-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{t('toolbar.settings')}</TooltipContent>
-      </Tooltip>
 
       <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
       <SearchDialog
