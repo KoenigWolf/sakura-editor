@@ -59,25 +59,41 @@ const getLanguageFromFilename = (filename: string | null): string => {
 };
 
 /**
+ * MonacoEditor Props
+ */
+interface MonacoEditorProps {
+  /** 特定のファイルIDを指定（セカンダリエディタ用） */
+  fileId?: string | null;
+  /** セカンダリエディタかどうか */
+  isSecondary?: boolean;
+}
+
+/**
  * Monaco Editorコンポーネント
  * エディタの初期化と状態管理を担当
  */
-export function MonacoEditor() {
+export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps) {
   const { t } = useTranslation();
-  const activeFile = useFileStore((state) => state.files.find(f => f.id === state.activeFileId));
+  const files = useFileStore((state) => state.files);
+  const activeFileId = useFileStore((state) => state.activeFileId);
   const updateFile = useFileStore((state) => state.updateFile);
   const settings = useEditorStore((state) => state.settings);
   const setEditorInstance = useEditorInstanceStore((state) => state.setEditorInstance);
+  const setSecondaryEditorInstance = useEditorInstanceStore((state) => state.setSecondaryEditorInstance);
   const updateStatusInfo = useEditorInstanceStore((state) => state.updateStatusInfo);
   const setSearchOpen = useSearchStore((state) => state.setIsOpen);
   const setSearchTerm = useSearchStore((state) => state.setSearchTerm);
   const { resolvedTheme } = useTheme();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
-  const activeFileIdRef = useRef<string | null>(null);
+  const currentFileIdRef = useRef<string | null>(null);
 
-  // activeFileのIDをrefで保持（handleChangeで最新を参照するため）
-  activeFileIdRef.current = activeFile?.id ?? null;
+  // 表示するファイルを決定
+  const targetFileId = fileId ?? activeFileId;
+  const activeFile = files.find(f => f.id === targetFileId);
+
+  // ファイルIDをrefで保持（handleChangeで最新を参照するため）
+  currentFileIdRef.current = activeFile?.id ?? null;
 
   /**
    * エディタのステータス情報を更新
@@ -111,7 +127,7 @@ export function MonacoEditor() {
    * エディタが変更されたときのハンドラ（refベースで再生成を防ぐ）
    */
   const handleChange = useCallback((value: string | undefined) => {
-    const id = activeFileIdRef.current;
+    const id = currentFileIdRef.current;
     if (id && value !== undefined) {
       updateFile(id, value);
     }
@@ -185,7 +201,11 @@ export function MonacoEditor() {
     monacoRef.current = monaco as Monaco;
 
     // ストアにエディターインスタンスを保存
-    setEditorInstance(editor);
+    if (isSecondary) {
+      setSecondaryEditorInstance(editor);
+    } else {
+      setEditorInstance(editor);
+    }
 
     // エディタのスタイルを設定
     const editorDom = editor.getDomNode();
@@ -245,7 +265,7 @@ export function MonacoEditor() {
         }
       });
     }
-  }, [resolvedTheme, updateStatusInfo, setEditorInstance, setSearchOpen, setSearchTerm]);
+  }, [resolvedTheme, updateStatusInfo, setEditorInstance, setSecondaryEditorInstance, isSecondary, setSearchOpen, setSearchTerm]);
 
   /**
    * テーマ変更時の処理

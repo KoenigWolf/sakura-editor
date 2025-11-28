@@ -146,6 +146,9 @@ export const ja = {
     redo: 'やり直し',
     search: '検索',
     split: '分割',
+    splitVertical: '縦分割',
+    splitHorizontal: '横分割',
+    closeSplit: '分割を閉じる',
     settings: '設定',
   },
   status: {

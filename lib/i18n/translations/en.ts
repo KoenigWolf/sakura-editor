@@ -146,6 +146,9 @@ export const en = {
     redo: 'Redo',
     search: 'Find',
     split: 'Split Editor',
+    splitVertical: 'Split Vertical',
+    splitHorizontal: 'Split Horizontal',
+    closeSplit: 'Close Split',
     settings: 'Settings',
   },
   status: {

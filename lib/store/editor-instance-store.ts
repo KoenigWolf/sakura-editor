@@ -12,9 +12,12 @@ interface StatusInfo {
 
 interface EditorInstanceStore {
   editorInstance: editor.IStandaloneCodeEditor | null;
+  secondaryEditorInstance: editor.IStandaloneCodeEditor | null;
   statusInfo: StatusInfo;
   setEditorInstance: (instance: editor.IStandaloneCodeEditor | null) => void;
+  setSecondaryEditorInstance: (instance: editor.IStandaloneCodeEditor | null) => void;
   getEditorInstance: () => editor.IStandaloneCodeEditor | null;
+  getSecondaryEditorInstance: () => editor.IStandaloneCodeEditor | null;
   updateStatusInfo: (info: Partial<StatusInfo>) => void;
 }
 
@@ -33,14 +36,23 @@ let rafId: number | null = null;
 
 export const useEditorInstanceStore = create<EditorInstanceStore>((set, get) => ({
   editorInstance: null,
+  secondaryEditorInstance: null,
   statusInfo: defaultStatusInfo,
 
   setEditorInstance: (instance) => {
     set({ editorInstance: instance });
   },
 
+  setSecondaryEditorInstance: (instance) => {
+    set({ secondaryEditorInstance: instance });
+  },
+
   getEditorInstance: () => {
     return get().editorInstance;
+  },
+
+  getSecondaryEditorInstance: () => {
+    return get().secondaryEditorInstance;
   },
 
   updateStatusInfo: (info) => {

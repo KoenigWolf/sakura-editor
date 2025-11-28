@@ -11,16 +11,25 @@ import {
   RotateCw,
   SearchCheck,
   SplitSquareVertical,
+  SplitSquareHorizontal,
+  X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useFileStore } from '@/lib/store/file-store';
 import { useSearchStore } from '@/lib/store/search-store';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
+import { useSplitViewStore } from '@/lib/store/split-view-store';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { SearchDialog } from '@/components/editor/SearchDialog';
 
@@ -29,6 +38,7 @@ export function EditorToolbar() {
   const { addFile, getActiveFile } = useFileStore();
   const { setIsOpen: setSearchOpen, isOpen: searchOpen } = useSearchStore();
   const { getEditorInstance } = useEditorInstanceStore();
+  const { splitDirection, setSplitDirection, closeSplit } = useSplitViewStore();
 
   const handleUndo = useCallback(() => {
     const editor = getEditorInstance();
@@ -146,14 +156,42 @@ export function EditorToolbar() {
         <TooltipContent>{t('toolbar.search')} (Ctrl+F)</TooltipContent>
       </Tooltip>
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary">
-            <SplitSquareVertical className="h-4 w-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{t('toolbar.split')}</TooltipContent>
-      </Tooltip>
+      <DropdownMenu>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary ${splitDirection ? 'bg-primary/10 text-primary' : ''}`}
+              >
+                {splitDirection === 'horizontal' ? (
+                  <SplitSquareHorizontal className="h-4 w-4" />
+                ) : (
+                  <SplitSquareVertical className="h-4 w-4" />
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>{t('toolbar.split')}</TooltipContent>
+        </Tooltip>
+        <DropdownMenuContent align="start">
+          <DropdownMenuItem onClick={() => setSplitDirection('vertical')}>
+            <SplitSquareVertical className="h-4 w-4 mr-2" />
+            {t('toolbar.splitVertical')}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSplitDirection('horizontal')}>
+            <SplitSquareHorizontal className="h-4 w-4 mr-2" />
+            {t('toolbar.splitHorizontal')}
+          </DropdownMenuItem>
+          {splitDirection && (
+            <DropdownMenuItem onClick={closeSplit}>
+              <X className="h-4 w-4 mr-2" />
+              {t('toolbar.closeSplit')}
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <div className="flex-1" />
 
