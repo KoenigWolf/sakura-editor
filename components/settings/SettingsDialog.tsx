@@ -200,16 +200,18 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
     };
   }, [isResizing, resizeDirection, resizeStart]);
 
-  // 保存ボタン押下時の処理
+  // 保存ボタン押下時の処理（保存して閉じる）
   const handleSave = useCallback(() => {
-    // 現在の設定をoriginalSettingsに保存（これ以降のリセットはこの設定に戻る）
+    // 現在の設定をoriginalSettingsに保存
     setOriginalSettings(tempSettings);
     updateSettings(tempSettings);
     toast({
       title: t('settings.actions.saved'),
       duration: 2000,
     });
-  }, [tempSettings, updateSettings, toast, t]);
+    // ダイアログを閉じる
+    onOpenChange(false);
+  }, [tempSettings, updateSettings, toast, t, onOpenChange]);
 
   // リセットボタン押下時の処理（ダイアログを開いた時点の設定に戻す）
   const handleReset = useCallback(() => {

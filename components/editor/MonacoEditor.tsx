@@ -195,6 +195,58 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
   }, [settings.showWhitespace]);
 
   /**
+   * カスタムMonacoテーマを定義して適用
+   * useCallbackの依存配列を最小化して、参照を安定させる
+   */
+  const applyEditorTheme = useCallback((monaco: Monaco, ed: editor.IStandaloneCodeEditor, themeId: string, darkMode: boolean) => {
+    const customTheme = getThemeById(themeId);
+
+    // テーマ名を決定
+    let monacoThemeName: string;
+    let editorColors: typeof DEFAULT_EDITOR_COLORS.dark;
+    let baseTheme: 'vs' | 'vs-dark';
+
+    if (customTheme) {
+      // カスタムテーマの場合
+      monacoThemeName = `custom-${customTheme.id}`;
+      editorColors = customTheme.editor;
+      baseTheme = customTheme.type === 'dark' ? 'vs-dark' : 'vs';
+    } else {
+      // 標準テーマの場合
+      monacoThemeName = `custom-default-${darkMode ? 'dark' : 'light'}`;
+      editorColors = darkMode ? DEFAULT_EDITOR_COLORS.dark : DEFAULT_EDITOR_COLORS.light;
+      baseTheme = darkMode ? 'vs-dark' : 'vs';
+    }
+
+    // テーマを定義
+    monaco.editor.defineTheme(monacoThemeName, {
+      base: baseTheme,
+      inherit: true,
+      rules: [],
+      colors: {
+        'editor.background': editorColors.background,
+        'editor.foreground': editorColors.foreground,
+        'editorWhitespace.foreground': editorColors.whitespace,
+        'editorLineNumber.foreground': editorColors.lineNumber,
+        'editor.selectionBackground': editorColors.selection,
+        'editorCursor.foreground': editorColors.cursor,
+      },
+    });
+
+    // テーマを適用
+    monaco.editor.setTheme(monacoThemeName);
+    currentThemeRef.current = themeId;
+
+    // エディタDOMにクラスを適用
+    const actualIsDark = customTheme ? customTheme.type === 'dark' : darkMode;
+    const editorDom = ed.getDomNode();
+    if (editorDom) {
+      editorDom.classList.remove('dark-editor', 'light-editor');
+      editorDom.classList.add(actualIsDark ? 'dark-editor' : 'light-editor');
+    }
+  }, []);
+
+  /**
    * モナコエディタのオプション設定（高速化のための最適化済み）
    */
   const editorOptions = useMemo(() => {
@@ -261,12 +313,9 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       setEditorInstance(editor);
     }
 
-    // エディタのスタイルを設定
-    const editorDom = editor.getDomNode();
-    if (editorDom) {
-      const themeClass = resolvedTheme === 'dark' ? 'dark-editor' : 'light-editor';
-      editorDom.classList.add(themeClass);
-    }
+    // マウント時にカスタムテーマを適用
+    const isDark = resolvedTheme === 'dark';
+    applyEditorTheme(monaco as Monaco, editor, settings.theme, isDark);
 
     // イベントリスナーでステータス情報を更新（ポーリング不要）
     editor.onDidChangeCursorPosition(() => {
@@ -324,70 +373,16 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
 
     // 初期表示時に全角スペースのデコレーションを適用
     updateFullWidthSpaceDecorations();
-  }, [resolvedTheme, updateStatusInfo, setEditorInstance, setSecondaryEditorInstance, isSecondary, setSearchOpen, setSearchTerm, updateFullWidthSpaceDecorations]);
-
-  /**
-   * カスタムMonacoテーマを定義
-   */
-  const defineCustomTheme = useCallback((monaco: Monaco, themeId: string, editorColors: typeof DEFAULT_EDITOR_COLORS.dark, baseTheme: 'vs' | 'vs-dark') => {
-    const customThemeName = `custom-${themeId}`;
-    monaco.editor.defineTheme(customThemeName, {
-      base: baseTheme,
-      inherit: true,
-      rules: [],
-      colors: {
-        'editor.background': editorColors.background,
-        'editor.foreground': editorColors.foreground,
-        'editorWhitespace.foreground': editorColors.whitespace,
-        'editorLineNumber.foreground': editorColors.lineNumber,
-        'editor.selectionBackground': editorColors.selection,
-        'editorCursor.foreground': editorColors.cursor,
-      },
-    });
-    return customThemeName;
-  }, []);
+  }, [resolvedTheme, settings.theme, updateStatusInfo, setEditorInstance, setSecondaryEditorInstance, isSecondary, setSearchOpen, setSearchTerm, updateFullWidthSpaceDecorations, applyEditorTheme]);
 
   /**
    * テーマ変更時の処理
    */
   useEffect(() => {
     if (!editorRef.current || !monacoRef.current) return;
-
-    const themeId = settings.theme;
-    const customTheme = getThemeById(themeId);
     const isDark = resolvedTheme === 'dark';
-
-    let monacoThemeName: string;
-
-    if (customTheme) {
-      // カスタムテーマの場合
-      monacoThemeName = defineCustomTheme(
-        monacoRef.current,
-        customTheme.id,
-        customTheme.editor,
-        customTheme.type === 'dark' ? 'vs-dark' : 'vs'
-      );
-    } else {
-      // 標準テーマの場合
-      const defaultColors = isDark ? DEFAULT_EDITOR_COLORS.dark : DEFAULT_EDITOR_COLORS.light;
-      monacoThemeName = defineCustomTheme(
-        monacoRef.current,
-        isDark ? 'default-dark' : 'default-light',
-        defaultColors,
-        isDark ? 'vs-dark' : 'vs'
-      );
-    }
-
-    // テーマを適用
-    monacoRef.current.editor.setTheme(monacoThemeName);
-    currentThemeRef.current = themeId;
-
-    const editorDom = editorRef.current.getDomNode();
-    if (editorDom) {
-      editorDom.classList.remove('dark-editor', 'light-editor');
-      editorDom.classList.add(isDark ? 'dark-editor' : 'light-editor');
-    }
-  }, [resolvedTheme, settings.theme, defineCustomTheme]);
+    applyEditorTheme(monacoRef.current, editorRef.current, settings.theme, isDark);
+  }, [settings.theme, resolvedTheme, applyEditorTheme]);
 
   /**
    * 設定変更時にエディタオプションを更新

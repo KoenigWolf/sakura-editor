@@ -65,7 +65,7 @@ export const CUSTOM_THEMES: EditorTheme[] = [
     editor: {
       background: '#0f0f23',
       foreground: '#ccd6f6',
-      whitespace: '#3d5a80',
+      whitespace: '#64ffda80',
       lineNumber: '#4a5568',
       selection: '#64ffda33',
       cursor: '#64ffda',
@@ -106,7 +106,7 @@ export const CUSTOM_THEMES: EditorTheme[] = [
     editor: {
       background: '#262335',
       foreground: '#f4eeff',
-      whitespace: '#9d4edd',
+      whitespace: '#ff7edb90',
       lineNumber: '#6c5b7b',
       selection: '#ff7edb33',
       cursor: '#ff7edb',
@@ -147,7 +147,7 @@ export const CUSTOM_THEMES: EditorTheme[] = [
     editor: {
       background: '#1a1b26',
       foreground: '#c0caf5',
-      whitespace: '#565f89',
+      whitespace: '#7aa2f790',
       lineNumber: '#3b4261',
       selection: '#7aa2f733',
       cursor: '#c0caf5',
@@ -188,7 +188,7 @@ export const CUSTOM_THEMES: EditorTheme[] = [
     editor: {
       background: '#242933',
       foreground: '#eceff4',
-      whitespace: '#4c566a',
+      whitespace: '#88c0d090',
       lineNumber: '#4c566a',
       selection: '#88c0d033',
       cursor: '#d8dee9',
@@ -229,7 +229,7 @@ export const CUSTOM_THEMES: EditorTheme[] = [
     editor: {
       background: '#0d1117',
       foreground: '#c9d1d9',
-      whitespace: '#484f58',
+      whitespace: '#58a6ff90',
       lineNumber: '#484f58',
       selection: '#58a6ff33',
       cursor: '#58a6ff',
@@ -270,7 +270,7 @@ export const CUSTOM_THEMES: EditorTheme[] = [
     editor: {
       background: '#22212c',
       foreground: '#f8f8f2',
-      whitespace: '#6272a4',
+      whitespace: '#bd93f990',
       lineNumber: '#6272a4',
       selection: '#44475a',
       cursor: '#f8f8f2',
@@ -313,7 +313,7 @@ export const CUSTOM_THEMES: EditorTheme[] = [
     editor: {
       background: '#fef7f9',
       foreground: '#4a3f47',
-      whitespace: '#e8b4bc',
+      whitespace: '#e85d8c80',
       lineNumber: '#c9a0a8',
       selection: '#e85d8c33',
       cursor: '#e85d8c',
@@ -354,7 +354,7 @@ export const CUSTOM_THEMES: EditorTheme[] = [
     editor: {
       background: '#f5fafc',
       foreground: '#1e3a4f',
-      whitespace: '#7eb8c9',
+      whitespace: '#0891b280',
       lineNumber: '#6aa3b5',
       selection: '#0891b233',
       cursor: '#0891b2',
@@ -395,7 +395,7 @@ export const CUSTOM_THEMES: EditorTheme[] = [
     editor: {
       background: '#ffffff',
       foreground: '#24292f',
-      whitespace: '#afb8c1',
+      whitespace: '#0969da70',
       lineNumber: '#8c959f',
       selection: '#0969da33',
       cursor: '#0969da',
@@ -436,7 +436,7 @@ export const CUSTOM_THEMES: EditorTheme[] = [
     editor: {
       background: '#f5fdf8',
       foreground: '#1f3d2e',
-      whitespace: '#7ac9a7',
+      whitespace: '#10b98180',
       lineNumber: '#5fb38f',
       selection: '#10b98133',
       cursor: '#10b981',
@@ -477,7 +477,7 @@ export const CUSTOM_THEMES: EditorTheme[] = [
     editor: {
       background: '#fffbf5',
       foreground: '#44321f',
-      whitespace: '#ddb892',
+      whitespace: '#f9731680',
       lineNumber: '#c9a06a',
       selection: '#f9731633',
       cursor: '#f97316',
@@ -518,7 +518,7 @@ export const CUSTOM_THEMES: EditorTheme[] = [
     editor: {
       background: '#faf8ff',
       foreground: '#3b2e5a',
-      whitespace: '#c4b5fd',
+      whitespace: '#8b5cf680',
       lineNumber: '#a78bfa',
       selection: '#8b5cf633',
       cursor: '#8b5cf6',
@@ -567,7 +567,7 @@ export const DEFAULT_EDITOR_COLORS = {
   light: {
     background: '#ffffff',
     foreground: '#24292f',
-    whitespace: '#d0d7de',
+    whitespace: '#0969da70',
     lineNumber: '#8c959f',
     selection: '#0969da33',
     cursor: '#24292f',
@@ -575,7 +575,7 @@ export const DEFAULT_EDITOR_COLORS = {
   dark: {
     background: '#1e1e1e',
     foreground: '#d4d4d4',
-    whitespace: '#5a5a5a',
+    whitespace: '#569cd680',
     lineNumber: '#858585',
     selection: '#264f7833',
     cursor: '#d4d4d4',
