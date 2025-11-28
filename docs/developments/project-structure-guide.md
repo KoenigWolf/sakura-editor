@@ -2,7 +2,7 @@
 
 このガイドは、sakura-editorプロジェクトの構造とコーディング規約をまとめたドキュメントです。
 
-## 📋 目次
+## 目次
 
 1. [プロジェクト構造](#プロジェクト構造)
 2. [開発環境セットアップ](#開発環境セットアップ)
@@ -151,28 +151,28 @@ npm run lint     # ESLintによるコードチェック
 - **単一責任原則**: 各関数・コンポーネントは1つの責務のみ
 
 ```typescript
-// ✅ 良い例
+// 良い例
 const calculateTotalPrice = (items: Item[]): number => {
   return items.reduce((sum, item) => sum + item.price, 0)
 }
 
-// ❌ 悪い例
+// 悪い例
 function calc(items) {
   // 計算と表示を同時に行う（単一責任原則違反）
 }
 ```
 
-#### null合体演算子の使用
+#### null/undefined の扱い
 
-- **連続したnull合体は避ける**: 可読性が低下するため、ガード節を使用
+- **null合体演算子（??）に頼らずガード節で分岐する**: 意図を明確にし、分岐漏れを防ぐ
 
 ```typescript
-// ❌ 悪い例（可読性が低い）
+// 悪い例（挙動が読みにくい）
 const value = a?.b?.c ?? d ?? e ?? []
 
-// ✅ 良い例（ガード節で明示的）
+// 良い例（ガード節で明示的に分岐）
 const getValue = () => {
-  if (a?.b?.c) return a.b.c
+  if (a && a.b && a.b.c) return a.b.c
   if (d) return d
   if (e) return e
   return []
@@ -186,11 +186,11 @@ const getValue = () => {
 - **内部実装は隠蔽**: 内部でのみ使用されるhooks、コンポーネント、ユーティリティはexportしない
 
 ```typescript
-// ✅ 良い例
+// 良い例
 export const PublicComponent = () => {}
 const InternalHelper = () => {} // exportしない
 
-// ❌ 悪い例
+// 悪い例
 export * from './components' // すべてexportしてしまう
 ```
 
@@ -211,10 +211,10 @@ export * from './components' // すべてexportしてしまう
 - **`ComponentProps<typeof Component>` で重複回避**
 
 ```typescript
-// ✅ 良い例
+// 良い例
 type ButtonProps = ComponentProps<typeof Button>
 
-// ❌ 悪い例
+// 悪い例
 type ButtonProps = {
   onClick: () => void
   children: ReactNode
@@ -240,7 +240,7 @@ type ButtonProps = {
 - 例: `calculateTotal()`, `formatDate()`, `validateInput()`
 
 ```typescript
-// ✅ 純粋関数の例
+// 純粋関数の例
 export const calculateTotal = (items: Item[]): number => {
   return items.reduce((sum, item) => sum + item.price, 0)
 }
@@ -253,7 +253,7 @@ export const calculateTotal = (items: Item[]): number => {
 - 例: `useDraggableDialog()`, `useToast()`
 
 ```typescript
-// ✅ カスタムフックの例
+// カスタムフックの例
 export const useDraggableDialog = (isOpen: boolean, dialogRef: RefObject<HTMLDivElement>) => {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   // ...

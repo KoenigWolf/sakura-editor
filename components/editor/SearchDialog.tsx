@@ -87,20 +87,61 @@ export const SearchDialog = ({
   const { t } = useTranslation();
   const { toast } = useToast();
   const { getEditorInstance } = useEditorInstanceStore();
-  const { matches, currentMatchIndex, setMatches, setCurrentMatchIndex } = useSearchStore();
+  const {
+    matches,
+    currentMatchIndex,
+    setMatches,
+    setCurrentMatchIndex,
+    searchTerm,
+    setSearchTerm,
+    isRegex,
+    isCaseSensitive,
+    isWholeWord,
+    setIsRegex,
+    setIsCaseSensitive,
+    setIsWholeWord,
+  } = useSearchStore();
   const dialogRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const decorationsRef = useRef<string[]>([]);
-  const [query, setQuery] = useState(initialQuery);
+  const [query, setQuery] = useState(initialQuery || searchTerm);
   const [replacement, setReplacement] = useState('');
   const [options, setOptions] = useState<SearchOptions>({
-    caseSensitive: false,
-    useRegex: false,
-    wholeWord: false,
+    caseSensitive: isCaseSensitive,
+    useRegex: isRegex,
+    wholeWord: isWholeWord,
   });
   const [history, setHistory] = useState<SearchHistory[]>(loadSearchHistory());
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [showReplace, setShowReplace] = useState(false);
+
+  // 外部から渡された検索語（選択テキストなど）を反映
+  useEffect(() => {
+    if (open && searchTerm && searchTerm !== query) {
+      setQuery(searchTerm);
+    }
+  }, [open, searchTerm, query]);
+
+  // ストアとローカルオプションの同期
+  useEffect(() => {
+    setIsRegex(options.useRegex);
+    setIsCaseSensitive(options.caseSensitive);
+    setIsWholeWord(options.wholeWord);
+  }, [options, setIsCaseSensitive, setIsRegex, setIsWholeWord]);
+
+  // ダイアログを開いた際にストアの値を反映
+  useEffect(() => {
+    if (open) {
+      setOptions({
+        caseSensitive: isCaseSensitive,
+        useRegex: isRegex,
+        wholeWord: isWholeWord,
+      });
+      if (searchTerm) {
+        setQuery(searchTerm);
+      }
+    }
+  }, [open, isCaseSensitive, isRegex, isWholeWord, searchTerm]);
 
   // ドラッグ可能なダイアログの位置と動作を管理
   const {
@@ -148,7 +189,7 @@ export const SearchDialog = ({
   // 指定したマッチ箇所にジャンプ
   const goToMatch = useCallback((index: number, targetMatches?: SearchMatch[]) => {
     const editor = getEditorInstance();
-    const list = targetMatches ?? matches;
+    const list = targetMatches && targetMatches.length > 0 ? targetMatches : matches;
     if (!editor || list.length === 0) return;
 
     const safeIndex = ((index % list.length) + list.length) % list.length;
@@ -164,6 +205,23 @@ export const SearchDialog = ({
     setCurrentMatchIndex(safeIndex);
     applyHighlights(list, safeIndex);
   }, [applyHighlights, getEditorInstance, matches, setCurrentMatchIndex]);
+
+  // マッチリストや現在のインデックスが変化したらハイライトとフォーカスを更新
+  useEffect(() => {
+    if (matches.length === 0) {
+      applyHighlights([], -1);
+      return;
+    }
+
+    const clampedIndex = currentMatchIndex >= 0 && currentMatchIndex < matches.length
+      ? currentMatchIndex
+      : 0;
+
+    if (clampedIndex !== currentMatchIndex) {
+      setCurrentMatchIndex(clampedIndex);
+    }
+    goToMatch(clampedIndex, matches);
+  }, [matches, currentMatchIndex, goToMatch, applyHighlights, setCurrentMatchIndex]);
 
   // 検索履歴を更新
   const updateHistory = useCallback((newQuery: string, newOptions: SearchOptions) => {
@@ -195,42 +253,49 @@ export const SearchDialog = ({
 
     try {
       const editor = getEditorInstance();
-      if (editor) {
-        const model = editor.getModel();
-        if (model) {
-          const isRegex = options.useRegex || options.wholeWord;
-          const searchString = options.useRegex
-            ? normalizedQuery
-            : options.wholeWord
-              ? `\\b${escapeRegExp(normalizedQuery)}\\b`
-              : normalizedQuery;
+      const model = editor?.getModel();
+      if (!editor || !model) {
+        toast({
+          title: t('search.errors.searchFailed'),
+          description: t('search.errors.unknown'),
+          variant: 'destructive',
+        });
+        return;
+      }
 
-          // 検索を実行
-          const foundMatches = model.findMatches(
-            searchString,
-            false,
-            isRegex,
-            options.caseSensitive,
-            null,
-            false
-          );
+      setSearchTerm(normalizedQuery);
 
-          const parsedMatches = foundMatches.map((match) => ({
-            lineNumber: match.range.startLineNumber,
-            startIndex: match.range.startColumn,
-            endIndex: match.range.endColumn,
-            text: match.matches?.[0] || model.getValueInRange(match.range),
-          }));
+      const isRegexMode = options.useRegex || options.wholeWord;
+      const searchString = options.useRegex
+        ? normalizedQuery
+        : options.wholeWord
+          ? `\\b${escapeRegExp(normalizedQuery)}\\b`
+          : normalizedQuery;
 
-          setMatches(parsedMatches);
+      // 検索を実行
+      const foundMatches = model.findMatches(
+        searchString,
+        false,
+        isRegexMode,
+        options.caseSensitive,
+        null,
+        false
+      );
 
-          if (parsedMatches.length > 0) {
-            goToMatch(0, parsedMatches);
-          } else {
-            setCurrentMatchIndex(-1);
-            applyHighlights([], -1);
-          }
-        }
+      const parsedMatches = foundMatches.map((match) => ({
+        lineNumber: match.range.startLineNumber,
+        startIndex: match.range.startColumn,
+        endIndex: match.range.endColumn,
+        text: match.matches?.[0] || model.getValueInRange(match.range),
+      }));
+
+      setMatches(parsedMatches);
+
+      if (parsedMatches.length > 0) {
+        goToMatch(0, parsedMatches);
+      } else {
+        setCurrentMatchIndex(-1);
+        applyHighlights([], -1);
       }
 
       onSearch(query, options);
@@ -242,7 +307,7 @@ export const SearchDialog = ({
         variant: 'destructive',
       });
     }
-  }, [query, options, onSearch, updateHistory, toast, t, getEditorInstance, setMatches, setCurrentMatchIndex, goToMatch, applyHighlights]);
+  }, [query, options, onSearch, updateHistory, toast, t, getEditorInstance, setMatches, setCurrentMatchIndex, goToMatch, applyHighlights, setSearchTerm]);
 
   const handleNextMatch = useCallback(() => {
     if (matches.length === 0) {
@@ -333,10 +398,11 @@ export const SearchDialog = ({
 
       const item = history[newIndex];
       setQuery(item.query);
+      setSearchTerm(item.query);
       setOptions(item.options);
       return newIndex;
     });
-  }, [history]);
+  }, [history, setSearchTerm]);
 
   // キーボードショートカットの処理
   useEffect(() => {
@@ -410,16 +476,17 @@ export const SearchDialog = ({
       <DialogContent
         ref={dialogRef}
         customPosition
+        hideClose
         className={cn(
-          "fixed p-0 shadow-lg border border-input rounded-lg",
+          "search-dialog-content fixed p-0 shadow-lg border border-input rounded-lg",
           "backdrop-blur-sm bg-background/95",
           "transition-all duration-200 ease-in-out",
+          "w-[680px] max-w-[96vw]",
           isDragging && "cursor-grabbing"
         )}
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
-          width: '600px',
           maxHeight: '80vh',
           opacity: open ? 1 : 0,
           transform: 'none',
@@ -431,7 +498,7 @@ export const SearchDialog = ({
       >
         <div className="flex flex-col h-full">
           {/* ヘッダー */}
-          <div className="flex items-center justify-between p-3 border-b bg-muted/50">
+          <div className="dialog-header flex items-center justify-between p-3 border-b bg-muted/50">
             <div className="flex items-center gap-2">
               <Search className="h-4 w-4 text-muted-foreground" />
               <h2 className="text-sm font-medium">{t('search.title')}</h2>
@@ -455,7 +522,10 @@ export const SearchDialog = ({
                 <Input
                   ref={searchInputRef}
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setSearchTerm(e.target.value);
+                  }}
                   placeholder={t('search.placeholder')}
                   className="pl-8 pr-24 h-9"
                   aria-label={t('search.searchInput')}
@@ -568,14 +638,7 @@ export const SearchDialog = ({
                             'text-xs p-2 rounded cursor-pointer hover:bg-accent',
                             index === currentMatchIndex && 'bg-accent'
                           )}
-                          onClick={() => {
-                            const editor = getEditorInstance();
-                            if (editor) {
-                              editor.setPosition({ lineNumber: match.lineNumber, column: match.startIndex });
-                              editor.revealLineInCenter(match.lineNumber);
-                              setCurrentMatchIndex(index);
-                            }
-                          }}
+                          onClick={() => goToMatch(index)}
                         >
                           {match.lineNumber}: {match.text.substring(0, 50)}
                           {match.text.length > 50 ? '...' : ''}
