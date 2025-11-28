@@ -89,6 +89,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
   const monacoRef = useRef<Monaco | null>(null);
   const currentFileIdRef = useRef<string | null>(null);
   const currentThemeRef = useRef<string | null>(null);
+  const fullWidthSpaceDecorationsRef = useRef<string[]>([]);
 
   // 表示するファイルを決定
   const targetFileId = fileId ?? activeFileId;
@@ -141,6 +142,57 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
   const languageMode = useMemo(() => {
     return getLanguageFromFilename(activeFile?.name || null);
   }, [activeFile]);
+
+  /**
+   * 全角スペースをハイライト表示する
+   */
+  const updateFullWidthSpaceDecorations = useCallback(() => {
+    const ed = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!ed || !monaco) return;
+
+    const model = ed.getModel();
+    if (!model) return;
+
+    // 空白文字表示が無効の場合はデコレーションをクリア
+    if (settings.showWhitespace === 'none') {
+      fullWidthSpaceDecorationsRef.current = ed.deltaDecorations(
+        fullWidthSpaceDecorationsRef.current,
+        []
+      );
+      return;
+    }
+
+    const content = model.getValue();
+    const decorations: editor.IModelDeltaDecoration[] = [];
+
+    // 全角スペース（U+3000）を検索
+    const fullWidthSpaceRegex = /\u3000/g;
+    let match;
+
+    while ((match = fullWidthSpaceRegex.exec(content)) !== null) {
+      const startPos = model.getPositionAt(match.index);
+      const endPos = model.getPositionAt(match.index + 1);
+
+      decorations.push({
+        range: new monaco.Range(
+          startPos.lineNumber,
+          startPos.column,
+          endPos.lineNumber,
+          endPos.column
+        ),
+        options: {
+          inlineClassName: 'full-width-space-highlight',
+          hoverMessage: { value: '全角スペース (U+3000)' },
+        },
+      });
+    }
+
+    fullWidthSpaceDecorationsRef.current = ed.deltaDecorations(
+      fullWidthSpaceDecorationsRef.current,
+      decorations
+    );
+  }, [settings.showWhitespace]);
 
   /**
    * モナコエディタのオプション設定（高速化のための最適化済み）
@@ -235,6 +287,8 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
           charCount: model.getValueLength(),
         });
       }
+      // 全角スペースのデコレーションを更新
+      updateFullWidthSpaceDecorations();
     });
 
     // 初期ステータス情報を設定
@@ -267,7 +321,10 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
         }
       });
     }
-  }, [resolvedTheme, updateStatusInfo, setEditorInstance, setSecondaryEditorInstance, isSecondary, setSearchOpen, setSearchTerm]);
+
+    // 初期表示時に全角スペースのデコレーションを適用
+    updateFullWidthSpaceDecorations();
+  }, [resolvedTheme, updateStatusInfo, setEditorInstance, setSecondaryEditorInstance, isSecondary, setSearchOpen, setSearchTerm, updateFullWidthSpaceDecorations]);
 
   /**
    * カスタムMonacoテーマを定義
@@ -346,8 +403,10 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
         lineNumbers: settings.showLineNumbers ? 'on' : 'off',
         renderWhitespace: settings.showWhitespace,
       });
+      // 空白文字設定変更時にデコレーションも更新
+      updateFullWidthSpaceDecorations();
     }
-  }, [settings.fontSize, settings.fontFamily, settings.lineHeight, settings.tabSize, settings.wordWrap, settings.showLineNumbers, settings.showWhitespace]);
+  }, [settings.fontSize, settings.fontFamily, settings.lineHeight, settings.tabSize, settings.wordWrap, settings.showLineNumbers, settings.showWhitespace, updateFullWidthSpaceDecorations]);
 
   /**
    * アクティブファイル変更時の処理
