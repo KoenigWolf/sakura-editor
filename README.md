@@ -1,64 +1,60 @@
-# サクラエディタ
+# Sakura Editor
 
-モダンな Web ベースのコードエディタ。Next.js、TypeScript、TailwindCSS を使用して構築された高性能なエディタです。
+モダンな Web ベースのコードエディタ。Next.js、TypeScript、TailwindCSS を使用して構築された高機能エディタです。
 
-## 機能
+## 主な機能
 
-- 高速なパフォーマンス
+### エディタ
 
-  - Monaco Editor をベースにした高性能なコードエディタ
-  - リアルタイムなシンタックスハイライト
-  - インテリセンスとコード補完
+- **Monaco Editor** をベースにした高性能コードエディタ
+- リアルタイムシンタックスハイライト
+- インテリセンス・コード補完
+- **分割ビュー** - 縦・横分割でファイルを並べて編集
+- ドラッグ可能なスプリッター
 
-- モダンな UI/UX
+### 検索・置換
 
-  - ドラッグ可能な設定ダイアログ
-  - カスタマイズ可能なテーマ
-  - レスポンシブデザイン
+- リアルタイム検索
+- 正規表現対応
+- 大文字小文字の区別
+- 単語単位検索
+- 一括置換
 
-- 多言語対応
+### テーマ
 
-  - 日本語/英語のインターフェース
-  - i18n による柔軟な言語切り替え
+- **12種類のカスタムテーマ**
+  - ダーク: Midnight Aurora, Synthwave '84, Tokyo Night, Nord Deep, GitHub Dark, Dracula Pro
+  - ライト: Sakura Blossom, Ocean Breeze, GitHub Light, Mint Fresh, Sunset Glow, Lavender Dream
+- システム設定連動（ライト/ダーク/自動）
+- リアルタイムプレビュー
 
-- 豊富な設定オプション
+### 設定
 
-  - 一般設定
-  - 表示設定
-  - キーボードショートカット
-  - ファイル設定
+- **テーマ設定** - カラーテーマの選択
+- **エディタ設定** - フォント、行番号、ルーラー、折り返し、空白文字表示
+- **ファイル設定** - 自動保存、バックアップ、エンコーディング、改行コード
+- **一般設定** - 言語切り替え（日本語/英語）
+- ドラッグ・リサイズ可能な設定ダイアログ
 
-- 高度な検索機能
-  - リアルタイム検索
-  - 正規表現対応
-  - ファイル内検索
+### 多言語対応
+
+- 日本語 / 英語 UI
+- i18next による国際化
 
 ## 技術スタック
 
-- **フロントエンド**
+| カテゴリ | 技術 |
+|---------|------|
+| フレームワーク | Next.js 15 (App Router) |
+| 言語 | TypeScript |
+| スタイリング | TailwindCSS |
+| UIコンポーネント | shadcn/ui, Radix UI |
+| エディタ | Monaco Editor |
+| 状態管理 | Zustand |
+| 国際化 | i18next, react-i18next |
+| テーマ | next-themes |
 
-  - Next.js (App Router)
-  - React
-  - TypeScript
-  - TailwindCSS
-  - shadcn/ui
-  - Monaco Editor
-
-- **状態管理**
-
-  - Zustand
-  - React Context
-
-- **国際化**
-
-  - i18next
-
-- **開発ツール**
-  - ESLint
-  - Prettier
-  - TypeScript
-
-## 開始方法
+## セットアップ
 
 ### 必要条件
 
@@ -68,33 +64,23 @@
 ### インストール
 
 ```bash
-# リポジトリのクローン
 git clone https://github.com/KoenigWolf/sakura-editor.git
-
-# プロジェクトディレクトリに移動
 cd sakura-editor
-
-# 依存関係のインストール
 npm install
 ```
 
-### 開発サーバーの起動
+### 開発
 
 ```bash
 npm run dev
 ```
 
-ブラウザで [http://localhost:3000](http://localhost:3000) を開いてください。
+[http://localhost:3000](http://localhost:3000) で起動します。
 
 ### ビルド
 
 ```bash
 npm run build
-```
-
-### 本番環境での実行
-
-```bash
 npm start
 ```
 
@@ -103,33 +89,30 @@ npm start
 ```
 sakura-editor/
 ├── app/                    # Next.js App Router
-├── components/             # Reactコンポーネント
-│   ├── editor/            # エディタ関連コンポーネント
-│   ├── settings/          # 設定関連コンポーネント
-│   └── ui/                # UIコンポーネント
-├── hooks/                 # カスタムフック
-├── lib/                   # ユーティリティ関数
-│   ├── i18n/             # 国際化関連
-│   ├── store/            # 状態管理
-│   └── utils/            # ユーティリティ関数
+├── components/
+│   ├── editor/            # エディタ関連
+│   │   ├── EditorContainer.tsx
+│   │   ├── EditorToolbar.tsx
+│   │   └── MonacoEditor.tsx
+│   ├── search/            # 検索ダイアログ
+│   ├── settings/          # 設定ダイアログ
+│   │   └── tabs/         # 設定タブ
+│   │       ├── ThemeSettings.tsx
+│   │       ├── EditorSettings.tsx
+│   │       ├── FileSettings.tsx
+│   │       └── GeneralSettings.tsx
+│   └── ui/                # 共通UIコンポーネント
+├── lib/
+│   ├── i18n/             # 国際化
+│   │   └── translations/ # 翻訳ファイル
+│   ├── store/            # Zustand ストア
+│   ├── themes/           # カスタムテーマ定義
+│   └── types/            # 型定義
+├── docs/                  # ドキュメント
 └── public/               # 静的ファイル
 ```
 
-## 設定
-
-### 環境変数
-
-`.env.local`ファイルを作成し、以下の環境変数を設定してください：
-
-```env
-# 必要に応じて環境変数を追加
-```
-
-## ライセンス
-
-MIT License
-
-## AI エージェント向け情報
+## AI エージェント向け
 
 このプロジェクトは各種AIコーディングアシスタントをサポートしています。
 
@@ -140,18 +123,19 @@ MIT License
 | GitHub Copilot | `.github/copilot-instructions.md` |
 | OpenAI Codex / ChatGPT | `AGENTS.md` |
 
-**AIエージェントへ**: コード変更前に必ず以下を読んでください：
-1. `docs/developments/project-structure-guide.md`
-2. `docs/architecture/README.md`
-3. `docs/i18n/README.md`
+**AIエージェントへ**: コード変更前に必ず `docs/` 配下のドキュメントを確認してください。
 
-## 貢献
+## コントリビュート
 
-1. このリポジトリをフォーク
-2. 新しいブランチを作成 (`git checkout -b feature/amazing-feature`)
-3. 変更をコミット (`git commit -m 'Add some amazing feature'`)
-4. ブランチにプッシュ (`git push origin feature/amazing-feature`)
-5. プルリクエストを作成
+1. フォーク
+2. ブランチ作成 (`git checkout -b feature/amazing-feature`)
+3. コミット (`git commit -m 'Add amazing feature'`)
+4. プッシュ (`git push origin feature/amazing-feature`)
+5. プルリクエスト作成
+
+## ライセンス
+
+MIT License
 
 ## 作者
 
