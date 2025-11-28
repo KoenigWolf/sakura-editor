@@ -51,11 +51,3 @@ export const useEditorStore = create<EditorSettingsState>()(
   )
 );
 
-// 後方互換性のために undo/redo をエクスポート（Monaco Editor側で処理）
-export const undo = () => {
-  // Monaco Editorの組み込みundo機能を使用
-};
-
-export const redo = () => {
-  // Monaco Editorの組み込みredo機能を使用
-};

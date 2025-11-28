@@ -177,6 +177,7 @@ export const SearchDialog = memo(({
     if (open && searchTerm && searchTerm !== query) {
       setQuery(searchTerm);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- queryを依存配列に入れると無限ループになる
   }, [open, searchTerm]);
 
   // ハイライト適用
@@ -517,6 +518,7 @@ export const SearchDialog = memo(({
     if (open && query) {
       performSearch(query, true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- オプション変更時のみ発火させる
   }, [isCaseSensitive, isRegex, isWholeWord]);
 
   if (!open) return null;

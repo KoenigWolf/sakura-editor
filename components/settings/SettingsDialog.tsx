@@ -17,7 +17,6 @@ import { EditorSettings } from './tabs/EditorSettings';
 import { FileSettings } from './tabs/FileSettings';
 import { GeneralSettings } from './tabs/GeneralSettings';
 import { useEditorStore } from '@/lib/store';
-import { useTheme } from 'next-themes';
 import { CloseButton } from '@/components/ui/close-button';
 import { cn } from '@/lib/utils';
 import { Palette, Type, FileText, Settings2 } from 'lucide-react';
@@ -71,7 +70,6 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const { t } = useTranslation();
   const { toast } = useToast();
   const { settings: currentSettings, updateSettings } = useEditorStore();
-  const { setTheme } = useTheme();
   const [tempSettings, setTempSettings] = useState(currentSettings);
   // ダイアログを開いた時点の設定を保存（リセット用）
   const [originalSettings, setOriginalSettings] = useState(currentSettings);
