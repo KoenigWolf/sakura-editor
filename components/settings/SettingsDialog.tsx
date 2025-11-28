@@ -75,7 +75,6 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
 
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
 
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [size, setSize] = useState({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
@@ -119,14 +118,9 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
       setIsInitialized(true);
       setOriginalSettings(currentSettings);
       setTempSettings(currentSettings);
-
-      requestAnimationFrame(() => {
-        setIsVisible(true);
-      });
     }
     if (!open) {
       setIsInitialized(false);
-      setIsVisible(false);
     }
   }, [open, isInitialized, currentSettings, isMobile, isTablet]);
 
@@ -282,10 +276,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   return (
     <>
       <div
-        className={cn(
-          'fixed inset-0 z-40 transition-opacity duration-200',
-          isVisible ? 'bg-black/50 opacity-100' : 'bg-black/0 opacity-0'
-        )}
+        className="fixed inset-0 z-40 bg-black/50"
         onClick={handleClose}
       />
 
@@ -293,10 +284,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
         ref={dialogRef}
         className={cn(
           'fixed z-50 bg-background border shadow-lg flex flex-col overflow-hidden',
-          'transition-all duration-200 ease-out',
-          isVisible ? 'opacity-100' : 'opacity-0',
           isMobile ? 'rounded-none' : 'rounded-lg',
-          isMobile && !isVisible && 'translate-y-full',
         )}
         style={dialogStyles}
       >
