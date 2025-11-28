@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTheme } from 'next-themes';
 import type { EditorSettings } from '@/lib/types/editor';
 
 const FONT_FAMILIES = [
@@ -24,9 +25,37 @@ interface AppearanceSettingsProps {
 }
 
 export function AppearanceSettings({ settings, onSettingsChange }: AppearanceSettingsProps) {
+  const { setTheme, resolvedTheme } = useTheme();
 
   return (
     <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Theme</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label htmlFor="theme">Color Theme</Label>
+            <Select
+              value={settings.theme}
+              onValueChange={(value) => {
+                onSettingsChange({ theme: value });
+                setTheme(value);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select theme" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="system">System ({resolvedTheme === 'dark' ? 'Dark' : 'Light'})</SelectItem>
+                <SelectItem value="light">Light</SelectItem>
+                <SelectItem value="dark">Dark</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Font</CardTitle>

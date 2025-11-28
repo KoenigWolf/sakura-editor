@@ -33,7 +33,7 @@ export interface EditorSettings {
   wordWrap: boolean;
   showLineNumbers: boolean;
   showRuler: boolean;
-  theme: 'light' | 'dark' | string;
+  theme: 'system' | 'light' | 'dark' | string;
   language: 'en' | 'ja';
 }
 
@@ -51,6 +51,6 @@ export const DEFAULT_EDITOR_SETTINGS: EditorSettings = {
   wordWrap: true,
   showLineNumbers: true,
   showRuler: true,
-  theme: 'light',
+  theme: 'system',
   language: 'en',
 }; 

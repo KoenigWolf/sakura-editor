@@ -17,6 +17,7 @@ import { AppearanceSettings } from './tabs/AppearanceSettings';
 import { KeyboardSettings } from './tabs/KeyboardSettings';
 import { FileSettings } from './tabs/FileSettings';
 import { useEditorStore } from '@/lib/store';
+import { useTheme } from 'next-themes';
 
 // タブ定義
 const settingsTabs = [
@@ -51,6 +52,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const { t } = useTranslation();
   const { toast } = useToast();
   const { settings: currentSettings, updateSettings } = useEditorStore();
+  const { setTheme } = useTheme();
   const [tempSettings, setTempSettings] = useState(currentSettings);
 
   // グローバル設定が更新された場合に、一時設定を同期する
@@ -61,12 +63,15 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   // 保存ボタン押下時の処理
   const handleSave = useCallback(() => {
     updateSettings(tempSettings);
+    if (tempSettings.theme) {
+      setTheme(tempSettings.theme);
+    }
     toast({
       title: t('settings.actions.saved'),
       description: "設定を保存しました",
       duration: 2000,
     });
-  }, [tempSettings, updateSettings, toast, t]);
+  }, [tempSettings, updateSettings, toast, t, setTheme]);
 
   // リセットボタン押下時の処理
   const handleReset = useCallback(() => {

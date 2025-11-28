@@ -7,14 +7,11 @@ import {
   FileUp,
   FilePlus,
   Settings,
-  Sun,
-  Moon,
   Undo,
   Redo,
   Search,
   SplitSquareVertical,
 } from 'lucide-react';
-import { useTheme } from 'next-themes';
 import { useFileStore } from '@/lib/store/file-store';
 import { useSearchStore } from '@/lib/store/search-store';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
@@ -27,7 +24,6 @@ import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { SearchDialog } from '@/components/editor/SearchDialog';
 
 export function EditorToolbar() {
-  const { theme, setTheme } = useTheme();
   const { addFile, getActiveFile } = useFileStore();
   const { setIsOpen: setSearchOpen, isOpen: searchOpen } = useSearchStore();
   const { getEditorInstance } = useEditorInstanceStore();
@@ -180,22 +176,6 @@ export function EditorToolbar() {
         }}
       />
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-          >
-            {theme === 'light' ? (
-              <Moon className="h-4 w-4" />
-            ) : (
-              <Sun className="h-4 w-4" />
-            )}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>Toggle Theme</TooltipContent>
-      </Tooltip>
     </div>
   );
 }
