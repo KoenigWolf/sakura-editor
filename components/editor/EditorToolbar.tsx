@@ -116,64 +116,67 @@ export function EditorToolbar() {
   // モバイル表示
   if (isMobile) {
     return (
-      <div className="flex items-center justify-between px-2 py-1.5 border-b bg-muted/40 w-full overflow-hidden">
-        {/* 左側: 主要アクション */}
-        <div className="flex items-center gap-0.5 shrink-0">
-          <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleNewFile}>
-            <FilePlus2 className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleSave}>
-            <HardDriveDownload className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleLoad}>
-            <FolderOpen className="h-4 w-4" />
-          </Button>
-        </div>
+      <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-muted/40 w-full overflow-hidden">
+        {/* ファイル操作 */}
+        <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleNewFile}>
+          <FilePlus2 className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleSave}>
+          <HardDriveDownload className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleLoad}>
+          <FolderOpen className="h-4 w-4" />
+        </Button>
 
-        {/* 中央: 検索 */}
+        <div className="w-px h-5 bg-border mx-1 shrink-0" />
+
+        {/* Undo/Redo */}
+        <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleUndo}>
+          <RotateCcw className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleRedo}>
+          <RotateCw className="h-4 w-4" />
+        </Button>
+
+        <div className="w-px h-5 bg-border mx-1 shrink-0" />
+
+        {/* 検索 */}
         <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={() => setSearchOpen(true)}>
           <SearchCheck className="h-4 w-4" />
         </Button>
 
-        {/* 右側: メニュー */}
-        <div className="flex items-center gap-0.5 shrink-0">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className={toolbarButtonClass}>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleUndo}>
-                <RotateCcw className="h-4 w-4 mr-2" />
-                {t('toolbar.undo')}
+        {/* その他メニュー（分割など） */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className={toolbarButtonClass}>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem onClick={() => setSplitDirection('vertical')}>
+              <SplitSquareVertical className="h-4 w-4 mr-2" />
+              {t('toolbar.splitVertical')}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSplitDirection('horizontal')}>
+              <SplitSquareHorizontal className="h-4 w-4 mr-2" />
+              {t('toolbar.splitHorizontal')}
+            </DropdownMenuItem>
+            {splitDirection && (
+              <DropdownMenuItem onClick={closeSplit}>
+                <X className="h-4 w-4 mr-2" />
+                {t('toolbar.closeSplit')}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleRedo}>
-                <RotateCw className="h-4 w-4 mr-2" />
-                {t('toolbar.redo')}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setSplitDirection('vertical')}>
-                <SplitSquareVertical className="h-4 w-4 mr-2" />
-                {t('toolbar.splitVertical')}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSplitDirection('horizontal')}>
-                <SplitSquareHorizontal className="h-4 w-4 mr-2" />
-                {t('toolbar.splitHorizontal')}
-              </DropdownMenuItem>
-              {splitDirection && (
-                <DropdownMenuItem onClick={closeSplit}>
-                  <X className="h-4 w-4 mr-2" />
-                  {t('toolbar.closeSplit')}
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-          <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={() => setShowSettings(true)}>
-            <Cog className="h-4 w-4" />
-          </Button>
-        </div>
+        {/* スペーサー */}
+        <div className="flex-1 min-w-0" />
+
+        {/* 右端: 設定 */}
+        <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={() => setShowSettings(true)}>
+          <Cog className="h-4 w-4" />
+        </Button>
 
         <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
         <SearchDialog
