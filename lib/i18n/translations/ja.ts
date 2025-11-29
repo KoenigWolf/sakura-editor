@@ -139,8 +139,8 @@ export const ja = {
         title: '言語',
         label: 'インターフェース言語',
         options: {
-          en: 'English',
-          ja: '日本語',
+          en: { label: 'English', flag: '🇺🇸' },
+          ja: { label: '日本語', flag: '🇯🇵' },
         },
       },
     },

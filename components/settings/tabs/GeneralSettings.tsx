@@ -87,15 +87,15 @@ export function GeneralSettings({ settings, onSettingsChange }: GeneralSettingsP
             <LanguageButton
               value="ja"
               current={settings.language}
-              label={t('settings.general.language.options.ja')}
-              flag="🇯🇵"
+              label={t('settings.general.language.options.ja.label')}
+              flag={t('settings.general.language.options.ja.flag')}
               onClick={() => handleLanguageChange('ja')}
             />
             <LanguageButton
               value="en"
               current={settings.language}
-              label={t('settings.general.language.options.en')}
-              flag="🇺🇸"
+              label={t('settings.general.language.options.en.label')}
+              flag={t('settings.general.language.options.en.flag')}
               onClick={() => handleLanguageChange('en')}
             />
           </div>
