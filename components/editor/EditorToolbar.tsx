@@ -66,12 +66,12 @@ function ToolbarButton({ icon: Icon, label, shortcut, onClick, active, disabled 
           onClick={onClick}
           disabled={disabled}
           className={cn(
-            'mochi-toolbar-btn h-8 w-8 p-0 shrink-0',
+            'mochi-toolbar-btn p-0 shrink-0',
             active && 'mochi-toolbar-btn-active',
             disabled && 'opacity-50 cursor-not-allowed'
           )}
         >
-          <Icon className="h-4 w-4" />
+          <Icon className="h-3.5 w-3.5" />
         </button>
       </TooltipTrigger>
       <TooltipContent side="bottom" className="flex items-center gap-2">
@@ -341,16 +341,16 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
   // デスクトップ版ツールバー
   return (
     <>
-    <div className="mochi-toolbar-modern flex items-center gap-1.5 px-3 py-2 w-full overflow-hidden">
+    <div className="mochi-toolbar-modern flex items-center gap-1 px-2 py-1 w-full overflow-hidden">
       {/* 設定（左端） */}
       <Tooltip>
         <TooltipTrigger asChild>
           <button
             type="button"
             onClick={onOpenSettings}
-            className="mochi-toolbar-btn h-8 w-8"
+            className="mochi-toolbar-btn"
           >
-            <Settings2 className="h-4 w-4" />
+            <Settings2 className="h-3.5 w-3.5" />
           </button>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="flex items-center gap-2">
@@ -445,14 +445,14 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
               <button
                 type="button"
                 className={cn(
-                  'mochi-toolbar-btn h-8 w-8',
+                  'mochi-toolbar-btn',
                   splitDirection && 'mochi-toolbar-btn-active'
                 )}
               >
                 {splitDirection === 'horizontal' ? (
-                  <PanelTopClose className="h-4 w-4" />
+                  <PanelTopClose className="h-3.5 w-3.5" />
                 ) : (
-                  <PanelLeftClose className="h-4 w-4" />
+                  <PanelLeftClose className="h-3.5 w-3.5" />
                 )}
               </button>
             </DropdownMenuTrigger>

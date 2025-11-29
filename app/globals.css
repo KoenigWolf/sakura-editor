@@ -493,15 +493,16 @@ button, a, [role="button"] {
 
 /* ツールバーボタングループ */
 .mochi-toolbar-group {
-  @apply flex items-center gap-0.5 px-1 py-1 rounded-lg;
+  @apply flex items-center gap-0 px-0.5 py-0.5 rounded-md;
   background: hsl(var(--background) / 0.5);
   border: 1px solid hsl(var(--border) / 0.3);
 }
 
 /* モダンツールバーボタン */
 .mochi-toolbar-btn {
-  @apply relative flex items-center justify-center rounded-lg transition-all duration-200;
+  @apply relative flex items-center justify-center rounded transition-all duration-200;
   @apply active:scale-95;
+  @apply h-6 w-6;
 }
 
 .mochi-toolbar-btn:hover {
@@ -527,7 +528,7 @@ button, a, [role="button"] {
 
 /* ツールバーセパレーター */
 .mochi-toolbar-separator {
-  @apply w-px h-6 mx-2;
+  @apply w-px h-4 mx-1;
   background: linear-gradient(
     180deg,
     transparent 0%,
@@ -545,7 +546,7 @@ button, a, [role="button"] {
 }
 
 .mochi-tab {
-  @apply relative flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-t-md transition-all duration-200;
+  @apply relative flex items-center gap-1 px-2 py-0.5 text-[11px] rounded-t-md transition-all duration-200;
   @apply text-muted-foreground hover:text-foreground hover:bg-background/50;
   border: 1px solid transparent;
   border-bottom: none;
@@ -1868,7 +1869,7 @@ button, a, [role="button"] {
 
 .indent-ruler {
   @apply relative w-full select-none;
-  height: 24px;
+  height: 18px;
   background: linear-gradient(
     180deg,
     hsl(var(--muted) / 0.3) 0%,
@@ -1928,8 +1929,8 @@ button, a, [role="button"] {
 }
 
 .indent-ruler-tick-label {
-  @apply absolute text-[9px] font-medium;
-  bottom: 10px;
+  @apply absolute text-[8px] font-medium;
+  bottom: 6px;
   left: 50%;
   transform: translateX(-50%);
   color: hsl(var(--muted-foreground));

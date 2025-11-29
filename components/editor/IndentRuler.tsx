@@ -20,10 +20,10 @@ import {
 import { cn } from '@/lib/utils';
 
 const CM_TO_PX = 37.795275591;
-const RULER_HEIGHT = 24;
-const HANDLE_SIZE = 10;
-const TICK_HEIGHT_MAJOR = 8;
-const TICK_HEIGHT_MINOR = 4;
+const RULER_HEIGHT = 18;
+const HANDLE_SIZE = 8;
+const TICK_HEIGHT_MAJOR = 6;
+const TICK_HEIGHT_MINOR = 3;
 
 type DragType = 'firstLine' | 'hanging' | 'leftMargin' | 'rightMargin' | 'tabStop' | null;
 
