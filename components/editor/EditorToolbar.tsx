@@ -3,20 +3,20 @@
 import { useState, useCallback, useEffect, memo } from 'react';
 import dynamic from 'next/dynamic';
 import {
-  HardDriveDownload,
+  Download,
   FolderOpen,
-  FilePlus2,
-  Settings2,
-  Undo2,
-  Redo2,
+  Plus,
+  Settings,
+  RotateCcw,
+  RotateCw,
   Search,
-  PanelLeftClose,
-  PanelTopClose,
+  Columns2,
+  Rows2,
   X,
   Sparkles,
-  IndentDecrease,
-  IndentIncrease,
-  Ruler,
+  TextCursorInput,
+  AlignLeft,
+  Scaling,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useFileStore } from '@/lib/store/file-store';

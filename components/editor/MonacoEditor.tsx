@@ -414,11 +414,14 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       rulers: [],
       selectOnLineNumbers: true,
       glyphMargin: false,
-      lineDecorationsWidth: 0,
+      lineDecorationsWidth: 8,
       lineNumbersMinChars: 3,
       overviewRulerBorder: false,
       overviewRulerLanes: 0,
       hideCursorInOverviewRuler: true,
+
+      // エディタ内パディング
+      padding: { top: 4, bottom: 4 },
 
       // アクセシビリティ（パフォーマンス向け調整）
       accessibilitySupport: 'off',

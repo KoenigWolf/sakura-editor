@@ -1846,6 +1846,60 @@ button, a, [role="button"] {
   overscroll-behavior: contain;
 }
 
+/* ============================================
+   Monaco Editor カスタマイズ
+   ============================================ */
+
+/* 行番号エリアのスタイル */
+.monaco-editor .margin {
+  background: transparent !important;
+}
+
+.monaco-editor .line-numbers {
+  padding-right: 6px !important;
+  color: hsl(var(--muted-foreground) / 0.5) !important;
+  font-feature-settings: 'tnum' 1;
+}
+
+.monaco-editor .current-line ~ .line-numbers {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* 行番号とコンテンツの間のセパレーター */
+.monaco-editor .margin-view-overlays {
+  border-right: 1px solid hsl(var(--border) / 0.3);
+}
+
+/* エディタコンテンツエリア */
+.monaco-editor .view-lines {
+  padding-left: 2px;
+}
+
+/* カーソル行のハイライト（薄く） */
+.monaco-editor .view-overlays .current-line {
+  background: hsl(var(--muted) / 0.15) !important;
+  border: none !important;
+}
+
+/* 選択範囲 */
+.monaco-editor .selected-text {
+  background: hsl(var(--primary) / 0.2) !important;
+}
+
+/* スクロールバーのカスタマイズ */
+.monaco-editor .scrollbar {
+  background: transparent !important;
+}
+
+.monaco-editor .scrollbar > .slider {
+  background: hsl(var(--muted-foreground) / 0.2) !important;
+  border-radius: 4px !important;
+}
+
+.monaco-editor .scrollbar > .slider:hover {
+  background: hsl(var(--muted-foreground) / 0.4) !important;
+}
+
 /* 印刷用スタイル */
 @media print {
   .mochi-toolbar-modern,
