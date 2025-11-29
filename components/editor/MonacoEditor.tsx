@@ -414,7 +414,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       rulers: [],
       selectOnLineNumbers: true,
       glyphMargin: false,
-      lineDecorationsWidth: 8,
+      lineDecorationsWidth: 4,
       lineNumbersMinChars: 3,
       overviewRulerBorder: false,
       overviewRulerLanes: 0,

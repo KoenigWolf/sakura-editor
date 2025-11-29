@@ -42,7 +42,7 @@ const SearchResultItem = memo(({
     type="button"
     className={cn(
       'w-full text-left text-xs px-2 py-1.5 rounded transition-colors',
-      'hover:bg-accent/50 focus:bg-accent/50 focus:outline-none',
+      'hover:bg-muted/50 focus:bg-muted/50 focus:outline-none',
       isActive && 'bg-accent text-accent-foreground'
     )}
     onClick={onClick}
@@ -62,7 +62,6 @@ const OptionButton = memo(({
   icon: Icon,
   label,
   shortcut,
-  showLabel = false
 }: {
   active: boolean;
   onClick: () => void;
@@ -76,14 +75,11 @@ const OptionButton = memo(({
     onClick={onClick}
     title={`${label}${shortcut ? ` (${shortcut})` : ''}`}
     className={cn(
-      'h-7 rounded flex items-center justify-center transition-colors gap-1',
-      'hover:bg-accent focus:outline-none focus:ring-1 focus:ring-ring',
-      active ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
-      showLabel ? 'px-2' : 'w-7'
+      'h-6 w-6 rounded flex items-center justify-center transition-colors',
+      active ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-muted'
     )}
   >
-    <Icon className="h-3.5 w-3.5 shrink-0" />
-    {showLabel && <span className="text-xs hidden sm:inline">{label}</span>}
+    <Icon className="h-3.5 w-3.5" strokeWidth={1.5} />
   </button>
 ));
 OptionButton.displayName = 'OptionButton';
@@ -524,21 +520,20 @@ export const SearchDialog = memo(({
     top: 'auto',
     width: '100%',
     maxWidth: '100%',
-    borderRadius: '12px 12px 0 0',
-    maxHeight: '70vh',
+    maxHeight: '85vh',
   } : {
     position: 'fixed' as const,
     left: position.x,
     top: position.y,
-    width: 400,
+    width: 420,
   };
 
   return (
     <>
+      {/* Backdrop (mobile only) */}
       {isMobile && (
         <div
-          className="fixed inset-x-0 bottom-0 bg-black/30 z-40"
-          style={{ top: '60px' }}
+          className="fixed inset-0 z-40 bg-black/30"
           onClick={() => onOpenChange(false)}
         />
       )}
@@ -546,28 +541,29 @@ export const SearchDialog = memo(({
       <div
         ref={dialogRef}
         className={cn(
-          'z-50 bg-background border shadow-xl flex flex-col',
-          'transition-all duration-150 ease-out',
+          'z-50 bg-background border shadow-lg flex flex-col',
+          'transition-opacity duration-150',
           isVisible ? 'opacity-100' : 'opacity-0',
-          isMobile ? 'translate-y-0' : 'rounded-lg',
+          isMobile ? 'rounded-t-xl' : 'rounded-lg',
           !isVisible && isMobile && 'translate-y-full',
           isDragging && 'cursor-grabbing select-none'
         )}
         style={mobileStyles}
       >
+        {/* Header */}
         <div
           className={cn(
-            'flex items-center justify-between px-3 py-2 border-b bg-muted/50',
+            'flex items-center justify-between px-3 py-2 border-b bg-muted/30',
             !isMobile && 'cursor-grab rounded-t-lg'
           )}
           onMouseDown={handleDragStart}
         >
           {isMobile && (
-            <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 bg-muted-foreground/30 rounded-full" />
+            <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-8 h-1 bg-muted-foreground/20 rounded-full" />
           )}
 
           <div className="flex items-center gap-2">
-            <Search className="h-4 w-4 text-muted-foreground" />
+            <Search className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
             <span className="text-sm font-medium">{t('search.title')}</span>
             {matches.length > 0 && (
               <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
@@ -575,189 +571,104 @@ export const SearchDialog = memo(({
               </span>
             )}
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             <button
               type="button"
               onClick={handlePreviousMatch}
               disabled={matches.length === 0}
-              className="h-8 w-8 sm:h-6 sm:w-6 rounded hover:bg-accent disabled:opacity-50 flex items-center justify-center"
+              className="h-7 w-7 rounded hover:bg-muted disabled:opacity-40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
               title={`${t('search.actions.previous')} (Shift+Enter)`}
             >
-              <ChevronUp className="h-4 w-4" />
+              <ChevronUp className="h-4 w-4" strokeWidth={1.5} />
             </button>
             <button
               type="button"
               onClick={handleNextMatch}
               disabled={matches.length === 0}
-              className="h-8 w-8 sm:h-6 sm:w-6 rounded hover:bg-accent disabled:opacity-50 flex items-center justify-center"
+              className="h-7 w-7 rounded hover:bg-muted disabled:opacity-40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
               title={`${t('search.actions.next')} (Enter)`}
             >
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-4 w-4" strokeWidth={1.5} />
             </button>
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="h-8 w-8 sm:h-6 sm:w-6 rounded hover:bg-accent flex items-center justify-center ml-1"
+              className="h-7 w-7 rounded hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors ml-1"
               title={`${t('search.close')} (Esc)`}
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" strokeWidth={1.5} />
             </button>
           </div>
         </div>
 
-        <div className="p-2 sm:p-2 space-y-2">
-          <div className="flex gap-1 flex-col sm:flex-row">
-            <div className="flex-1 relative">
-              <Input
-                ref={searchInputRef}
-                value={query}
-                onChange={(e) => handleQueryChange(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Tab' && !e.shiftKey) {
-                    e.preventDefault();
-                    if (!showReplace) {
-                      setShowReplace(true);
-                      setTimeout(() => replaceInputRef.current?.focus(), 0);
-                    } else {
-                      replaceInputRef.current?.focus();
-                    }
+        {/* Search Content */}
+        <div className="p-3 space-y-2">
+          {/* Search Input */}
+          <div className="relative">
+            <Input
+              ref={searchInputRef}
+              value={query}
+              onChange={(e) => handleQueryChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Tab' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (!showReplace) {
+                    setShowReplace(true);
+                    setTimeout(() => replaceInputRef.current?.focus(), 0);
+                  } else {
+                    replaceInputRef.current?.focus();
                   }
+                }
+              }}
+              placeholder={t('search.placeholder')}
+              className="h-9 text-sm pr-20"
+              autoComplete="off"
+              spellCheck={false}
+              autoCapitalize="off"
+              autoCorrect="off"
+            />
+            <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-0.5">
+              <OptionButton
+                active={isCaseSensitive}
+                onClick={() => {
+                  setIsCaseSensitive(!isCaseSensitive);
+                  performSearch(query, true);
                 }}
-                placeholder={t('search.placeholder')}
-                className="h-10 sm:h-8 text-base sm:text-sm pr-2 sm:pr-24"
-                autoComplete="off"
-                spellCheck={false}
-                autoCapitalize="off"
-                autoCorrect="off"
+                icon={CaseSensitive}
+                label={t('search.options.caseSensitive')}
+                shortcut="Alt+C"
               />
-              <div className="hidden sm:flex absolute right-1 top-1/2 -translate-y-1/2 gap-0.5">
-                <OptionButton
-                  active={isCaseSensitive}
-                  onClick={() => {
-                    setIsCaseSensitive(!isCaseSensitive);
-                    performSearch(query, true);
-                  }}
-                  icon={CaseSensitive}
-                  label={t('search.options.caseSensitive')}
-                  shortcut="Alt+C"
-                />
-                <OptionButton
-                  active={isWholeWord}
-                  onClick={() => {
-                    setIsWholeWord(!isWholeWord);
-                    performSearch(query, true);
-                  }}
-                  icon={WholeWord}
-                  label={t('search.options.wholeWord')}
-                  shortcut="Alt+W"
-                />
-                <OptionButton
-                  active={isRegex}
-                  onClick={() => {
-                    setIsRegex(!isRegex);
-                    performSearch(query, true);
-                  }}
-                  icon={Regex}
-                  label={t('search.options.useRegex')}
-                  shortcut="Alt+R"
-                />
-              </div>
+              <OptionButton
+                active={isWholeWord}
+                onClick={() => {
+                  setIsWholeWord(!isWholeWord);
+                  performSearch(query, true);
+                }}
+                icon={WholeWord}
+                label={t('search.options.wholeWord')}
+                shortcut="Alt+W"
+              />
+              <OptionButton
+                active={isRegex}
+                onClick={() => {
+                  setIsRegex(!isRegex);
+                  performSearch(query, true);
+                }}
+                icon={Regex}
+                label={t('search.options.useRegex')}
+                shortcut="Alt+R"
+              />
             </div>
           </div>
 
-          <div className="flex sm:hidden gap-1 flex-wrap">
-            <OptionButton
-              active={isCaseSensitive}
-              onClick={() => {
-                setIsCaseSensitive(!isCaseSensitive);
-                performSearch(query, true);
-              }}
-              icon={CaseSensitive}
-              label="Aa"
-              showLabel
-            />
-            <OptionButton
-              active={isWholeWord}
-              onClick={() => {
-                setIsWholeWord(!isWholeWord);
-                performSearch(query, true);
-              }}
-              icon={WholeWord}
-              label="単語"
-              showLabel
-            />
-            <OptionButton
-              active={isRegex}
-              onClick={() => {
-                setIsRegex(!isRegex);
-                performSearch(query, true);
-              }}
-              icon={Regex}
-              label="正規"
-              showLabel
-            />
-            <div className="flex-1" />
-            <button
-              type="button"
-              onClick={() => setShowReplace(prev => !prev)}
-              className={cn(
-                'h-7 px-2 rounded flex items-center gap-1 transition-colors text-xs',
-                showReplace ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-              )}
-            >
-              <Replace className="h-3.5 w-3.5" />
-              {t('search.actions.replace')}
-            </button>
-          </div>
-
-          {showReplace && (
-            <div className="flex gap-1 flex-col sm:flex-row">
-              <div className="flex-1">
-                <Input
-                  ref={replaceInputRef}
-                  value={replacement}
-                  onChange={(e) => setReplacement(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Tab' && e.shiftKey) {
-                      e.preventDefault();
-                      searchInputRef.current?.focus();
-                    }
-                  }}
-                  placeholder={t('search.replacePlaceholder')}
-                  className="h-10 sm:h-8 text-base sm:text-sm"
-                  autoComplete="off"
-                  spellCheck={false}
-                />
-              </div>
-              <div className="flex gap-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleReplace}
-                  className="h-10 sm:h-8 flex-1 sm:flex-none sm:px-2"
-                >
-                  <Replace className="h-3.5 w-3.5 sm:mr-0 mr-1" />
-                  <span className="sm:hidden">{t('search.actions.replace')}</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleReplaceAll}
-                  className="h-10 sm:h-8 flex-1 sm:flex-none sm:px-2 text-xs"
-                >
-                  {t('search.actions.replaceAll')}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          <div className="hidden sm:flex items-center gap-2">
+          {/* Replace Toggle & Section */}
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setShowReplace(prev => !prev)}
               className={cn(
                 'text-xs px-2 py-1 rounded transition-colors',
-                showReplace ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-accent'
+                showReplace ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted'
               )}
             >
               {showReplace ? t('search.hideReplace') : t('search.showReplace')}
@@ -767,47 +678,85 @@ export const SearchDialog = memo(({
             )}
           </div>
 
-          {isMobile && query && matches.length === 0 && (
-            <div className="text-xs text-muted-foreground text-center py-1">
-              {t('search.results.empty')}
+          {/* Replace Section */}
+          {showReplace && (
+            <div className="space-y-2 pt-2 border-t">
+              <Input
+                ref={replaceInputRef}
+                value={replacement}
+                onChange={(e) => setReplacement(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Tab' && e.shiftKey) {
+                    e.preventDefault();
+                    searchInputRef.current?.focus();
+                  }
+                }}
+                placeholder={t('search.replacePlaceholder')}
+                className="h-9 text-sm"
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReplace}
+                  className="h-8 flex-1 text-xs"
+                >
+                  {t('search.actions.replace')}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleReplaceAll}
+                  className="h-8 flex-1 text-xs"
+                >
+                  {t('search.actions.replaceAll')}
+                </Button>
+              </div>
             </div>
           )}
         </div>
 
+        {/* Results Section */}
         {matches.length > 0 && (
-          <div className="border-t flex flex-col">
+          <div className="border-t">
             <button
               type="button"
               onClick={() => setShowResults(prev => !prev)}
-              className="flex items-center justify-between px-3 py-1.5 hover:bg-muted/50 text-xs text-muted-foreground"
+              className="flex items-center justify-between w-full px-3 py-2 text-xs text-muted-foreground hover:bg-muted/50 transition-colors"
             >
               <span>{t('search.results.found', { count: matches.length })}</span>
-              <ChevronRight className={cn('h-3 w-3 transition-transform', showResults && 'rotate-90')} />
+              <ChevronRight className={cn(
+                'h-3.5 w-3.5 transition-transform',
+                showResults && 'rotate-90'
+              )} strokeWidth={1.5} />
             </button>
 
             {showResults && (
-              <div className={cn('overflow-y-auto', isMobile ? 'max-h-32' : 'max-h-40')}>
-                <div className="p-1">
-                  {matches.slice(0, 50).map((match, index) => (
-                    <SearchResultItem
-                      key={`${match.lineNumber}-${match.startIndex}`}
-                      match={match}
-                      index={index}
-                      isActive={index === currentMatchIndex}
-                      onClick={() => goToMatch(index)}
-                    />
-                  ))}
-                  {matches.length > 50 && (
-                    <div className="text-xs text-muted-foreground text-center py-2">
-                      +{matches.length - 50} {t('search.moreResults')}
-                    </div>
-                  )}
-                </div>
+              <div className={cn(
+                'overflow-y-auto px-1 pb-1',
+                isMobile ? 'max-h-32' : 'max-h-40'
+              )}>
+                {matches.slice(0, 50).map((match, index) => (
+                  <SearchResultItem
+                    key={`${match.lineNumber}-${match.startIndex}`}
+                    match={match}
+                    index={index}
+                    isActive={index === currentMatchIndex}
+                    onClick={() => goToMatch(index)}
+                  />
+                ))}
+                {matches.length > 50 && (
+                  <div className="text-xs text-muted-foreground text-center py-2">
+                    +{matches.length - 50} {t('search.moreResults')}
+                  </div>
+                )}
               </div>
             )}
           </div>
         )}
 
+        {/* Safe Area for Mobile */}
         {isMobile && <div className="h-safe-area-inset-bottom" />}
       </div>
     </>

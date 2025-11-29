@@ -17,9 +17,9 @@ import { EditorSettings } from './tabs/EditorSettings';
 import { FileSettings } from './tabs/FileSettings';
 import { GeneralSettings } from './tabs/GeneralSettings';
 import { useEditorStore } from '@/lib/store';
-import { CloseButton } from '@/components/ui/close-button';
 import { cn } from '@/lib/utils';
-import { Palette, Type, FileText, Settings2 } from 'lucide-react';
+import { Palette, Type, FileText, Settings2, X } from 'lucide-react';
+import { CloseButton } from '@/components/ui/close-button';
 
 // タブ定義（アイコン追加）
 const settingsTabs = [
@@ -374,6 +374,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
 
   return (
     <>
+      {/* Backdrop */}
       <div
         className="fixed inset-0 z-40 bg-black/50"
         onClick={handleClose}
@@ -387,6 +388,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
         )}
         style={dialogStyles}
       >
+        {/* Resize handles for desktop */}
         {!isMobile && !isTablet && (
           <>
             <div
@@ -424,6 +426,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
           </>
         )}
 
+        {/* Header */}
         <div
           className={cn(
             'px-4 py-3 border-b shrink-0 select-none flex items-center justify-between',
@@ -444,6 +447,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
           />
         </div>
 
+        {/* Tabs */}
         <Tabs defaultValue="theme" className="flex-1 min-h-0 flex flex-col">
           <TabsList className={cn(
             'shrink-0 w-full flex bg-transparent border-b',
@@ -483,6 +487,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
           </div>
         </Tabs>
 
+        {/* Footer */}
         <div className={cn(
           'flex justify-end gap-3 border-t shrink-0',
           isMobile ? 'px-4 py-4 pb-safe' : 'px-4 py-3'

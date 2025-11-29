@@ -66,18 +66,18 @@ function ToolbarButton({ icon: Icon, label, shortcut, onClick, active, disabled 
           onClick={onClick}
           disabled={disabled}
           className={cn(
-            'mochi-toolbar-btn p-0 shrink-0',
+            'mochi-toolbar-btn group',
             active && 'mochi-toolbar-btn-active',
-            disabled && 'opacity-50 cursor-not-allowed'
+            disabled && 'opacity-40 cursor-not-allowed pointer-events-none'
           )}
         >
-          <Icon className="h-3.5 w-3.5" />
+          <Icon className="h-[14px] w-[14px] transition-transform duration-150 group-hover:scale-110 group-active:scale-95" strokeWidth={1.5} />
         </button>
       </TooltipTrigger>
-      <TooltipContent side="bottom" className="flex items-center gap-2">
+      <TooltipContent side="bottom" className="mochi-tooltip">
         <span>{label}</span>
         {shortcut && (
-          <kbd className="mochi-command-kbd">{shortcut}</kbd>
+          <kbd className="mochi-kbd">{shortcut}</kbd>
         )}
       </TooltipContent>
     </Tooltip>
@@ -214,7 +214,7 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
             className="mochi-mobile-icon-btn"
             aria-label={t('toolbar.settings')}
           >
-            <Settings2 className="h-[18px] w-[18px]" />
+            <Settings className="h-[18px] w-[18px]" strokeWidth={1.5} />
           </button>
 
           <div className="mochi-mobile-title">
@@ -228,7 +228,7 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
             className="mochi-mobile-icon-btn"
             aria-label={t('toolbar.search')}
           >
-            <Search className="h-[18px] w-[18px]" />
+            <Search className="h-[18px] w-[18px]" strokeWidth={1.5} />
           </button>
         </div>
 
@@ -242,7 +242,7 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
               className="mochi-pill-btn"
               aria-label={t('toolbar.newFile')}
             >
-              <FilePlus2 className="h-5 w-5" />
+              <Plus className="h-5 w-5" strokeWidth={1.5} />
             </button>
 
             <button
@@ -251,7 +251,7 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
               className="mochi-pill-btn"
               aria-label={t('toolbar.load')}
             >
-              <FolderOpen className="h-5 w-5" />
+              <FolderOpen className="h-5 w-5" strokeWidth={1.5} />
             </button>
 
             <div className="mochi-pill-divider" />
@@ -263,7 +263,7 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
               className="mochi-pill-btn"
               aria-label={t('toolbar.undo')}
             >
-              <Undo2 className="h-5 w-5" />
+              <RotateCcw className="h-5 w-5" strokeWidth={1.5} />
             </button>
 
             <button
@@ -272,7 +272,7 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
               className="mochi-pill-btn"
               aria-label={t('toolbar.redo')}
             >
-              <Redo2 className="h-5 w-5" />
+              <RotateCw className="h-5 w-5" strokeWidth={1.5} />
             </button>
 
             <div className="mochi-pill-divider" />
@@ -284,7 +284,7 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
               className="mochi-pill-btn mochi-pill-btn-primary"
               aria-label={t('toolbar.save')}
             >
-              <HardDriveDownload className="h-5 w-5" />
+              <Download className="h-5 w-5" strokeWidth={1.5} />
             </button>
 
             {/* 分割ビュー */}
@@ -299,26 +299,26 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
                   aria-label={t('toolbar.split')}
                 >
                   {splitDirection === 'horizontal' ? (
-                    <PanelTopClose className="h-5 w-5" />
+                    <Rows2 className="h-5 w-5" strokeWidth={1.5} />
                   ) : (
-                    <PanelLeftClose className="h-5 w-5" />
+                    <Columns2 className="h-5 w-5" strokeWidth={1.5} />
                   )}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" side="top" sideOffset={12} className="mochi-mobile-menu">
                 <DropdownMenuItem onClick={() => setSplitDirection('vertical')} className="mochi-mobile-menu-item">
-                  <PanelLeftClose className="h-5 w-5" />
+                  <Columns2 className="h-5 w-5" strokeWidth={1.5} />
                   <span>{t('toolbar.splitVertical')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSplitDirection('horizontal')} className="mochi-mobile-menu-item">
-                  <PanelTopClose className="h-5 w-5" />
+                  <Rows2 className="h-5 w-5" strokeWidth={1.5} />
                   <span>{t('toolbar.splitHorizontal')}</span>
                 </DropdownMenuItem>
                 {splitDirection && (
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={closeSplit} className="mochi-mobile-menu-item text-destructive">
-                      <X className="h-5 w-5" />
+                      <X className="h-5 w-5" strokeWidth={1.5} />
                       <span>{t('toolbar.closeSplit')}</span>
                     </DropdownMenuItem>
                   </>
@@ -341,21 +341,21 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
   // デスクトップ版ツールバー
   return (
     <>
-    <div className="mochi-toolbar-modern flex items-center gap-1 px-2 py-1 w-full overflow-hidden">
+    <div className="mochi-toolbar-modern flex items-center gap-1.5 px-2 py-1 w-full overflow-hidden">
       {/* 設定（左端） */}
       <Tooltip>
         <TooltipTrigger asChild>
           <button
             type="button"
             onClick={onOpenSettings}
-            className="mochi-toolbar-btn"
+            className="mochi-toolbar-btn group"
           >
-            <Settings2 className="h-3.5 w-3.5" />
+            <Settings className="h-[14px] w-[14px] transition-all duration-200 group-hover:rotate-45" strokeWidth={1.5} />
           </button>
         </TooltipTrigger>
-        <TooltipContent side="bottom" className="flex items-center gap-2">
+        <TooltipContent side="bottom" className="mochi-tooltip">
           <span>{t('toolbar.settings')}</span>
-          <kbd className="mochi-command-kbd">⌘,</kbd>
+          <kbd className="mochi-kbd">⌘,</kbd>
         </TooltipContent>
       </Tooltip>
 
@@ -364,13 +364,13 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
       {/* ファイル操作グループ */}
       <div className="mochi-toolbar-group">
         <ToolbarButton
-          icon={FilePlus2}
+          icon={Plus}
           label={t('toolbar.newFile')}
           shortcut="⌘N"
           onClick={handleNewFile}
         />
         <ToolbarButton
-          icon={HardDriveDownload}
+          icon={Download}
           label={t('toolbar.save')}
           shortcut="⌘S"
           onClick={handleSave}
@@ -388,13 +388,13 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
       {/* 編集操作グループ */}
       <div className="mochi-toolbar-group">
         <ToolbarButton
-          icon={Undo2}
+          icon={RotateCcw}
           label={t('toolbar.undo')}
           shortcut="⌘Z"
           onClick={handleUndo}
         />
         <ToolbarButton
-          icon={Redo2}
+          icon={RotateCw}
           label={t('toolbar.redo')}
           shortcut="⌘Y"
           onClick={handleRedo}
@@ -418,19 +418,19 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
       {/* インデントグループ */}
       <div className="mochi-toolbar-group">
         <ToolbarButton
-          icon={IndentDecrease}
+          icon={AlignLeft}
           label={t('toolbar.outdent')}
           shortcut="⇧Tab"
           onClick={handleOutdent}
         />
         <ToolbarButton
-          icon={IndentIncrease}
+          icon={TextCursorInput}
           label={t('toolbar.indent')}
           shortcut="Tab"
           onClick={handleIndent}
         />
         <ToolbarButton
-          icon={Ruler}
+          icon={Scaling}
           label={t('toolbar.ruler')}
           onClick={handleToggleRuler}
           active={rulerVisible}
@@ -445,47 +445,47 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
               <button
                 type="button"
                 className={cn(
-                  'mochi-toolbar-btn',
+                  'mochi-toolbar-btn group',
                   splitDirection && 'mochi-toolbar-btn-active'
                 )}
               >
                 {splitDirection === 'horizontal' ? (
-                  <PanelTopClose className="h-3.5 w-3.5" />
+                  <Rows2 className="h-[14px] w-[14px] transition-transform duration-150 group-hover:scale-110" strokeWidth={1.5} />
                 ) : (
-                  <PanelLeftClose className="h-3.5 w-3.5" />
+                  <Columns2 className="h-[14px] w-[14px] transition-transform duration-150 group-hover:scale-110" strokeWidth={1.5} />
                 )}
               </button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent side="bottom">{t('toolbar.split')}</TooltipContent>
+          <TooltipContent side="bottom" className="mochi-tooltip">{t('toolbar.split')}</TooltipContent>
         </Tooltip>
-        <DropdownMenuContent align="start" className="min-w-[200px]">
-          <DropdownMenuItem onClick={() => setSplitDirection('vertical')} className="gap-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted">
-              <PanelLeftClose className="h-4 w-4" />
+        <DropdownMenuContent align="start" className="mochi-dropdown">
+          <DropdownMenuItem onClick={() => setSplitDirection('vertical')} className="mochi-dropdown-item">
+            <div className="mochi-dropdown-icon">
+              <Columns2 className="h-4 w-4" strokeWidth={1.5} />
             </div>
             <div>
-              <div className="font-medium">{t('toolbar.splitVertical')}</div>
-              <div className="text-xs text-muted-foreground">Split side by side</div>
+              <div className="font-medium text-sm">{t('toolbar.splitVertical')}</div>
+              <div className="text-[10px] text-muted-foreground">Split side by side</div>
             </div>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSplitDirection('horizontal')} className="gap-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted">
-              <PanelTopClose className="h-4 w-4" />
+          <DropdownMenuItem onClick={() => setSplitDirection('horizontal')} className="mochi-dropdown-item">
+            <div className="mochi-dropdown-icon">
+              <Rows2 className="h-4 w-4" strokeWidth={1.5} />
             </div>
             <div>
-              <div className="font-medium">{t('toolbar.splitHorizontal')}</div>
-              <div className="text-xs text-muted-foreground">Split top and bottom</div>
+              <div className="font-medium text-sm">{t('toolbar.splitHorizontal')}</div>
+              <div className="text-[10px] text-muted-foreground">Split top and bottom</div>
             </div>
           </DropdownMenuItem>
           {splitDirection && (
             <>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={closeSplit} className="gap-3 text-destructive focus:text-destructive">
-                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-destructive/10">
-                  <X className="h-4 w-4" />
+              <DropdownMenuItem onClick={closeSplit} className="mochi-dropdown-item text-destructive focus:text-destructive">
+                <div className="mochi-dropdown-icon bg-destructive/10">
+                  <X className="h-4 w-4" strokeWidth={1.5} />
                 </div>
-                <div className="font-medium">{t('toolbar.closeSplit')}</div>
+                <div className="font-medium text-sm">{t('toolbar.closeSplit')}</div>
               </DropdownMenuItem>
             </>
           )}

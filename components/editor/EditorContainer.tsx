@@ -15,25 +15,23 @@ import { useTranslation } from 'react-i18next';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import type { CommandItem } from '@/components/editor/CommandPalette';
 import {
-  FilePlus2,
-  Save,
+  Plus,
+  Download,
   FolderOpen,
   Search,
   Settings,
-  Undo2,
-  Redo2,
-  SplitSquareVertical,
-  SplitSquareHorizontal,
+  RotateCcw,
+  RotateCw,
+  Columns2,
+  Rows2,
   X,
   Moon,
   Sun,
   Hash,
-  Replace,
-  Command,
-  Zap,
-  FileCode2,
-  Type,
-  CornerDownLeft,
+  Sparkles,
+  FileText,
+  Code2,
+  WrapText,
 } from 'lucide-react';
 
 // 重いコンポーネントを遅延読み込み
@@ -141,7 +139,7 @@ export const EditorContainer = memo(function EditorContainer() {
       id: 'new-file',
       label: t('commandPalette.actions.newFile'),
       shortcut: '⌘+N',
-      icon: FilePlus2,
+      icon: Plus,
       action: handleNewFile,
       category: 'file',
     },
@@ -157,7 +155,7 @@ export const EditorContainer = memo(function EditorContainer() {
       id: 'save-file',
       label: t('commandPalette.actions.saveFile'),
       shortcut: '⌘+S',
-      icon: Save,
+      icon: Download,
       action: handleSave,
       category: 'file',
     },
@@ -166,7 +164,7 @@ export const EditorContainer = memo(function EditorContainer() {
       id: 'undo',
       label: t('commandPalette.actions.undo'),
       shortcut: '⌘+Z',
-      icon: Undo2,
+      icon: RotateCcw,
       action: handleUndo,
       category: 'edit',
     },
@@ -174,7 +172,7 @@ export const EditorContainer = memo(function EditorContainer() {
       id: 'redo',
       label: t('commandPalette.actions.redo'),
       shortcut: '⌘+Y',
-      icon: Redo2,
+      icon: RotateCw,
       action: handleRedo,
       category: 'edit',
     },
@@ -199,14 +197,14 @@ export const EditorContainer = memo(function EditorContainer() {
     {
       id: 'split-vertical',
       label: t('commandPalette.actions.splitVertical'),
-      icon: SplitSquareVertical,
+      icon: Columns2,
       action: () => setSplitDirection('vertical'),
       category: 'view',
     },
     {
       id: 'split-horizontal',
       label: t('commandPalette.actions.splitHorizontal'),
-      icon: SplitSquareHorizontal,
+      icon: Rows2,
       action: () => setSplitDirection('horizontal'),
       category: 'view',
     },
@@ -334,11 +332,11 @@ export const EditorContainer = memo(function EditorContainer() {
         <div className="flex items-center gap-1">
           <button
             onClick={() => setShowCommandPalette(true)}
-            className="mochi-statusbar-item mochi-statusbar-item-clickable gap-2"
+            className="mochi-statusbar-item mochi-statusbar-item-clickable gap-1.5"
             title="Command Palette (⌘P)"
           >
-            <Command className="h-3 w-3" />
-            <span className="truncate max-w-[180px] flex items-center gap-1.5 text-sm">
+            <Sparkles className="h-3 w-3" strokeWidth={1.5} />
+            <span className="truncate max-w-[180px] flex items-center gap-1.5 text-[11px]">
               {activeFile?.isDirty && (
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
               )}
@@ -346,52 +344,51 @@ export const EditorContainer = memo(function EditorContainer() {
             </span>
           </button>
 
-          <div className="h-4 w-px bg-border/50 mx-1" />
+          <div className="h-3 w-px bg-border/30 mx-1" />
 
-          <div className="mochi-statusbar-item gap-1.5">
-            <Type className="h-3 w-3 text-muted-foreground" />
+          <div className="mochi-statusbar-item gap-1">
+            <Code2 className="h-3 w-3 text-muted-foreground" strokeWidth={1.5} />
             <span className="mochi-statusbar-badge">{statusInfo.language}</span>
           </div>
 
-          <div className="mochi-statusbar-item gap-1.5">
-            <CornerDownLeft className="h-3 w-3 text-muted-foreground" />
-            <span>{statusInfo.eol}</span>
+          <div className="mochi-statusbar-item gap-1">
+            <WrapText className="h-3 w-3 text-muted-foreground" strokeWidth={1.5} />
+            <span className="text-[10px]">{statusInfo.eol}</span>
           </div>
 
           <div className="mochi-statusbar-item">
-            <span className="text-muted-foreground">UTF-8</span>
+            <span className="text-muted-foreground text-[10px]">UTF-8</span>
           </div>
         </div>
 
         {/* 右側: カーソル位置・統計 */}
         <div className="flex items-center gap-1">
-          <div className="mochi-statusbar-item gap-1 text-xs">
-            <span className="font-medium">{statusInfo.cursorLine}</span>
+          <div className="mochi-statusbar-item gap-0.5 text-[11px] font-mono">
+            <span className="text-foreground">{statusInfo.cursorLine}</span>
             <span className="text-muted-foreground">:</span>
-            <span className="font-medium">{statusInfo.cursorColumn}</span>
+            <span className="text-foreground">{statusInfo.cursorColumn}</span>
           </div>
 
-          <div className="h-4 w-px bg-border/50 mx-1" />
+          <div className="h-3 w-px bg-border/30 mx-1" />
 
-          <div className="mochi-statusbar-item gap-1.5">
-            <FileCode2 className="h-3 w-3 text-muted-foreground" />
-            <span>{statusInfo.lineCount} lines</span>
+          <div className="mochi-statusbar-item gap-1">
+            <FileText className="h-3 w-3 text-muted-foreground" strokeWidth={1.5} />
+            <span className="text-[10px]">{statusInfo.lineCount}</span>
           </div>
 
-          <div className="h-4 w-px bg-border/50 mx-1" />
+          <div className="h-3 w-px bg-border/30 mx-1" />
 
           <button
             onClick={() => setTheme(getNextTheme(resolvedTheme))}
-            className="mochi-statusbar-item mochi-statusbar-item-clickable gap-1.5"
+            className="mochi-statusbar-item mochi-statusbar-item-clickable gap-1"
           >
             {mounted && (
               <>
                 {resolvedTheme === 'dark' ? (
-                  <Moon className="h-3 w-3" />
+                  <Moon className="h-3 w-3" strokeWidth={1.5} />
                 ) : (
-                  <Sun className="h-3 w-3" />
+                  <Sun className="h-3 w-3" strokeWidth={1.5} />
                 )}
-                <span>{t(getThemeLabelKey(resolvedTheme))}</span>
               </>
             )}
           </button>

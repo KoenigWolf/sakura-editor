@@ -4,22 +4,8 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import {
-  FilePlus2,
-  Save,
-  FolderOpen,
-  Search,
-  Settings,
-  Undo2,
-  Redo2,
-  SplitSquareVertical,
-  SplitSquareHorizontal,
-  X,
-  Keyboard,
-  Moon,
-  Sun,
   Command,
   ArrowRight,
-  Hash,
 } from 'lucide-react';
 
 interface CommandItem {
@@ -51,8 +37,16 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const filteredCommands = useMemo(() => {
     if (!query.trim()) return commands;
@@ -84,7 +78,6 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
   const executeCommand = useCallback((cmd: CommandItem) => {
     onOpenChange(false);
     setQuery('');
-    // Delay to allow dialog to close
     requestAnimationFrame(() => {
       cmd.action();
     });
@@ -132,7 +125,6 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [open, selectedIndex, flatCommands, executeCommand, onOpenChange]);
 
-  // Scroll selected item into view
   useEffect(() => {
     if (!listRef.current) return;
     const selected = listRef.current.querySelector('[data-selected="true"]');
@@ -152,11 +144,26 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
       />
 
       {/* Palette */}
-      <div className="fixed left-1/2 top-[15%] -translate-x-1/2 w-full max-w-xl z-50 animate-in fade-in slide-in-from-top-4 duration-200">
-        <div className="bg-background border rounded-xl shadow-2xl overflow-hidden">
-          {/* Search Input */}
+      <div className={cn(
+        'fixed z-50 animate-in fade-in slide-in-from-top-4 duration-200',
+        isMobile
+          ? 'inset-x-0 bottom-0 top-auto'
+          : 'left-1/2 top-[15%] -translate-x-1/2 w-full max-w-xl'
+      )}>
+        <div className={cn(
+          'bg-background border shadow-xl overflow-hidden',
+          isMobile ? 'rounded-t-xl' : 'rounded-lg mx-4'
+        )}>
+          {/* Handle for Mobile */}
+          {isMobile && (
+            <div className="flex justify-center pt-2">
+              <div className="w-8 h-1 bg-muted-foreground/20 rounded-full" />
+            </div>
+          )}
+
+          {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 border-b">
-            <Command className="h-5 w-5 text-muted-foreground shrink-0" />
+            <Command className="h-4 w-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
             <input
               ref={inputRef}
               type="text"
@@ -173,7 +180,10 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
           </div>
 
           {/* Command List */}
-          <div ref={listRef} className="max-h-[60vh] overflow-y-auto p-2">
+          <div ref={listRef} className={cn(
+            'overflow-y-auto p-2',
+            isMobile ? 'max-h-[50vh]' : 'max-h-[60vh]'
+          )}>
             {flatCommands.length === 0 ? (
               <div className="py-8 text-center text-sm text-muted-foreground">
                 {t('commandPalette.noResults') || 'No commands found'}
@@ -195,8 +205,8 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
                         data-selected={isSelected}
                         onClick={() => executeCommand(cmd)}
                         className={cn(
-                          'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors',
-                          'hover:bg-accent focus:bg-accent focus:outline-none',
+                          'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors',
+                          'hover:bg-muted focus:bg-muted focus:outline-none',
                           isSelected && 'bg-accent'
                         )}
                       >
@@ -204,7 +214,7 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
                           'flex items-center justify-center w-8 h-8 rounded-md shrink-0',
                           isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted'
                         )}>
-                          <Icon className="h-4 w-4" />
+                          <Icon className="h-4 w-4" strokeWidth={1.5} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-medium truncate">{cmd.label}</div>
@@ -214,7 +224,7 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
                             </div>
                           )}
                         </div>
-                        {cmd.shortcut && (
+                        {cmd.shortcut && !isMobile && (
                           <div className="flex items-center gap-1 shrink-0">
                             {cmd.shortcut.split('+').map((key, i) => (
                               <kbd
@@ -227,7 +237,7 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
                           </div>
                         )}
                         {isSelected && (
-                          <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
                         )}
                       </button>
                     );
@@ -238,8 +248,8 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between px-4 py-2 border-t bg-muted/50 text-xs text-muted-foreground">
-            <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between px-4 py-2 border-t bg-muted/30 text-xs text-muted-foreground">
+            <div className="hidden sm:flex items-center gap-4">
               <span className="flex items-center gap-1">
                 <kbd className="px-1 py-0.5 rounded bg-background border text-[10px]">↑</kbd>
                 <kbd className="px-1 py-0.5 rounded bg-background border text-[10px]">↓</kbd>
@@ -252,6 +262,9 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
             </div>
             <span>{flatCommands.length} {t('commandPalette.commands') || 'commands'}</span>
           </div>
+
+          {/* Safe Area for Mobile */}
+          {isMobile && <div className="h-safe-area-inset-bottom" />}
         </div>
       </div>
     </>
