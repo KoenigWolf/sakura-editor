@@ -328,10 +328,11 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
   }, []);
 
   /**
-   * エディタオプション（パフォーマンス最適化済み）
+   * エディタオプション（パフォーマンス最大化）
    */
   const editorOptions = useMemo(() => {
     return {
+      // 基本設定
       fontSize: settings.fontSize,
       fontFamily: settings.fontFamily,
       lineHeight: settings.lineHeight,
@@ -339,47 +340,93 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       wordWrap: settings.wordWrap ? 'on' : 'off',
       lineNumbers: settings.showLineNumbers ? 'on' : 'off',
       renderWhitespace: settings.showWhitespace,
-      selectOnLineNumbers: true,
-      scrollBeyondLastLine: false,
+
+      // パフォーマンス最適化
       automaticLayout: true,
+      scrollBeyondLastLine: false,
+      minimap: { enabled: false },
+
+      // スクロール最適化
       scrollbar: {
-        verticalScrollbarSize: 10,
-        horizontalScrollbarSize: 10,
+        verticalScrollbarSize: 8,
+        horizontalScrollbarSize: 8,
         alwaysConsumeMouseWheel: false,
         useShadows: false,
-        handleMouseWheel: true,
+        vertical: 'auto',
+        horizontal: 'auto',
       },
       mouseWheelScrollSensitivity: 1,
       fastScrollSensitivity: 5,
-      rulers: [],
-      minimap: { enabled: false },
-      renderLineHighlight: 'line',
+      smoothScrolling: false,
+
+      // レンダリング最適化（不要な機能を無効化）
+      renderLineHighlight: 'none',
       roundedSelection: false,
-      quickSuggestions: false,
       cursorBlinking: 'solid',
       cursorSmoothCaretAnimation: 'off',
-      smoothScrolling: false,
+      cursorStyle: 'line',
+      cursorWidth: 2,
+
+      // 重い機能を無効化
       bracketPairColorization: { enabled: false },
       folding: false,
+      foldingStrategy: 'indentation',
+      showFoldingControls: 'never',
       links: false,
+      colorDecorators: false,
       renderControlCharacters: false,
       renderValidationDecorations: 'off',
+
+      // 検索・ハイライト無効化
       occurrencesHighlight: 'off',
       selectionHighlight: false,
       matchBrackets: 'never',
-      codeLens: false,
-      lightbulb: { enabled: 'off' },
-      hover: { enabled: false },
-      parameterHints: { enabled: false },
+
+      // インテリセンス無効化
+      quickSuggestions: false,
       suggestOnTriggerCharacters: false,
       acceptSuggestionOnEnter: 'off',
       wordBasedSuggestions: 'off',
+      parameterHints: { enabled: false },
+
+      // コードレンズ・ライトバルブ無効化
+      codeLens: false,
+      lightbulb: { enabled: 'off' },
+
+      // ホバー無効化
+      hover: { enabled: false },
+
+      // フォーマット無効化
       formatOnType: false,
       formatOnPaste: false,
+
+      // 自動補完無効化
       autoClosingBrackets: 'never',
       autoClosingQuotes: 'never',
+      autoClosingDelete: 'never',
       autoSurround: 'never',
       autoIndent: 'none',
+
+      // ドラッグ&ドロップ無効化
+      dragAndDrop: false,
+
+      // その他最適化
+      rulers: [],
+      selectOnLineNumbers: true,
+      glyphMargin: false,
+      lineDecorationsWidth: 0,
+      lineNumbersMinChars: 3,
+      overviewRulerBorder: false,
+      overviewRulerLanes: 0,
+      hideCursorInOverviewRuler: true,
+
+      // アクセシビリティ（パフォーマンス向け調整）
+      accessibilitySupport: 'off',
+
+      // 大規模ファイル対応
+      largeFileOptimizations: true,
+      maxTokenizationLineLength: 5000,
+      stopRenderingLineAfter: 10000,
     } as editor.IStandaloneEditorConstructionOptions;
   }, [settings]);
 

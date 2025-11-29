@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import { useState, useCallback, useEffect, memo } from 'react';
+import dynamic from 'next/dynamic';
 import {
   HardDriveDownload,
   FolderOpen,
@@ -13,7 +13,6 @@ import {
   PanelLeftClose,
   PanelTopClose,
   X,
-  Command,
   Sparkles,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -33,10 +32,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { SearchDialog } from '@/components/editor/SearchDialog';
 import { cn } from '@/lib/utils';
 import { validateFile, FILE_SECURITY } from '@/lib/security';
 import { useToast } from '@/components/ui/use-toast';
+
+// 検索ダイアログを遅延読み込み
+const SearchDialog = dynamic(
+  () => import('@/components/editor/SearchDialog').then(mod => ({ default: mod.SearchDialog })),
+  { ssr: false }
+);
 
 // ツールバーボタンコンポーネント
 interface ToolbarButtonProps {

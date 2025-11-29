@@ -1,62 +1,123 @@
 'use client';
 
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFileStore, type FileData } from '@/lib/store/file-store';
 import { X, FileCode2, FileJson2, FileType2, FileText, Code2, Braces } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// ファイルアイコンのマッピング（メモリ効率化）
+const FILE_ICON_MAP: Record<string, React.ElementType> = {
+  json: FileJson2,
+  ts: Braces,
+  tsx: Braces,
+  js: Braces,
+  jsx: Braces,
+  html: Code2,
+  xml: Code2,
+  md: FileText,
+  txt: FileText,
+  css: FileType2,
+  scss: FileType2,
+  less: FileType2,
+};
+
+// ファイルカラーのマッピング
+const FILE_COLOR_MAP: Record<string, string> = {
+  ts: 'text-blue-500',
+  tsx: 'text-blue-500',
+  js: 'text-yellow-500',
+  jsx: 'text-yellow-500',
+  json: 'text-green-500',
+  css: 'text-pink-500',
+  scss: 'text-pink-500',
+  html: 'text-orange-500',
+  md: 'text-purple-500',
+};
+
 // ファイル拡張子に応じたアイコンを取得
 const getFileIcon = (fileName: string) => {
-  const ext = fileName.split('.').pop()?.toLowerCase();
-
-  switch (ext) {
-    case 'json':
-      return FileJson2;
-    case 'ts':
-    case 'tsx':
-    case 'js':
-    case 'jsx':
-      return Braces;
-    case 'html':
-    case 'xml':
-      return Code2;
-    case 'md':
-    case 'txt':
-      return FileText;
-    case 'css':
-    case 'scss':
-    case 'less':
-      return FileType2;
-    default:
-      return FileCode2;
-  }
+  const ext = fileName.split('.').pop()?.toLowerCase() || '';
+  return FILE_ICON_MAP[ext] || FileCode2;
 };
 
 // ファイル拡張子に応じた色を取得
 const getFileColor = (fileName: string): string => {
-  const ext = fileName.split('.').pop()?.toLowerCase();
-
-  switch (ext) {
-    case 'ts':
-    case 'tsx':
-      return 'text-blue-500';
-    case 'js':
-    case 'jsx':
-      return 'text-yellow-500';
-    case 'json':
-      return 'text-green-500';
-    case 'css':
-    case 'scss':
-      return 'text-pink-500';
-    case 'html':
-      return 'text-orange-500';
-    case 'md':
-      return 'text-purple-500';
-    default:
-      return 'text-muted-foreground';
-  }
+  const ext = fileName.split('.').pop()?.toLowerCase() || '';
+  return FILE_COLOR_MAP[ext] || 'text-muted-foreground';
 };
+
+// 個別のタブアイテム（メモ化）
+interface FileTabItemProps {
+  file: FileData;
+  isActive: boolean;
+  isDragging: boolean;
+  isDragOver: boolean;
+  onSelect: () => void;
+  onClose: (e: React.MouseEvent) => void;
+  onDragStart: (e: React.DragEvent) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDragLeave: () => void;
+  onDrop: (e: React.DragEvent) => void;
+  onDragEnd: () => void;
+  closeLabel: string;
+}
+
+const FileTabItem = memo(function FileTabItem({
+  file,
+  isActive,
+  isDragging,
+  isDragOver,
+  onSelect,
+  onClose,
+  onDragStart,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onDragEnd,
+  closeLabel,
+}: FileTabItemProps) {
+  const FileIcon = useMemo(() => getFileIcon(file.name), [file.name]);
+  const fileColor = useMemo(() => getFileColor(file.name), [file.name]);
+
+  return (
+    <button
+      type="button"
+      draggable
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+      onClick={onSelect}
+      className={cn(
+        'mochi-tab group',
+        isActive && 'mochi-tab-active',
+        file.isDirty && !isActive && 'mochi-tab-dirty',
+        isDragging && 'opacity-50 scale-95',
+        isDragOver && 'border-primary border-dashed bg-primary/10'
+      )}
+    >
+      <FileIcon className={cn('h-3 w-3 flex-shrink-0', isActive ? fileColor : 'text-muted-foreground')} />
+      <span className="truncate max-w-[150px] text-left text-xs font-medium">
+        {file.name}
+      </span>
+      {file.isDirty && isActive && (
+        <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+      )}
+      <span
+        role="button"
+        tabIndex={0}
+        onClick={onClose}
+        onKeyDown={(e) => e.key === 'Enter' && onClose(e as unknown as React.MouseEvent)}
+        className="mochi-tab-close"
+        aria-label={closeLabel}
+      >
+        <X className="h-3 w-3" />
+      </span>
+    </button>
+  );
+});
 
 export const FileTabs = memo(function FileTabs() {
   const { t } = useTranslation();
@@ -123,55 +184,28 @@ export const FileTabs = memo(function FileTabs() {
     return null;
   }
 
-  return (
-    <div className="mochi-tabs-container w-full max-w-full overflow-hidden">
-      <div className="flex items-end gap-0.5 px-1.5 pt-1 overflow-x-auto scrollbar-thin">
-        {files.map((file) => {
-          const isActive = file.id === activeFileId;
-          const isDragging = draggedId === file.id;
-          const isDragOver = dragOverId === file.id;
-          const FileIcon = getFileIcon(file.name);
-          const fileColor = getFileColor(file.name);
+  const closeLabel = t('common.close');
 
-          return (
-            <button
-              key={file.id}
-              type="button"
-              draggable
-              onDragStart={(e) => handleDragStart(e, file)}
-              onDragOver={(e) => handleDragOver(e, file)}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, file)}
-              onDragEnd={handleDragEnd}
-              onClick={() => handleSelect(file)}
-              className={cn(
-                'mochi-tab group',
-                isActive && 'mochi-tab-active',
-                file.isDirty && !isActive && 'mochi-tab-dirty',
-                isDragging && 'opacity-50 scale-95',
-                isDragOver && 'border-primary border-dashed bg-primary/10'
-              )}
-            >
-              <FileIcon className={cn('h-3 w-3 flex-shrink-0', isActive ? fileColor : 'text-muted-foreground')} />
-              <span className="truncate max-w-[150px] text-left text-xs font-medium">
-                {file.name}
-              </span>
-              {file.isDirty && isActive && (
-                <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
-              )}
-              <span
-                role="button"
-                tabIndex={0}
-                onClick={(event) => handleClose(event, file)}
-                onKeyDown={(e) => e.key === 'Enter' && handleClose(e as unknown as React.MouseEvent, file)}
-                className="mochi-tab-close"
-                aria-label={t('common.close')}
-              >
-                <X className="h-3 w-3" />
-              </span>
-            </button>
-          );
-        })}
+  return (
+    <div className="mochi-tabs-container w-full max-w-full overflow-hidden mochi-fast-scroll">
+      <div className="flex items-end gap-0.5 px-1.5 pt-1 overflow-x-auto scrollbar-thin">
+        {files.map((file) => (
+          <FileTabItem
+            key={file.id}
+            file={file}
+            isActive={file.id === activeFileId}
+            isDragging={draggedId === file.id}
+            isDragOver={dragOverId === file.id}
+            onSelect={() => handleSelect(file)}
+            onClose={(e) => handleClose(e, file)}
+            onDragStart={(e) => handleDragStart(e, file)}
+            onDragOver={(e) => handleDragOver(e, file)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, file)}
+            onDragEnd={handleDragEnd}
+            closeLabel={closeLabel}
+          />
+        ))}
       </div>
     </div>
   );

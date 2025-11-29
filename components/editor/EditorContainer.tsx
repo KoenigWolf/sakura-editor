@@ -1,8 +1,8 @@
 'use client';
 
-import { memo, useCallback, useRef, useState, useEffect, useMemo } from 'react';
+import { memo, useCallback, useRef, useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { EditorToolbar } from '@/components/editor/EditorToolbar';
-import { MonacoEditor } from '@/components/editor/MonacoEditor';
 import { useFileStore } from '@/lib/store/file-store';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useSplitViewStore } from '@/lib/store/split-view-store';
@@ -11,8 +11,7 @@ import { useTheme } from 'next-themes';
 import { FileTabs } from '@/components/editor/FileTabs';
 import { useTranslation } from 'react-i18next';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
-import { CommandPalette, type CommandItem } from '@/components/editor/CommandPalette';
-import { SettingsDialog } from '@/components/settings/SettingsDialog';
+import type { CommandItem } from '@/components/editor/CommandPalette';
 import {
   FilePlus2,
   Save,
@@ -34,6 +33,29 @@ import {
   Type,
   CornerDownLeft,
 } from 'lucide-react';
+
+// 重いコンポーネントを遅延読み込み
+const MonacoEditor = dynamic(
+  () => import('@/components/editor/MonacoEditor').then(mod => ({ default: mod.MonacoEditor })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-full w-full flex items-center justify-center bg-background">
+        <div className="mochi-skeleton w-full h-full" />
+      </div>
+    )
+  }
+);
+
+const CommandPalette = dynamic(
+  () => import('@/components/editor/CommandPalette').then(mod => ({ default: mod.CommandPalette })),
+  { ssr: false }
+);
+
+const SettingsDialog = dynamic(
+  () => import('@/components/settings/SettingsDialog').then(mod => ({ default: mod.SettingsDialog })),
+  { ssr: false }
+);
 
 // ヘルパー関数: テーマを切り替える
 const getNextTheme = (currentTheme: string | undefined): string => {

@@ -94,9 +94,35 @@
   * {
     @apply border-border;
   }
+
+  /* パフォーマンス最適化: GPU加速とレンダリング最適化 */
+  *,
+  *::before,
+  *::after {
+    /* ボックスモデル最適化 */
+    box-sizing: border-box;
+  }
+
+  /* GPU加速を有効化するベースレイヤー */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+
   html,
   body {
     @apply h-full;
+    /* スクロールパフォーマンス最適化 */
+    scroll-behavior: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* レイアウトシフト防止 */
+  html {
+    overflow-y: scroll;
   }
   body {
     @apply bg-background text-foreground;
@@ -1715,5 +1741,122 @@ button, a, [role="button"] {
 
   .mochi-mobile-top-bar {
     display: none;
+  }
+}
+
+/* ============================================
+   パフォーマンス最適化セクション
+   ============================================ */
+
+/* アニメーション最適化: GPU加速を使用 */
+.mochi-toolbar-btn,
+.mochi-tab,
+.mochi-pill-btn,
+.mochi-mobile-icon-btn,
+.mochi-statusbar-item {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* トランジション最適化: 高速プロパティのみ使用 */
+.mochi-transition-fast {
+  transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+}
+
+.mochi-transition-normal {
+  transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+}
+
+/* コンテンツ可視性最適化（大規模リスト用） */
+.mochi-virtual-scroll-item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 40px;
+}
+
+/* レイアウト安定性 */
+.mochi-stable-layout {
+  contain: layout style;
+}
+
+/* ペイント最適化 */
+.mochi-paint-optimized {
+  contain: paint;
+}
+
+/* 厳格な分離（最大パフォーマンス） */
+.mochi-isolated {
+  contain: strict;
+}
+
+/* アニメーション軽減設定対応 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .mochi-floating-pill {
+    animation: none;
+  }
+}
+
+/* 低電力モード対応 */
+@media (prefers-reduced-motion: reduce), (update: slow) {
+  .mochi-skeleton {
+    animation: none;
+    background: hsl(var(--muted) / 0.5);
+  }
+
+  .mochi-dirty-indicator {
+    animation: none;
+  }
+
+  .pulse-glow {
+    animation: none;
+  }
+}
+
+/* 高コントラストモード対応 */
+@media (prefers-contrast: high) {
+  .mochi-pill-inner,
+  .mochi-mobile-top-bar {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: hsl(var(--background));
+    border: 2px solid hsl(var(--border));
+  }
+}
+
+/* フォーカス可視性（キーボードナビゲーション） */
+.mochi-focus-visible:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* 高速スクロール用 */
+.mochi-fast-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto;
+  overscroll-behavior: contain;
+}
+
+/* 印刷用スタイル */
+@media print {
+  .mochi-toolbar-modern,
+  .mochi-statusbar-modern,
+  .mochi-mobile-statusbar,
+  .mochi-floating-pill,
+  .mochi-mobile-top-bar,
+  .mochi-tabs-container {
+    display: none !important;
+  }
+
+  .monaco-editor {
+    height: auto !important;
+    overflow: visible !important;
   }
 }
