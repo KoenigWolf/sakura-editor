@@ -3,10 +3,12 @@
 import { memo, useCallback, useRef, useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { EditorToolbar } from '@/components/editor/EditorToolbar';
+import { IndentRuler } from '@/components/editor/IndentRuler';
 import { useFileStore } from '@/lib/store/file-store';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useSplitViewStore } from '@/lib/store/split-view-store';
 import { useSearchStore } from '@/lib/store/search-store';
+import { useIndentStore } from '@/lib/store/indent-store';
 import { useTheme } from 'next-themes';
 import { FileTabs } from '@/components/editor/FileTabs';
 import { useTranslation } from 'react-i18next';
@@ -102,6 +104,7 @@ export const EditorContainer = memo(function EditorContainer() {
   const { getEditorInstance } = useEditorInstanceStore();
   const { splitDirection, splitRatio, setSplitRatio, secondaryFileId, setSecondaryFileId, setSplitDirection, closeSplit } = useSplitViewStore();
   const { setIsOpen: setSearchOpen } = useSearchStore();
+  const rulerVisible = useIndentStore((state) => state.rulerVisible);
   const { resolvedTheme, setTheme } = useTheme();
   const { t } = useTranslation();
 
@@ -288,6 +291,7 @@ export const EditorContainer = memo(function EditorContainer() {
     <div className="mochi-editor-container flex flex-col h-full w-full max-w-full overflow-hidden">
       <EditorToolbar onOpenSettings={() => setShowSettings(true)} />
       <FileTabs />
+      {rulerVisible && <IndentRuler />}
 
       <div
         ref={containerRef}

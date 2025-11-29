@@ -1861,3 +1861,193 @@ button, a, [role="button"] {
     overflow: visible !important;
   }
 }
+
+/* ============================================
+   インデントルーラー - Microsoft Word風
+   ============================================ */
+
+.indent-ruler {
+  @apply relative w-full select-none;
+  height: 24px;
+  background: linear-gradient(
+    180deg,
+    hsl(var(--muted) / 0.3) 0%,
+    hsl(var(--muted) / 0.5) 100%
+  );
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+  overflow: hidden;
+  cursor: default;
+}
+
+.dark .indent-ruler {
+  background: linear-gradient(
+    180deg,
+    hsl(var(--muted) / 0.2) 0%,
+    hsl(var(--muted) / 0.3) 100%
+  );
+}
+
+.indent-ruler-dragging {
+  cursor: ew-resize;
+}
+
+.indent-ruler-margin-area {
+  @apply absolute left-0 top-0 h-full;
+  background: hsl(var(--muted) / 0.5);
+  border-right: 1px solid hsl(var(--border) / 0.3);
+}
+
+.indent-ruler-content {
+  @apply relative h-full;
+}
+
+.indent-ruler-text-area {
+  @apply absolute top-0 h-full;
+  background: hsl(var(--background) / 0.3);
+  pointer-events: none;
+}
+
+/* ルーラー目盛り */
+.indent-ruler-tick {
+  @apply absolute bottom-0;
+  width: 1px;
+  background: hsl(var(--muted-foreground) / 0.4);
+}
+
+.indent-ruler-tick-major {
+  height: 8px;
+  background: hsl(var(--muted-foreground) / 0.6);
+}
+
+.indent-ruler-tick-half {
+  height: 5px;
+}
+
+.indent-ruler-tick-minor {
+  height: 3px;
+}
+
+.indent-ruler-tick-label {
+  @apply absolute text-[9px] font-medium;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+}
+
+/* インデントハンドル共通 */
+.indent-handle {
+  @apply absolute cursor-pointer z-10;
+  color: hsl(var(--foreground) / 0.7);
+  transition: color 0.15s ease, transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.indent-handle:hover {
+  color: hsl(var(--primary));
+  transform: scale(1.1);
+}
+
+.indent-handle:active {
+  color: hsl(var(--primary));
+  transform: scale(0.95);
+}
+
+.indent-handle:focus-visible {
+  outline: 2px solid hsl(var(--primary) / 0.5);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
+/* 1行目インデントハンドル（下向き三角） */
+.indent-handle-first-line {
+  top: 0;
+}
+
+/* ぶら下げインデントハンドル（上向き三角） */
+.indent-handle-hanging {
+  bottom: 6px;
+}
+
+/* 左マージンハンドル（四角） */
+.indent-handle-left-margin {
+  bottom: 0;
+}
+
+/* 右マージンハンドル */
+.indent-handle-right-margin {
+  bottom: 6px;
+}
+
+/* タブストップハンドル */
+.indent-handle-tab-stop {
+  bottom: 2px;
+  color: hsl(var(--muted-foreground) / 0.8);
+}
+
+.indent-handle-tab-stop:hover {
+  color: hsl(var(--destructive));
+}
+
+/* ドラッグガイドライン */
+.indent-ruler-drag-guide {
+  @apply absolute top-0 bottom-0 w-px pointer-events-none;
+  background: hsl(var(--primary) / 0.6);
+  box-shadow: 0 0 4px hsl(var(--primary) / 0.4);
+}
+
+/* モバイル対応 */
+@media (max-width: 480px) {
+  .indent-ruler {
+    height: 28px;
+  }
+
+  .indent-handle {
+    min-width: 24px;
+    min-height: 24px;
+    @apply flex items-center justify-center;
+  }
+
+  .indent-handle svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .indent-ruler-tick-label {
+    font-size: 8px;
+    bottom: 12px;
+  }
+}
+
+/* アクセシビリティ: 軽減動作 */
+@media (prefers-reduced-motion: reduce) {
+  .indent-handle {
+    transition: none;
+  }
+
+  .indent-handle:hover,
+  .indent-handle:active {
+    transform: none;
+  }
+}
+
+/* 高コントラストモード */
+@media (prefers-contrast: high) {
+  .indent-ruler {
+    background: hsl(var(--background));
+    border-bottom: 2px solid hsl(var(--border));
+  }
+
+  .indent-handle {
+    color: hsl(var(--foreground));
+  }
+
+  .indent-ruler-tick {
+    background: hsl(var(--foreground) / 0.6);
+  }
+
+  .indent-ruler-tick-major {
+    background: hsl(var(--foreground));
+  }
+}

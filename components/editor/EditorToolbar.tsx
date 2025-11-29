@@ -14,12 +14,17 @@ import {
   PanelTopClose,
   X,
   Sparkles,
+  IndentDecrease,
+  IndentIncrease,
+  Ruler,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useFileStore } from '@/lib/store/file-store';
 import { useSearchStore } from '@/lib/store/search-store';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useSplitViewStore } from '@/lib/store/split-view-store';
+import { useIndentStore } from '@/lib/store/indent-store';
+import { indentLines, outdentLines } from '@/lib/indent-utils';
 import {
   Tooltip,
   TooltipContent,
@@ -90,6 +95,9 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
   const { setIsOpen: setSearchOpen, isOpen: searchOpen } = useSearchStore();
   const { getEditorInstance } = useEditorInstanceStore();
   const { splitDirection, setSplitDirection, closeSplit } = useSplitViewStore();
+  const indentSettings = useIndentStore((state) => state.settings);
+  const rulerVisible = useIndentStore((state) => state.rulerVisible);
+  const setRulerVisible = useIndentStore((state) => state.setRulerVisible);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -117,6 +125,22 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
     if (!editor) return;
     editor.trigger('toolbar', 'redo', null);
   }, [getEditorInstance]);
+
+  const handleIndent = useCallback(() => {
+    const editor = getEditorInstance();
+    if (!editor) return;
+    indentLines(editor, indentSettings);
+  }, [getEditorInstance, indentSettings]);
+
+  const handleOutdent = useCallback(() => {
+    const editor = getEditorInstance();
+    if (!editor) return;
+    outdentLines(editor, indentSettings);
+  }, [getEditorInstance, indentSettings]);
+
+  const handleToggleRuler = useCallback(() => {
+    setRulerVisible(!rulerVisible);
+  }, [rulerVisible, setRulerVisible]);
 
   const handleNewFile = () => {
     addFile({
@@ -386,6 +410,30 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
           label={t('toolbar.search')}
           shortcut="⌘F"
           onClick={() => setSearchOpen(true)}
+        />
+      </div>
+
+      <div className="mochi-toolbar-separator" />
+
+      {/* インデントグループ */}
+      <div className="mochi-toolbar-group">
+        <ToolbarButton
+          icon={IndentDecrease}
+          label={t('toolbar.outdent')}
+          shortcut="⇧Tab"
+          onClick={handleOutdent}
+        />
+        <ToolbarButton
+          icon={IndentIncrease}
+          label={t('toolbar.indent')}
+          shortcut="Tab"
+          onClick={handleIndent}
+        />
+        <ToolbarButton
+          icon={Ruler}
+          label={t('toolbar.ruler')}
+          onClick={handleToggleRuler}
+          active={rulerVisible}
         />
       </div>
 
