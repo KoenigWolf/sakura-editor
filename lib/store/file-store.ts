@@ -8,6 +8,8 @@ export interface FileData {
   content: string;
   path: string;
   lastModified: number;
+  isDirty?: boolean;
+  originalContent?: string;
 }
 
 interface FileStore {
@@ -18,8 +20,11 @@ interface FileStore {
   updateFile: (id: string, content: string) => void;
   removeFile: (id: string) => void;
   setActiveFile: (id: string | null) => void;
+  setActiveFileId: (id: string | null) => void;
   getActiveFile: () => FileData | undefined;
   setHasHydrated: (state: boolean) => void;
+  markAsSaved: (id: string) => void;
+  renameFile: (id: string, name: string) => void;
 }
 
 // updateFileのデバウンス用
@@ -43,6 +48,8 @@ export const useFileStore = create<FileStore>()(
           id: typeof crypto !== 'undefined' && crypto.randomUUID
             ? crypto.randomUUID()
             : `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          isDirty: false,
+          originalContent: file.content,
         };
         set((state) => ({
           files: [...state.files, newFile],
@@ -67,7 +74,8 @@ export const useFileStore = create<FileStore>()(
             files: state.files.map((file) => {
               const newContent = updates.get(file.id);
               if (newContent !== undefined && newContent !== file.content) {
-                return { ...file, content: newContent, lastModified: Date.now() };
+                const isDirty = newContent !== file.originalContent;
+                return { ...file, content: newContent, lastModified: Date.now(), isDirty };
               }
               return file;
             }),
@@ -86,9 +94,33 @@ export const useFileStore = create<FileStore>()(
         set({ activeFileId: id });
       },
 
+      setActiveFileId: (id) => {
+        set({ activeFileId: id });
+      },
+
       getActiveFile: () => {
         const { files, activeFileId } = get();
         return files.find((file) => file.id === activeFileId);
+      },
+
+      markAsSaved: (id) => {
+        set((state) => ({
+          files: state.files.map((file) =>
+            file.id === id
+              ? { ...file, isDirty: false, originalContent: file.content }
+              : file
+          ),
+        }));
+      },
+
+      renameFile: (id, name) => {
+        set((state) => ({
+          files: state.files.map((file) =>
+            file.id === id
+              ? { ...file, name, lastModified: Date.now() }
+              : file
+          ),
+        }));
       },
     }),
     {

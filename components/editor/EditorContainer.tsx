@@ -1,22 +1,166 @@
 'use client';
 
-import { memo, useCallback, useRef, useState, useEffect } from 'react';
+import { memo, useCallback, useRef, useState, useEffect, useMemo } from 'react';
 import { EditorToolbar } from '@/components/editor/EditorToolbar';
 import { MonacoEditor } from '@/components/editor/MonacoEditor';
 import { useFileStore } from '@/lib/store/file-store';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useSplitViewStore } from '@/lib/store/split-view-store';
+import { useSearchStore } from '@/lib/store/search-store';
 import { useTheme } from 'next-themes';
 import { FileTabs } from '@/components/editor/FileTabs';
 import { useTranslation } from 'react-i18next';
+import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
+import { CommandPalette, type CommandItem } from '@/components/editor/CommandPalette';
+import { SettingsDialog } from '@/components/settings/SettingsDialog';
+import {
+  FilePlus2,
+  Save,
+  FolderOpen,
+  Search,
+  Settings,
+  Undo2,
+  Redo2,
+  SplitSquareVertical,
+  SplitSquareHorizontal,
+  X,
+  Moon,
+  Sun,
+  Hash,
+  Replace,
+} from 'lucide-react';
 
 export const EditorContainer = memo(function EditorContainer() {
   const activeFile = useFileStore((state) => state.files.find(f => f.id === state.activeFileId));
   const files = useFileStore((state) => state.files);
   const statusInfo = useEditorInstanceStore((state) => state.statusInfo);
-  const { splitDirection, splitRatio, setSplitRatio, secondaryFileId, setSecondaryFileId } = useSplitViewStore();
-  const { resolvedTheme } = useTheme();
+  const { getEditorInstance } = useEditorInstanceStore();
+  const { splitDirection, splitRatio, setSplitRatio, secondaryFileId, setSecondaryFileId, setSplitDirection, closeSplit } = useSplitViewStore();
+  const { setIsOpen: setSearchOpen } = useSearchStore();
+  const { resolvedTheme, setTheme } = useTheme();
   const { t } = useTranslation();
+
+  const [showSettings, setShowSettings] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+
+  const { handleNewFile, handleSave, handleOpen, handleGoToLine } = useKeyboardShortcuts({
+    onOpenSettings: () => setShowSettings(true),
+    onOpenCommandPalette: () => setShowCommandPalette(true),
+  });
+
+  const handleUndo = useCallback(() => {
+    const editor = getEditorInstance();
+    if (editor) {
+      editor.trigger('toolbar', 'undo', null);
+    }
+  }, [getEditorInstance]);
+
+  const handleRedo = useCallback(() => {
+    const editor = getEditorInstance();
+    if (editor) {
+      editor.trigger('toolbar', 'redo', null);
+    }
+  }, [getEditorInstance]);
+
+  const commands: CommandItem[] = useMemo(() => [
+    // File commands
+    {
+      id: 'new-file',
+      label: t('commandPalette.actions.newFile'),
+      shortcut: '⌘+N',
+      icon: FilePlus2,
+      action: handleNewFile,
+      category: 'file',
+    },
+    {
+      id: 'open-file',
+      label: t('commandPalette.actions.openFile'),
+      shortcut: '⌘+O',
+      icon: FolderOpen,
+      action: handleOpen,
+      category: 'file',
+    },
+    {
+      id: 'save-file',
+      label: t('commandPalette.actions.saveFile'),
+      shortcut: '⌘+S',
+      icon: Save,
+      action: handleSave,
+      category: 'file',
+    },
+    // Edit commands
+    {
+      id: 'undo',
+      label: t('commandPalette.actions.undo'),
+      shortcut: '⌘+Z',
+      icon: Undo2,
+      action: handleUndo,
+      category: 'edit',
+    },
+    {
+      id: 'redo',
+      label: t('commandPalette.actions.redo'),
+      shortcut: '⌘+Y',
+      icon: Redo2,
+      action: handleRedo,
+      category: 'edit',
+    },
+    // Search commands
+    {
+      id: 'find',
+      label: t('commandPalette.actions.find'),
+      shortcut: '⌘+F',
+      icon: Search,
+      action: () => setSearchOpen(true),
+      category: 'search',
+    },
+    {
+      id: 'go-to-line',
+      label: t('commandPalette.actions.goToLine'),
+      shortcut: '⌘+G',
+      icon: Hash,
+      action: handleGoToLine,
+      category: 'search',
+    },
+    // View commands
+    {
+      id: 'split-vertical',
+      label: t('commandPalette.actions.splitVertical'),
+      icon: SplitSquareVertical,
+      action: () => setSplitDirection('vertical'),
+      category: 'view',
+    },
+    {
+      id: 'split-horizontal',
+      label: t('commandPalette.actions.splitHorizontal'),
+      icon: SplitSquareHorizontal,
+      action: () => setSplitDirection('horizontal'),
+      category: 'view',
+    },
+    ...(splitDirection ? [{
+      id: 'close-split',
+      label: t('commandPalette.actions.closeSplit'),
+      icon: X,
+      action: closeSplit,
+      category: 'view' as const,
+    }] : []),
+    {
+      id: 'toggle-theme',
+      label: t('commandPalette.actions.toggleTheme'),
+      icon: resolvedTheme === 'dark' ? Sun : Moon,
+      action: () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark'),
+      category: 'view',
+    },
+    // Settings commands
+    {
+      id: 'open-settings',
+      label: t('commandPalette.actions.openSettings'),
+      shortcut: '⌘+,',
+      icon: Settings,
+      action: () => setShowSettings(true),
+      category: 'settings',
+    },
+  ], [t, handleNewFile, handleOpen, handleSave, handleUndo, handleRedo, handleGoToLine, setSearchOpen, setSplitDirection, closeSplit, splitDirection, resolvedTheme, setTheme]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -110,9 +254,18 @@ export const EditorContainer = memo(function EditorContainer() {
       </div>
 
       <div className="mochi-editor-statusbar text-xs flex-shrink-0 overflow-x-auto overflow-y-hidden">
-        <div className="mochi-editor-statusbar-item truncate max-w-[120px] sm:max-w-none">
-          {activeFile?.name || t('status.untitled')}
-        </div>
+        <button
+          onClick={() => setShowCommandPalette(true)}
+          className="mochi-editor-statusbar-item hover:bg-primary/10 transition-colors rounded px-2 -ml-1"
+          title="Command Palette (⌘P)"
+        >
+          <span className="truncate max-w-[120px] sm:max-w-none flex items-center gap-1.5">
+            {activeFile?.isDirty && (
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            )}
+            {activeFile?.name || t('status.untitled')}
+          </span>
+        </button>
         <div className="mochi-editor-statusbar-item whitespace-nowrap">
           {t('status.position', { line: statusInfo.cursorLine, col: statusInfo.cursorColumn })}
         </div>
@@ -128,10 +281,22 @@ export const EditorContainer = memo(function EditorContainer() {
         <div className="mochi-editor-statusbar-item whitespace-nowrap hidden sm:block">
           {statusInfo.language}
         </div>
-        <div className="mochi-editor-statusbar-item ml-auto whitespace-nowrap" suppressHydrationWarning>
+        <button
+          onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+          className="mochi-editor-statusbar-item ml-auto whitespace-nowrap hover:bg-primary/10 transition-colors rounded px-2"
+          suppressHydrationWarning
+        >
           {resolvedTheme === 'dark' ? t('status.dark') : t('status.light')}
-        </div>
+        </button>
       </div>
+
+      <CommandPalette
+        open={showCommandPalette}
+        onOpenChange={setShowCommandPalette}
+        commands={commands}
+      />
+
+      <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
     </div>
   );
 });
