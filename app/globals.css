@@ -518,7 +518,7 @@ button, a, [role="button"] {
 }
 
 .mochi-tab {
-  @apply relative flex items-center gap-2 px-3 py-2 text-sm rounded-t-lg transition-all duration-200;
+  @apply relative flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-t-md transition-all duration-200;
   @apply text-muted-foreground hover:text-foreground hover:bg-background/50;
   border: 1px solid transparent;
   border-bottom: none;
@@ -533,13 +533,13 @@ button, a, [role="button"] {
 
 .mochi-tab-active::after {
   content: '';
-  @apply absolute bottom-0 left-2 right-2 h-0.5 rounded-full;
+  @apply absolute bottom-0 left-1.5 right-1.5 h-0.5 rounded-full;
   background: linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.5) 100%);
 }
 
 .mochi-tab-dirty::before {
   content: '';
-  @apply absolute top-2 right-2 w-2 h-2 rounded-full;
+  @apply absolute top-1 right-1 w-1.5 h-1.5 rounded-full;
   background: hsl(var(--primary));
   animation: pulse-glow 2s ease-in-out infinite;
 }
@@ -557,7 +557,7 @@ button, a, [role="button"] {
 
 /* タブクローズボタン */
 .mochi-tab-close {
-  @apply flex items-center justify-center w-5 h-5 rounded-full;
+  @apply flex items-center justify-center w-4 h-4 rounded-full;
   @apply opacity-0 hover:opacity-100 hover:bg-destructive/20 hover:text-destructive;
   @apply transition-all duration-150;
 }
@@ -950,28 +950,28 @@ button, a, [role="button"] {
 /* iPhoneタブUI最適化 */
 @media (max-width: 480px) {
   .mochi-tabs-container {
-    @apply px-1 pt-1;
+    @apply px-1 pt-0.5;
   }
 
   .mochi-tab {
-    @apply px-3 py-2.5 gap-1.5;
-    min-height: 44px;
+    @apply px-2 py-1.5 gap-1;
+    min-height: 36px;
     flex-shrink: 0;
   }
 
   .mochi-tab span.truncate {
-    max-width: 100px;
-    font-size: 13px;
+    max-width: 80px;
+    font-size: 11px;
   }
 
   .mochi-tab-close {
-    @apply w-6 h-6 opacity-100;
-    min-width: 28px;
-    min-height: 28px;
+    @apply w-5 h-5 opacity-100;
+    min-width: 24px;
+    min-height: 24px;
   }
 
   .mochi-tab-close svg {
-    @apply h-4 w-4;
+    @apply h-3 w-3;
   }
 }
 

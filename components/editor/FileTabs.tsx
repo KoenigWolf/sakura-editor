@@ -125,7 +125,7 @@ export const FileTabs = memo(function FileTabs() {
 
   return (
     <div className="mochi-tabs-container w-full max-w-full overflow-hidden">
-      <div className="flex items-end gap-1 px-2 pt-2 overflow-x-auto scrollbar-thin">
+      <div className="flex items-end gap-0.5 px-1.5 pt-1 overflow-x-auto scrollbar-thin">
         {files.map((file) => {
           const isActive = file.id === activeFileId;
           const isDragging = draggedId === file.id;
@@ -152,7 +152,7 @@ export const FileTabs = memo(function FileTabs() {
                 isDragOver && 'border-primary border-dashed bg-primary/10'
               )}
             >
-              <FileIcon className={cn('h-3.5 w-3.5 flex-shrink-0', isActive ? fileColor : 'text-muted-foreground')} />
+              <FileIcon className={cn('h-3 w-3 flex-shrink-0', isActive ? fileColor : 'text-muted-foreground')} />
               <span className="truncate max-w-[150px] text-left text-xs font-medium">
                 {file.name}
               </span>
