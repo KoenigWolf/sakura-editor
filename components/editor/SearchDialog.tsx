@@ -537,7 +537,8 @@ export const SearchDialog = memo(({
     <>
       {isMobile && (
         <div
-          className="fixed inset-0 bg-black/30 z-40"
+          className="fixed inset-x-0 bottom-0 bg-black/30 z-40"
+          style={{ top: '60px' }}
           onClick={() => onOpenChange(false)}
         />
       )}

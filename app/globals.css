@@ -480,6 +480,7 @@ button, a, [role="button"] {
   );
   border-bottom: 1px solid hsl(var(--border) / 0.5);
   backdrop-filter: blur(10px);
+  z-index: 60;
 }
 
 .dark .mochi-toolbar-modern {
@@ -1337,7 +1338,7 @@ button, a, [role="button"] {
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid hsl(var(--border) / 0.3);
   position: relative;
-  z-index: 40;
+  z-index: 60;
 }
 
 .mochi-mobile-icon-btn {

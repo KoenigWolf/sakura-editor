@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/toaster';
 import { LanguageSync } from '@/components/LanguageSync';
+import { PWAProvider } from '@/components/pwa/PWAProvider';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -16,7 +17,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     >
       <TooltipProvider>
         <LanguageSync />
-        {children}
+        <PWAProvider>
+          {children}
+        </PWAProvider>
         <Toaster />
       </TooltipProvider>
     </ThemeProvider>
