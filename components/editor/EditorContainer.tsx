@@ -28,6 +28,11 @@ import {
   Sun,
   Hash,
   Replace,
+  Command,
+  Zap,
+  FileCode2,
+  Type,
+  CornerDownLeft,
 } from 'lucide-react';
 
 // ヘルパー関数: テーマを切り替える
@@ -80,6 +85,11 @@ export const EditorContainer = memo(function EditorContainer() {
 
   const [showSettings, setShowSettings] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const { handleNewFile, handleSave, handleOpen, handleGoToLine } = useKeyboardShortcuts({
     onOpenSettings: () => setShowSettings(true),
@@ -254,7 +264,7 @@ export const EditorContainer = memo(function EditorContainer() {
 
   return (
     <div className="mochi-editor-container flex flex-col h-full w-full max-w-full overflow-hidden">
-      <EditorToolbar />
+      <EditorToolbar onOpenSettings={() => setShowSettings(true)} />
       <FileTabs />
 
       <div
@@ -277,9 +287,9 @@ export const EditorContainer = memo(function EditorContainer() {
         {splitDirection && (
           <div
             className={`
-              ${splitDirection === 'vertical' ? 'w-1 cursor-col-resize' : 'h-1 cursor-row-resize'}
-              bg-border hover:bg-primary/50 transition-colors flex-shrink-0
-              ${isDragging ? 'bg-primary' : ''}
+              mochi-splitter
+              ${splitDirection === 'vertical' ? 'mochi-splitter-vertical' : 'mochi-splitter-horizontal'}
+              ${isDragging ? 'mochi-splitter-active' : ''}
             `}
             onMouseDown={handleMouseDown}
           />
@@ -292,41 +302,75 @@ export const EditorContainer = memo(function EditorContainer() {
         )}
       </div>
 
-      <div className="mochi-editor-statusbar text-xs flex-shrink-0 overflow-x-auto overflow-y-hidden">
-        <button
-          onClick={() => setShowCommandPalette(true)}
-          className="mochi-editor-statusbar-item hover:bg-primary/10 transition-colors rounded px-2 -ml-1"
-          title="Command Palette (⌘P)"
-        >
-          <span className="truncate max-w-[120px] sm:max-w-none flex items-center gap-1.5">
-            {activeFile?.isDirty && (
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+      <div className="mochi-statusbar-modern flex-shrink-0 overflow-x-auto overflow-y-hidden">
+        {/* 左側: ファイル情報 */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setShowCommandPalette(true)}
+            className="mochi-statusbar-item mochi-statusbar-item-clickable gap-2"
+            title="Command Palette (⌘P)"
+          >
+            <Command className="h-3 w-3" />
+            <span className="truncate max-w-[100px] sm:max-w-[180px] flex items-center gap-1.5">
+              {activeFile?.isDirty && (
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+              )}
+              {getDisplayFileName(activeFile?.name, t('status.untitled'))}
+            </span>
+          </button>
+
+          <div className="h-4 w-px bg-border/50 mx-1 hidden sm:block" />
+
+          <div className="mochi-statusbar-item gap-1.5 hidden sm:flex">
+            <Type className="h-3 w-3 text-muted-foreground" />
+            <span className="mochi-statusbar-badge">{statusInfo.language}</span>
+          </div>
+
+          <div className="mochi-statusbar-item gap-1.5">
+            <CornerDownLeft className="h-3 w-3 text-muted-foreground" />
+            <span>{statusInfo.eol}</span>
+          </div>
+
+          <div className="mochi-statusbar-item hidden sm:flex">
+            <span className="text-muted-foreground">UTF-8</span>
+          </div>
+        </div>
+
+        {/* 右側: カーソル位置・統計 */}
+        <div className="flex items-center gap-1">
+          <div className="mochi-statusbar-item gap-1.5">
+            <span className="text-muted-foreground">Ln</span>
+            <span className="font-medium">{statusInfo.cursorLine}</span>
+            <span className="text-muted-foreground">,</span>
+            <span className="text-muted-foreground">Col</span>
+            <span className="font-medium">{statusInfo.cursorColumn}</span>
+          </div>
+
+          <div className="h-4 w-px bg-border/50 mx-1 hidden sm:block" />
+
+          <div className="mochi-statusbar-item hidden sm:flex gap-1.5">
+            <FileCode2 className="h-3 w-3 text-muted-foreground" />
+            <span>{statusInfo.lineCount} lines</span>
+          </div>
+
+          <div className="h-4 w-px bg-border/50 mx-1" />
+
+          <button
+            onClick={() => setTheme(getNextTheme(resolvedTheme))}
+            className="mochi-statusbar-item mochi-statusbar-item-clickable gap-1.5"
+          >
+            {mounted && (
+              <>
+                {resolvedTheme === 'dark' ? (
+                  <Moon className="h-3 w-3" />
+                ) : (
+                  <Sun className="h-3 w-3" />
+                )}
+                <span className="hidden sm:inline">{t(getThemeLabelKey(resolvedTheme))}</span>
+              </>
             )}
-            {getDisplayFileName(activeFile?.name, t('status.untitled'))}
-          </span>
-        </button>
-        <div className="mochi-editor-statusbar-item whitespace-nowrap">
-          {t('status.position', { line: statusInfo.cursorLine, col: statusInfo.cursorColumn })}
+          </button>
         </div>
-        <div className="mochi-editor-statusbar-item whitespace-nowrap hidden sm:block">
-          {t('status.document', { lines: statusInfo.lineCount, chars: statusInfo.charCount })}
-        </div>
-        <div className="mochi-editor-statusbar-item whitespace-nowrap hidden sm:block">
-          UTF-8
-        </div>
-        <div className="mochi-editor-statusbar-item whitespace-nowrap">
-          {statusInfo.eol}
-        </div>
-        <div className="mochi-editor-statusbar-item whitespace-nowrap hidden sm:block">
-          {statusInfo.language}
-        </div>
-        <button
-          onClick={() => setTheme(getNextTheme(resolvedTheme))}
-          className="mochi-editor-statusbar-item ml-auto whitespace-nowrap hover:bg-primary/10 transition-colors rounded px-2"
-          suppressHydrationWarning
-        >
-          {t(getThemeLabelKey(resolvedTheme))}
-        </button>
       </div>
 
       <CommandPalette

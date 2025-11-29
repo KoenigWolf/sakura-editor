@@ -6,13 +6,15 @@ import {
   HardDriveDownload,
   FolderOpen,
   FilePlus2,
-  Cog,
-  RotateCcw,
-  RotateCw,
-  SearchCheck,
-  SplitSquareVertical,
-  SplitSquareHorizontal,
+  Settings2,
+  Undo2,
+  Redo2,
+  Search,
+  PanelLeftClose,
+  PanelTopClose,
   X,
+  Command,
+  Sparkles,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useFileStore } from '@/lib/store/file-store';
@@ -28,24 +30,62 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { SearchDialog } from '@/components/editor/SearchDialog';
 import { cn } from '@/lib/utils';
 import { validateFile, FILE_SECURITY } from '@/lib/security';
 import { useToast } from '@/components/ui/use-toast';
 
-const toolbarButtonClass = "h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary shrink-0";
+// ツールバーボタンコンポーネント
+interface ToolbarButtonProps {
+  icon: React.ElementType;
+  label: string;
+  shortcut?: string;
+  onClick: () => void;
+  active?: boolean;
+  disabled?: boolean;
+}
 
-export function EditorToolbar() {
+function ToolbarButton({ icon: Icon, label, shortcut, onClick, active, disabled }: ToolbarButtonProps) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onClick={onClick}
+          disabled={disabled}
+          className={cn(
+            'mochi-toolbar-btn h-8 w-8 p-0 shrink-0',
+            active && 'mochi-toolbar-btn-active',
+            disabled && 'opacity-50 cursor-not-allowed'
+          )}
+        >
+          <Icon className="h-4 w-4" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" className="flex items-center gap-2">
+        <span>{label}</span>
+        {shortcut && (
+          <kbd className="mochi-command-kbd">{shortcut}</kbd>
+        )}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+interface EditorToolbarProps {
+  onOpenSettings?: () => void;
+}
+
+export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const { addFile, getActiveFile } = useFileStore();
   const { setIsOpen: setSearchOpen, isOpen: searchOpen } = useSearchStore();
   const { getEditorInstance } = useEditorInstanceStore();
   const { splitDirection, setSplitDirection, closeSplit } = useSplitViewStore();
-  const [showSettings, setShowSettings] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -59,16 +99,14 @@ export function EditorToolbar() {
 
   const handleUndo = useCallback(() => {
     const editor = getEditorInstance();
-    if (editor) {
-      editor.trigger('toolbar', 'undo', null);
-    }
+    if (!editor) return;
+    editor.trigger('toolbar', 'undo', null);
   }, [getEditorInstance]);
 
   const handleRedo = useCallback(() => {
     const editor = getEditorInstance();
-    if (editor) {
-      editor.trigger('toolbar', 'redo', null);
-    }
+    if (!editor) return;
+    editor.trigger('toolbar', 'redo', null);
   }, [getEditorInstance]);
 
   const handleNewFile = () => {
@@ -131,73 +169,110 @@ export function EditorToolbar() {
     input.click();
   };
 
+  // モバイル版ツールバー
   if (isMobile) {
     return (
-      <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-muted/40 w-full overflow-hidden">
-        <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={() => setShowSettings(true)}>
-          <Cog className="h-4 w-4" />
-        </Button>
+      <div className="mochi-toolbar-modern flex items-center gap-1 px-2 py-2 w-full overflow-hidden">
+        {/* 設定（左端） */}
+        <button
+          type="button"
+          onClick={onOpenSettings}
+          className="mochi-toolbar-btn h-7 w-7"
+        >
+          <Settings2 className="h-3.5 w-3.5" />
+        </button>
 
-        <div className="w-px h-5 bg-border mx-1 shrink-0" />
+        {/* ファイル操作グループ */}
+        <div className="mochi-toolbar-group">
+          <button
+            type="button"
+            onClick={handleNewFile}
+            className="mochi-toolbar-btn h-7 w-7"
+          >
+            <FilePlus2 className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            className="mochi-toolbar-btn h-7 w-7"
+          >
+            <HardDriveDownload className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={handleLoad}
+            className="mochi-toolbar-btn h-7 w-7"
+          >
+            <FolderOpen className="h-3.5 w-3.5" />
+          </button>
+        </div>
 
-        <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleNewFile}>
-          <FilePlus2 className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleSave}>
-          <HardDriveDownload className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleLoad}>
-          <FolderOpen className="h-4 w-4" />
-        </Button>
+        {/* 編集操作グループ */}
+        <div className="mochi-toolbar-group">
+          <button
+            type="button"
+            onClick={handleUndo}
+            className="mochi-toolbar-btn h-7 w-7"
+          >
+            <Undo2 className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={handleRedo}
+            className="mochi-toolbar-btn h-7 w-7"
+          >
+            <Redo2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
 
-        <div className="w-px h-5 bg-border mx-1 shrink-0" />
+        {/* 検索・分割グループ */}
+        <div className="mochi-toolbar-group">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="mochi-toolbar-btn h-7 w-7"
+          >
+            <Search className="h-3.5 w-3.5" />
+          </button>
 
-        <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleUndo}>
-          <RotateCcw className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleRedo}>
-          <RotateCw className="h-4 w-4" />
-        </Button>
-
-        <div className="w-px h-5 bg-border mx-1 shrink-0" />
-
-        <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={() => setSearchOpen(true)}>
-          <SearchCheck className="h-4 w-4" />
-        </Button>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(toolbarButtonClass, splitDirection && 'bg-primary/10 text-primary')}
-            >
-              {splitDirection === 'horizontal' ? (
-                <SplitSquareHorizontal className="h-4 w-4" />
-              ) : (
-                <SplitSquareVertical className="h-4 w-4" />
-              )}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <DropdownMenuItem onClick={() => setSplitDirection('vertical')}>
-              <SplitSquareVertical className="h-4 w-4 mr-2" />
-              {t('toolbar.splitVertical')}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSplitDirection('horizontal')}>
-              <SplitSquareHorizontal className="h-4 w-4 mr-2" />
-              {t('toolbar.splitHorizontal')}
-            </DropdownMenuItem>
-            {splitDirection && (
-              <DropdownMenuItem onClick={closeSplit}>
-                <X className="h-4 w-4 mr-2" />
-                {t('toolbar.closeSplit')}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className={cn(
+                  'mochi-toolbar-btn h-7 w-7',
+                  splitDirection && 'mochi-toolbar-btn-active'
+                )}
+              >
+                {splitDirection === 'horizontal' ? (
+                  <PanelTopClose className="h-3.5 w-3.5" />
+                ) : (
+                  <PanelLeftClose className="h-3.5 w-3.5" />
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[180px]">
+              <DropdownMenuItem onClick={() => setSplitDirection('vertical')} className="gap-2">
+                <PanelLeftClose className="h-4 w-4" />
+                {t('toolbar.splitVertical')}
               </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuItem onClick={() => setSplitDirection('horizontal')} className="gap-2">
+                <PanelTopClose className="h-4 w-4" />
+                {t('toolbar.splitHorizontal')}
+              </DropdownMenuItem>
+              {splitDirection && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={closeSplit} className="gap-2 text-destructive">
+                    <X className="h-4 w-4" />
+                    {t('toolbar.closeSplit')}
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
-        <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
         <SearchDialog
           open={searchOpen}
           onOpenChange={setSearchOpen}
@@ -208,115 +283,135 @@ export function EditorToolbar() {
     );
   }
 
+  // デスクトップ版ツールバー
   return (
-    <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-muted/40 w-full overflow-hidden">
+    <div className="mochi-toolbar-modern flex items-center gap-1.5 px-3 py-2 w-full overflow-hidden">
+      {/* 設定（左端） */}
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={() => setShowSettings(true)}>
-            <Cog className="h-4 w-4" />
-          </Button>
+          <button
+            type="button"
+            onClick={onOpenSettings}
+            className="mochi-toolbar-btn h-8 w-8"
+          >
+            <Settings2 className="h-4 w-4" />
+          </button>
         </TooltipTrigger>
-        <TooltipContent>{t('toolbar.settings')}</TooltipContent>
+        <TooltipContent side="bottom" className="flex items-center gap-2">
+          <span>{t('toolbar.settings')}</span>
+          <kbd className="mochi-command-kbd">⌘,</kbd>
+        </TooltipContent>
       </Tooltip>
 
-      <div className="w-px h-5 bg-border mx-1.5 shrink-0" />
+      <div className="mochi-toolbar-separator" />
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleNewFile}>
-            <FilePlus2 className="h-4 w-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{t('toolbar.newFile')} (Ctrl+N)</TooltipContent>
-      </Tooltip>
+      {/* ファイル操作グループ */}
+      <div className="mochi-toolbar-group">
+        <ToolbarButton
+          icon={FilePlus2}
+          label={t('toolbar.newFile')}
+          shortcut="⌘N"
+          onClick={handleNewFile}
+        />
+        <ToolbarButton
+          icon={HardDriveDownload}
+          label={t('toolbar.save')}
+          shortcut="⌘S"
+          onClick={handleSave}
+        />
+        <ToolbarButton
+          icon={FolderOpen}
+          label={t('toolbar.load')}
+          shortcut="⌘O"
+          onClick={handleLoad}
+        />
+      </div>
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleSave}>
-            <HardDriveDownload className="h-4 w-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{t('toolbar.save')} (Ctrl+S)</TooltipContent>
-      </Tooltip>
+      <div className="mochi-toolbar-separator" />
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleLoad}>
-            <FolderOpen className="h-4 w-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{t('toolbar.load')} (Ctrl+O)</TooltipContent>
-      </Tooltip>
+      {/* 編集操作グループ */}
+      <div className="mochi-toolbar-group">
+        <ToolbarButton
+          icon={Undo2}
+          label={t('toolbar.undo')}
+          shortcut="⌘Z"
+          onClick={handleUndo}
+        />
+        <ToolbarButton
+          icon={Redo2}
+          label={t('toolbar.redo')}
+          shortcut="⌘Y"
+          onClick={handleRedo}
+        />
+      </div>
 
-      <div className="w-px h-5 bg-border mx-1.5 shrink-0" />
+      <div className="mochi-toolbar-separator" />
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleUndo}>
-            <RotateCcw className="h-4 w-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{t('toolbar.undo')} (Ctrl+Z)</TooltipContent>
-      </Tooltip>
+      {/* 検索グループ */}
+      <div className="mochi-toolbar-group">
+        <ToolbarButton
+          icon={Search}
+          label={t('toolbar.search')}
+          shortcut="⌘F"
+          onClick={() => setSearchOpen(true)}
+        />
+      </div>
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={handleRedo}>
-            <RotateCw className="h-4 w-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{t('toolbar.redo')} (Ctrl+Y)</TooltipContent>
-      </Tooltip>
-
-      <div className="w-px h-5 bg-border mx-1.5 shrink-0" />
-
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="ghost" size="sm" className={toolbarButtonClass} onClick={() => setSearchOpen(true)}>
-            <SearchCheck className="h-4 w-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{t('toolbar.search')} (Ctrl+F)</TooltipContent>
-      </Tooltip>
-
+      {/* 分割ビュー */}
       <DropdownMenu>
         <Tooltip>
           <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className={cn(toolbarButtonClass, splitDirection && 'bg-primary/10 text-primary')}
+              <button
+                type="button"
+                className={cn(
+                  'mochi-toolbar-btn h-8 w-8',
+                  splitDirection && 'mochi-toolbar-btn-active'
+                )}
               >
                 {splitDirection === 'horizontal' ? (
-                  <SplitSquareHorizontal className="h-4 w-4" />
+                  <PanelTopClose className="h-4 w-4" />
                 ) : (
-                  <SplitSquareVertical className="h-4 w-4" />
+                  <PanelLeftClose className="h-4 w-4" />
                 )}
-              </Button>
+              </button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent>{t('toolbar.split')}</TooltipContent>
+          <TooltipContent side="bottom">{t('toolbar.split')}</TooltipContent>
         </Tooltip>
-        <DropdownMenuContent align="start">
-          <DropdownMenuItem onClick={() => setSplitDirection('vertical')}>
-            <SplitSquareVertical className="h-4 w-4 mr-2" />
-            {t('toolbar.splitVertical')}
+        <DropdownMenuContent align="start" className="min-w-[200px]">
+          <DropdownMenuItem onClick={() => setSplitDirection('vertical')} className="gap-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted">
+              <PanelLeftClose className="h-4 w-4" />
+            </div>
+            <div>
+              <div className="font-medium">{t('toolbar.splitVertical')}</div>
+              <div className="text-xs text-muted-foreground">Split side by side</div>
+            </div>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSplitDirection('horizontal')}>
-            <SplitSquareHorizontal className="h-4 w-4 mr-2" />
-            {t('toolbar.splitHorizontal')}
+          <DropdownMenuItem onClick={() => setSplitDirection('horizontal')} className="gap-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted">
+              <PanelTopClose className="h-4 w-4" />
+            </div>
+            <div>
+              <div className="font-medium">{t('toolbar.splitHorizontal')}</div>
+              <div className="text-xs text-muted-foreground">Split top and bottom</div>
+            </div>
           </DropdownMenuItem>
           {splitDirection && (
-            <DropdownMenuItem onClick={closeSplit}>
-              <X className="h-4 w-4 mr-2" />
-              {t('toolbar.closeSplit')}
-            </DropdownMenuItem>
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={closeSplit} className="gap-3 text-destructive focus:text-destructive">
+                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-destructive/10">
+                  <X className="h-4 w-4" />
+                </div>
+                <div className="font-medium">{t('toolbar.closeSplit')}</div>
+              </DropdownMenuItem>
+            </>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
       <SearchDialog
         open={searchOpen}
         onOpenChange={setSearchOpen}
