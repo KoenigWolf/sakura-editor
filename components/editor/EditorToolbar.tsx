@@ -169,103 +169,112 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
     input.click();
   };
 
-  // モバイル版ツールバー
+  // モバイル版ツールバー（iPhone最適化）
   if (isMobile) {
     return (
-      <div className="mochi-toolbar-modern flex items-center gap-1 px-2 py-2 w-full overflow-hidden">
-        {/* 設定（左端） */}
-        <button
-          type="button"
-          onClick={onOpenSettings}
-          className="mochi-toolbar-btn h-7 w-7"
-        >
-          <Settings2 className="h-3.5 w-3.5" />
-        </button>
+      <div className="mochi-toolbar-modern mochi-mobile-toolbar flex items-center justify-between px-2 py-1.5 w-full overflow-hidden safe-area-top">
+        {/* 左側: 設定とファイル操作 */}
+        <div className="flex items-center gap-1">
+          {/* 設定ボタン */}
+          <button
+            type="button"
+            onClick={onOpenSettings}
+            className="mochi-toolbar-btn mochi-touch-btn"
+            aria-label={t('toolbar.settings')}
+          >
+            <Settings2 className="h-5 w-5" />
+          </button>
 
-        {/* ファイル操作グループ */}
-        <div className="mochi-toolbar-group">
+          {/* ファイル操作 */}
           <button
             type="button"
             onClick={handleNewFile}
-            className="mochi-toolbar-btn h-7 w-7"
+            className="mochi-toolbar-btn mochi-touch-btn"
+            aria-label={t('toolbar.newFile')}
           >
-            <FilePlus2 className="h-3.5 w-3.5" />
+            <FilePlus2 className="h-5 w-5" />
           </button>
           <button
             type="button"
             onClick={handleSave}
-            className="mochi-toolbar-btn h-7 w-7"
+            className="mochi-toolbar-btn mochi-touch-btn"
+            aria-label={t('toolbar.save')}
           >
-            <HardDriveDownload className="h-3.5 w-3.5" />
+            <HardDriveDownload className="h-5 w-5" />
           </button>
           <button
             type="button"
             onClick={handleLoad}
-            className="mochi-toolbar-btn h-7 w-7"
+            className="mochi-toolbar-btn mochi-touch-btn"
+            aria-label={t('toolbar.load')}
           >
-            <FolderOpen className="h-3.5 w-3.5" />
+            <FolderOpen className="h-5 w-5" />
           </button>
         </div>
 
-        {/* 編集操作グループ */}
-        <div className="mochi-toolbar-group">
+        {/* 右側: 編集と検索 */}
+        <div className="flex items-center gap-1">
+          {/* 元に戻す/やり直し */}
           <button
             type="button"
             onClick={handleUndo}
-            className="mochi-toolbar-btn h-7 w-7"
+            className="mochi-toolbar-btn mochi-touch-btn"
+            aria-label={t('toolbar.undo')}
           >
-            <Undo2 className="h-3.5 w-3.5" />
+            <Undo2 className="h-5 w-5" />
           </button>
           <button
             type="button"
             onClick={handleRedo}
-            className="mochi-toolbar-btn h-7 w-7"
+            className="mochi-toolbar-btn mochi-touch-btn"
+            aria-label={t('toolbar.redo')}
           >
-            <Redo2 className="h-3.5 w-3.5" />
+            <Redo2 className="h-5 w-5" />
           </button>
-        </div>
 
-        {/* 検索・分割グループ */}
-        <div className="mochi-toolbar-group">
+          {/* 検索 */}
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
-            className="mochi-toolbar-btn h-7 w-7"
+            className="mochi-toolbar-btn mochi-touch-btn"
+            aria-label={t('toolbar.search')}
           >
-            <Search className="h-3.5 w-3.5" />
+            <Search className="h-5 w-5" />
           </button>
 
+          {/* 分割ビュー（アイコンのみ） */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
                 className={cn(
-                  'mochi-toolbar-btn h-7 w-7',
+                  'mochi-toolbar-btn mochi-touch-btn',
                   splitDirection && 'mochi-toolbar-btn-active'
                 )}
+                aria-label={t('toolbar.split')}
               >
                 {splitDirection === 'horizontal' ? (
-                  <PanelTopClose className="h-3.5 w-3.5" />
+                  <PanelTopClose className="h-5 w-5" />
                 ) : (
-                  <PanelLeftClose className="h-3.5 w-3.5" />
+                  <PanelLeftClose className="h-5 w-5" />
                 )}
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-[180px]">
-              <DropdownMenuItem onClick={() => setSplitDirection('vertical')} className="gap-2">
-                <PanelLeftClose className="h-4 w-4" />
-                {t('toolbar.splitVertical')}
+            <DropdownMenuContent align="end" side="bottom" className="mochi-mobile-menu">
+              <DropdownMenuItem onClick={() => setSplitDirection('vertical')} className="mochi-mobile-menu-item">
+                <PanelLeftClose className="h-5 w-5" />
+                <span>{t('toolbar.splitVertical')}</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSplitDirection('horizontal')} className="gap-2">
-                <PanelTopClose className="h-4 w-4" />
-                {t('toolbar.splitHorizontal')}
+              <DropdownMenuItem onClick={() => setSplitDirection('horizontal')} className="mochi-mobile-menu-item">
+                <PanelTopClose className="h-5 w-5" />
+                <span>{t('toolbar.splitHorizontal')}</span>
               </DropdownMenuItem>
               {splitDirection && (
                 <>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={closeSplit} className="gap-2 text-destructive">
-                    <X className="h-4 w-4" />
-                    {t('toolbar.closeSplit')}
+                  <DropdownMenuItem onClick={closeSplit} className="mochi-mobile-menu-item text-destructive">
+                    <X className="h-5 w-5" />
+                    <span>{t('toolbar.closeSplit')}</span>
                   </DropdownMenuItem>
                 </>
               )}

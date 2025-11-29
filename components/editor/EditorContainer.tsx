@@ -302,18 +302,18 @@ export const EditorContainer = memo(function EditorContainer() {
         )}
       </div>
 
-      <div className="mochi-statusbar-modern flex-shrink-0 overflow-x-auto overflow-y-hidden">
+      <div className="mochi-statusbar-modern flex-shrink-0 overflow-x-auto overflow-y-hidden safe-area-bottom">
         {/* 左側: ファイル情報 */}
         <div className="flex items-center gap-1">
           <button
             onClick={() => setShowCommandPalette(true)}
-            className="mochi-statusbar-item mochi-statusbar-item-clickable gap-2"
+            className="mochi-statusbar-item mochi-statusbar-item-clickable mochi-touch-target gap-2"
             title="Command Palette (⌘P)"
           >
-            <Command className="h-3 w-3" />
-            <span className="truncate max-w-[100px] sm:max-w-[180px] flex items-center gap-1.5">
+            <Command className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
+            <span className="truncate max-w-[80px] sm:max-w-[180px] flex items-center gap-1.5 text-xs sm:text-sm">
               {activeFile?.isDirty && (
-                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                <span className="w-2 h-2 sm:w-1.5 sm:h-1.5 rounded-full bg-primary animate-pulse" />
               )}
               {getDisplayFileName(activeFile?.name, t('status.untitled'))}
             </span>
@@ -326,7 +326,7 @@ export const EditorContainer = memo(function EditorContainer() {
             <span className="mochi-statusbar-badge">{statusInfo.language}</span>
           </div>
 
-          <div className="mochi-statusbar-item gap-1.5">
+          <div className="mochi-statusbar-item gap-1.5 hidden sm:flex">
             <CornerDownLeft className="h-3 w-3 text-muted-foreground" />
             <span>{statusInfo.eol}</span>
           </div>
@@ -338,11 +338,10 @@ export const EditorContainer = memo(function EditorContainer() {
 
         {/* 右側: カーソル位置・統計 */}
         <div className="flex items-center gap-1">
-          <div className="mochi-statusbar-item gap-1.5">
-            <span className="text-muted-foreground">Ln</span>
+          {/* モバイル: 簡略化された位置表示 */}
+          <div className="mochi-statusbar-item gap-1 text-xs">
             <span className="font-medium">{statusInfo.cursorLine}</span>
-            <span className="text-muted-foreground">,</span>
-            <span className="text-muted-foreground">Col</span>
+            <span className="text-muted-foreground">:</span>
             <span className="font-medium">{statusInfo.cursorColumn}</span>
           </div>
 
@@ -353,18 +352,18 @@ export const EditorContainer = memo(function EditorContainer() {
             <span>{statusInfo.lineCount} lines</span>
           </div>
 
-          <div className="h-4 w-px bg-border/50 mx-1" />
+          <div className="h-4 w-px bg-border/50 mx-0.5 sm:mx-1" />
 
           <button
             onClick={() => setTheme(getNextTheme(resolvedTheme))}
-            className="mochi-statusbar-item mochi-statusbar-item-clickable gap-1.5"
+            className="mochi-statusbar-item mochi-statusbar-item-clickable mochi-touch-target gap-1.5"
           >
             {mounted && (
               <>
                 {resolvedTheme === 'dark' ? (
-                  <Moon className="h-3 w-3" />
+                  <Moon className="h-4 w-4 sm:h-3 sm:w-3" />
                 ) : (
-                  <Sun className="h-3 w-3" />
+                  <Sun className="h-4 w-4 sm:h-3 sm:w-3" />
                 )}
                 <span className="hidden sm:inline">{t(getThemeLabelKey(resolvedTheme))}</span>
               </>

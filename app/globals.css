@@ -895,3 +895,405 @@ button, a, [role="button"] {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
 }
+
+/* ==================== iPhone UX 改善 ==================== */
+
+/* iPhoneセーフエリア対応 */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-area-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-area-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .safe-area-inset {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+}
+
+/* iPhoneモバイルツールバー（最適化） */
+@media (max-width: 480px) {
+  .mochi-toolbar-modern {
+    @apply px-2 py-1.5 gap-0.5;
+    padding-top: max(0.375rem, env(safe-area-inset-top, 0.375rem));
+  }
+
+  .mochi-toolbar-group {
+    @apply gap-0 px-0.5 py-0.5;
+  }
+
+  .mochi-toolbar-btn {
+    @apply h-10 w-10;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .mochi-toolbar-btn svg {
+    @apply h-5 w-5;
+  }
+
+  .mochi-toolbar-separator {
+    @apply mx-1 h-5;
+  }
+}
+
+/* iPhoneタブUI最適化 */
+@media (max-width: 480px) {
+  .mochi-tabs-container {
+    @apply px-1 pt-1;
+  }
+
+  .mochi-tab {
+    @apply px-3 py-2.5 gap-1.5;
+    min-height: 44px;
+    flex-shrink: 0;
+  }
+
+  .mochi-tab span.truncate {
+    max-width: 100px;
+    font-size: 13px;
+  }
+
+  .mochi-tab-close {
+    @apply w-6 h-6 opacity-100;
+    min-width: 28px;
+    min-height: 28px;
+  }
+
+  .mochi-tab-close svg {
+    @apply h-4 w-4;
+  }
+}
+
+/* iPhoneステータスバー最適化 */
+@media (max-width: 480px) {
+  .mochi-statusbar-modern {
+    @apply px-2 py-2;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0.5rem));
+    min-height: 44px;
+  }
+
+  .mochi-statusbar-item {
+    @apply px-2 py-1.5 text-xs;
+    min-height: 32px;
+  }
+
+  .mochi-statusbar-badge {
+    @apply px-2 py-1 text-xs;
+  }
+}
+
+/* タッチフレンドリーなボタンサイズ */
+@media (max-width: 480px) {
+  button, [role="button"], a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .mochi-action-btn {
+    @apply px-4 py-3 text-sm;
+    min-height: 48px;
+  }
+}
+
+/* ハプティックフィードバック風視覚効果 */
+@media (max-width: 480px) {
+  .mochi-toolbar-btn:active {
+    transform: scale(0.92);
+    transition: transform 0.08s ease-out;
+  }
+
+  .mochi-tab:active {
+    transform: scale(0.98);
+    transition: transform 0.08s ease-out;
+  }
+
+  .mochi-action-btn:active {
+    transform: scale(0.95);
+    transition: transform 0.08s ease-out;
+  }
+}
+
+/* iPhoneスワイプジェスチャー対応 */
+@media (max-width: 480px) {
+  .mochi-tabs-container {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  .mochi-tab {
+    scroll-snap-align: start;
+  }
+}
+
+/* iPhone検索ダイアログ（フルスクリーン） */
+@media (max-width: 480px) {
+  .mochi-search-modern {
+    @apply fixed inset-0 rounded-none;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    height: 100%;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .mochi-search-header {
+    @apply px-4 py-4;
+    min-height: 60px;
+  }
+
+  .mochi-search-input-group {
+    @apply py-3 px-4;
+    min-height: 48px;
+  }
+
+  .mochi-search-input {
+    @apply text-base;
+    font-size: 16px !important; /* iOS自動ズーム防止 */
+  }
+
+  .mochi-search-option {
+    @apply w-10 h-10;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* iPhoneコマンドパレット最適化 */
+@media (max-width: 480px) {
+  .mochi-command-item {
+    @apply py-3.5 px-4;
+    min-height: 56px;
+  }
+
+  .mochi-command-icon {
+    @apply w-11 h-11;
+  }
+
+  .mochi-command-icon svg {
+    @apply h-5 w-5;
+  }
+}
+
+/* iPhoneモーダル/ダイアログ最適化 */
+@media (max-width: 480px) {
+  [role="dialog"] {
+    @apply fixed inset-0 rounded-none m-0;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+  }
+
+  /* ボトムシートスタイル */
+  .bottom-sheet {
+    @apply fixed bottom-0 left-0 right-0 rounded-t-3xl;
+    max-height: 90vh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .bottom-sheet-handle {
+    @apply w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mt-3 mb-2;
+  }
+}
+
+/* iPhoneテキスト選択改善 */
+@media (max-width: 480px) {
+  .monaco-editor {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* テキスト選択ハンドル表示 */
+  .monaco-editor .selected-text {
+    background-color: hsl(var(--primary) / 0.3) !important;
+  }
+}
+
+/* iPhone向けスクロールバー非表示 */
+@media (max-width: 480px) {
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  * {
+    scrollbar-width: none;
+  }
+}
+
+/* iPhoneキーボード表示時の調整 */
+@media (max-width: 480px) {
+  /* キーボード表示時にビューポートが縮小される対応 */
+  .mochi-editor-container {
+    height: 100%;
+    height: 100dvh; /* Dynamic viewport height */
+  }
+
+  /* 入力フィールドフォーカス時のズーム防止 */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
+/* iPhone向けプルダウンリフレッシュ防止（エディタ使用中） */
+@media (max-width: 480px) {
+  .mochi-editor-container {
+    overscroll-behavior: none;
+  }
+}
+
+/* iPhone向けスムーススクロール */
+@media (max-width: 480px) {
+  .mochi-tabs-container,
+  .mochi-statusbar-modern {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ダークモードでのiPhone最適化 */
+@media (max-width: 480px) {
+  .dark .mochi-toolbar-modern {
+    background: linear-gradient(
+      180deg,
+      hsl(var(--background)) 0%,
+      hsl(var(--muted) / 0.2) 100%
+    );
+  }
+
+  .dark .mochi-statusbar-modern {
+    background: linear-gradient(
+      0deg,
+      hsl(var(--background)) 0%,
+      hsl(var(--muted) / 0.2) 100%
+    );
+  }
+}
+
+/* iPhone向けアニメーション軽量化 */
+@media (max-width: 480px) and (prefers-reduced-motion: no-preference) {
+  .mochi-toolbar-btn,
+  .mochi-tab,
+  .mochi-action-btn {
+    transition-duration: 0.1s;
+  }
+}
+
+/* iPhone向けフォーカス表示強化 */
+@media (max-width: 480px) {
+  *:focus-visible {
+    outline: 3px solid hsl(var(--primary) / 0.6);
+    outline-offset: 2px;
+  }
+}
+
+/* iPhone向けドロップダウンメニュー */
+@media (max-width: 480px) {
+  [role="menu"] {
+    @apply fixed bottom-0 left-0 right-0 rounded-t-2xl;
+    max-height: 70vh;
+    padding-bottom: env(safe-area-inset-bottom);
+    animation: slide-in-from-bottom 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  [role="menuitem"] {
+    @apply py-4 px-5;
+    min-height: 52px;
+  }
+}
+
+/* モバイルタッチボタン */
+.mochi-touch-btn {
+  @apply flex items-center justify-center rounded-xl;
+  min-width: 44px;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mochi-touch-btn:active {
+  transform: scale(0.9);
+  background-color: hsl(var(--primary) / 0.15);
+}
+
+/* モバイルメニュー */
+.mochi-mobile-menu {
+  @apply rounded-2xl border-0 shadow-2xl p-2;
+  min-width: 200px;
+}
+
+.mochi-mobile-menu-item {
+  @apply flex items-center gap-3 px-4 py-3.5 rounded-xl;
+  min-height: 52px;
+}
+
+.mochi-mobile-menu-item:active {
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+/* モバイルツールバー背景 */
+.mochi-mobile-toolbar {
+  background: hsl(var(--background) / 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* モバイルステータスバーシンプル化 */
+@media (max-width: 480px) {
+  .mochi-statusbar-modern {
+    @apply flex-wrap gap-y-1;
+  }
+
+  .mochi-statusbar-modern > div:first-child {
+    @apply flex-1;
+  }
+
+  .mochi-statusbar-modern > div:last-child {
+    @apply flex-none;
+  }
+}
+
+/* モバイルファイルタブ横スクロール */
+@media (max-width: 480px) {
+  .mochi-tabs-container > div {
+    @apply flex-nowrap pb-1;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* タッチターゲット最小サイズ保証 */
+.mochi-touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  @apply flex items-center justify-center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (min-width: 640px) {
+  .mochi-touch-target {
+    min-width: auto;
+    min-height: auto;
+  }
+}
+
+/* セーフエリア対応ユーティリティ */
+.safe-area-bottom {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0.5rem));
+}
+
+.safe-area-top {
+  padding-top: max(0.375rem, env(safe-area-inset-top, 0.375rem));
+}
