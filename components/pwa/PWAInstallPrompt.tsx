@@ -53,12 +53,9 @@ const detectBrowser = (): Browser => {
   return 'unknown';
 };
 
-// メリットアイテム
-const benefits = [
-  { icon: Zap, label: '高速起動', description: 'ネイティブアプリ並みの速度' },
-  { icon: WifiOff, label: 'オフライン対応', description: 'ネット接続なしで動作' },
-  { icon: Sparkles, label: '自動更新', description: '常に最新バージョン' },
-];
+// メリットアイテムアイコン
+const benefitIcons = [Zap, WifiOff, Sparkles] as const;
+const benefitKeys = ['fastStartup', 'offline', 'autoUpdate'] as const;
 
 export function PWAInstallPrompt() {
   const { t } = useTranslation();
@@ -190,50 +187,23 @@ export function PWAInstallPrompt() {
 
   // プラットフォーム別インストール手順
   const getInstructions = () => {
+    const stepIcons = [Share, PlusSquare, CheckCircle2];
     if (isIOS) {
-      return [
-        {
-          icon: Share,
-          title: '共有ボタンをタップ',
-          description: '画面下部の共有アイコン（□に↑）をタップ',
-          highlight: '下部中央のアイコン',
-        },
-        {
-          icon: PlusSquare,
-          title: '「ホーム画面に追加」を選択',
-          description: 'メニューをスクロールして見つけてください',
-          highlight: 'スクロールが必要な場合も',
-        },
-        {
-          icon: CheckCircle2,
-          title: '「追加」をタップ',
-          description: '右上の「追加」ボタンで完了です',
-          highlight: '右上のボタン',
-        },
-      ];
+      return stepIcons.map((icon, idx) => ({
+        icon,
+        title: t(`pwa.ios.step${idx + 1}.title`),
+        description: t(`pwa.ios.step${idx + 1}.description`),
+        highlight: t(`pwa.ios.step${idx + 1}.highlight`),
+      }));
     }
 
     if (isMac && browser === 'safari') {
-      return [
-        {
-          icon: Share,
-          title: '共有ボタンをクリック',
-          description: 'ツールバーの共有アイコンをクリック',
-          highlight: 'アドレスバー付近',
-        },
-        {
-          icon: PlusSquare,
-          title: '「Dockに追加」を選択',
-          description: 'メニューから「Dockに追加」を選択',
-          highlight: 'macOS Sonoma以降',
-        },
-        {
-          icon: CheckCircle2,
-          title: '「追加」をクリック',
-          description: 'ダイアログで「追加」をクリックして完了',
-          highlight: '',
-        },
-      ];
+      return stepIcons.map((icon, idx) => ({
+        icon,
+        title: t(`pwa.mac.step${idx + 1}.title`),
+        description: t(`pwa.mac.step${idx + 1}.description`),
+        highlight: t(`pwa.mac.step${idx + 1}.highlight`),
+      }));
     }
 
     return [];
@@ -277,9 +247,9 @@ export function PWAInstallPrompt() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold">
-                    {isIOS ? 'iPhoneに追加' : 'Macに追加'}
+                    {isIOS ? t('pwa.ios.title') : t('pwa.mac.title')}
                   </h3>
-                  <p className="text-sm text-muted-foreground">3ステップで完了</p>
+                  <p className="text-sm text-muted-foreground">{isIOS ? t('pwa.ios.steps') : t('pwa.mac.steps')}</p>
                 </div>
               </div>
               <button
@@ -343,7 +313,7 @@ export function PWAInstallPrompt() {
                 onClick={handleNextStep}
                 className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-semibold text-lg flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98]"
               >
-                次へ
+                {t('pwa.install.next')}
                 <ChevronRight className="h-5 w-5" />
               </button>
             ) : (
@@ -351,14 +321,14 @@ export function PWAInstallPrompt() {
                 onClick={handleDismiss}
                 className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-semibold text-lg hover:bg-primary/90 transition-colors active:scale-[0.98]"
               >
-                完了
+                {t('pwa.install.done')}
               </button>
             )}
             <button
               onClick={handleDismiss}
               className="w-full py-3 text-muted-foreground text-sm font-medium hover:text-foreground transition-colors"
             >
-              後でインストールする
+              {t('pwa.install.laterInstall')}
             </button>
           </div>
 
@@ -411,16 +381,16 @@ export function PWAInstallPrompt() {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-lg leading-tight">
-                Sakura Editorをインストール
+                {t('pwa.install.title')}
               </h3>
               <p className="text-sm text-muted-foreground mt-0.5">
-                {isDesktop ? 'デスクトップアプリとして使用' : 'ホーム画面に追加'}
+                {isDesktop ? t('pwa.install.desktop') : t('pwa.install.mobile')}
               </p>
             </div>
             <button
               onClick={handleDismiss}
               className="p-2 -mr-2 -mt-1 rounded-xl hover:bg-muted transition-colors"
-              aria-label="閉じる"
+              aria-label={t('common.close')}
             >
               <X className="h-5 w-5 text-muted-foreground" />
             </button>
@@ -428,15 +398,18 @@ export function PWAInstallPrompt() {
 
           {/* メリット一覧 */}
           <div className="grid grid-cols-3 gap-3 mb-5">
-            {benefits.map((benefit, idx) => (
-              <div
-                key={idx}
-                className="flex flex-col items-center text-center p-3 rounded-xl bg-muted/50"
-              >
-                <benefit.icon className="h-5 w-5 text-primary mb-1.5" />
-                <span className="text-xs font-medium">{benefit.label}</span>
-              </div>
-            ))}
+            {benefitKeys.map((key, idx) => {
+              const Icon = benefitIcons[idx];
+              return (
+                <div
+                  key={key}
+                  className="flex flex-col items-center text-center p-3 rounded-xl bg-muted/50"
+                >
+                  <Icon className="h-5 w-5 text-primary mb-1.5" />
+                  <span className="text-xs font-medium">{t(`pwa.benefits.${key}.label`)}</span>
+                </div>
+              );
+            })}
           </div>
 
           {/* アクションボタン */}
@@ -445,14 +418,14 @@ export function PWAInstallPrompt() {
               onClick={handleDismiss}
               className="flex-1 py-3.5 text-sm font-semibold rounded-xl border-2 border-border hover:bg-muted transition-all active:scale-[0.98]"
             >
-              後で
+              {t('pwa.install.later')}
             </button>
             <button
               onClick={handleInstall}
               className="flex-1 py-3.5 text-sm font-semibold rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-pink-500/25"
             >
               <Download className="h-4 w-4" />
-              インストール
+              {t('pwa.install.button')}
             </button>
           </div>
 
@@ -463,10 +436,10 @@ export function PWAInstallPrompt() {
             {isDesktop && !isIOS && <Monitor className="h-3 w-3" />}
             {!isDesktop && !isIOS && <Smartphone className="h-3 w-3" />}
             {isIOS
-              ? 'Safari経由でインストール'
+              ? t('pwa.browser.safari')
               : isDesktop
-                ? `${browser === 'chrome' ? 'Chrome' : browser === 'edge' ? 'Edge' : 'ブラウザ'}からインストール`
-                : 'ブラウザからインストール'
+                ? t(`pwa.browser.${browser === 'chrome' ? 'chrome' : browser === 'edge' ? 'edge' : 'default'}`)
+                : t('pwa.browser.default')
             }
           </p>
         </div>
@@ -479,6 +452,7 @@ export function PWAInstallPrompt() {
  * オフラインインジケーター - モダンデザイン
  */
 export function OfflineIndicator() {
+  const { t } = useTranslation();
   const [isOnline, setIsOnline] = useState(true);
   const [showReconnected, setShowReconnected] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -511,7 +485,7 @@ export function OfflineIndicator() {
       <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-top-2 fade-in duration-300">
         <div className="bg-emerald-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-medium">
           <CheckCircle2 className="h-4 w-4" />
-          オンラインに復帰しました
+          {t('pwa.status.online')}
         </div>
       </div>
     );
@@ -523,7 +497,7 @@ export function OfflineIndicator() {
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-top-2 fade-in duration-300">
       <div className="bg-amber-500 text-amber-950 px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-medium">
         <WifiOff className="h-4 w-4" />
-        オフラインモード
+        {t('pwa.status.offline')}
       </div>
     </div>
   );
@@ -533,6 +507,7 @@ export function OfflineIndicator() {
  * アプリ更新通知 - モダンデザイン
  */
 export function UpdateNotification() {
+  const { t } = useTranslation();
   const [showUpdate, setShowUpdate] = useState(false);
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -579,15 +554,15 @@ export function UpdateNotification() {
           <Sparkles className="h-5 w-5" />
         </div>
         <div className="flex-1">
-          <p className="font-semibold">アップデートがあります</p>
-          <p className="text-sm text-white/80">最新機能を利用できます</p>
+          <p className="font-semibold">{t('pwa.update.available')}</p>
+          <p className="text-sm text-white/80">{t('pwa.update.description')}</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={handleDismiss}
             className="px-3 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors"
           >
-            後で
+            {t('pwa.update.later')}
           </button>
           <button
             onClick={handleUpdate}
@@ -597,10 +572,10 @@ export function UpdateNotification() {
             {isUpdating ? (
               <>
                 <div className="w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
-                更新中...
+                {t('pwa.update.updating')}
               </>
             ) : (
-              '今すぐ更新'
+              t('pwa.update.now')
             )}
           </button>
         </div>

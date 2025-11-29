@@ -25,13 +25,6 @@ interface CommandPaletteProps {
 }
 
 const categoryOrder = ['file', 'edit', 'view', 'search', 'settings'] as const;
-const categoryLabels: Record<string, string> = {
-  file: 'File',
-  edit: 'Edit',
-  view: 'View',
-  search: 'Search',
-  settings: 'Settings',
-};
 
 export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteProps) {
   const { t } = useTranslation();
@@ -169,7 +162,7 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={t('commandPalette.placeholder') || 'Type a command or search...'}
+              placeholder={t('commandPalette.placeholder')}
               className="flex-1 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
               autoComplete="off"
               spellCheck={false}
@@ -186,13 +179,13 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
           )}>
             {flatCommands.length === 0 ? (
               <div className="py-8 text-center text-sm text-muted-foreground">
-                {t('commandPalette.noResults') || 'No commands found'}
+                {t('commandPalette.noResults')}
               </div>
             ) : (
               groupedCommands.map(({ category, commands: cmds }) => (
                 <div key={category} className="mb-2 last:mb-0">
                   <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    {categoryLabels[category]}
+                    {t(`commandPalette.categories.${category}`)}
                   </div>
                   {cmds.map((cmd) => {
                     itemIndex++;
@@ -253,14 +246,14 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
               <span className="flex items-center gap-1">
                 <kbd className="px-1 py-0.5 rounded bg-background border text-[10px]">↑</kbd>
                 <kbd className="px-1 py-0.5 rounded bg-background border text-[10px]">↓</kbd>
-                {t('commandPalette.navigate') || 'to navigate'}
+                {t('commandPalette.navigate')}
               </span>
               <span className="flex items-center gap-1">
                 <kbd className="px-1 py-0.5 rounded bg-background border text-[10px]">↵</kbd>
-                {t('commandPalette.select') || 'to select'}
+                {t('commandPalette.select')}
               </span>
             </div>
-            <span>{flatCommands.length} {t('commandPalette.commands') || 'commands'}</span>
+            <span>{flatCommands.length} {t('commandPalette.commands')}</span>
           </div>
 
           {/* Safe Area for Mobile */}

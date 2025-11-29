@@ -333,7 +333,7 @@ export const EditorContainer = memo(function EditorContainer() {
           <button
             onClick={() => setShowCommandPalette(true)}
             className="mochi-statusbar-item mochi-statusbar-item-clickable gap-1.5"
-            title="Command Palette (⌘P)"
+            title={`${t('commandPalette.actions.openSettings')} (⌘P)`}
           >
             <Sparkles className="h-3 w-3" strokeWidth={1.5} />
             <span className="truncate max-w-[180px] flex items-center gap-1.5 text-[11px]">
@@ -357,7 +357,7 @@ export const EditorContainer = memo(function EditorContainer() {
           </div>
 
           <div className="mochi-statusbar-item">
-            <span className="text-muted-foreground text-[10px]">UTF-8</span>
+            <span className="text-muted-foreground text-[10px]">{t('status.encoding')}</span>
           </div>
         </div>
 

@@ -219,7 +219,7 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
 
           <div className="mochi-mobile-title">
             <Sparkles className="h-3.5 w-3.5 text-primary" />
-            <span>Sakura Editor</span>
+            <span>{t('app.title')}</span>
           </div>
 
           <button
@@ -466,7 +466,7 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
             </div>
             <div>
               <div className="font-medium text-sm">{t('toolbar.splitVertical')}</div>
-              <div className="text-[10px] text-muted-foreground">Split side by side</div>
+              <div className="text-[10px] text-muted-foreground">{t('split.vertical')}</div>
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSplitDirection('horizontal')} className="mochi-dropdown-item">
@@ -475,7 +475,7 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
             </div>
             <div>
               <div className="font-medium text-sm">{t('toolbar.splitHorizontal')}</div>
-              <div className="text-[10px] text-muted-foreground">Split top and bottom</div>
+              <div className="text-[10px] text-muted-foreground">{t('split.horizontal')}</div>
             </div>
           </DropdownMenuItem>
           {splitDirection && (

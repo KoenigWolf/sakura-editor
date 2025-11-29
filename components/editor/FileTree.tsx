@@ -5,12 +5,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { FileIcon, FolderIcon, XIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface FileTreeProps {
   className?: string;
 }
 
 export function FileTree({ className }: FileTreeProps) {
+  const { t } = useTranslation();
   const { files, activeFileId, setActiveFile, removeFile } = useFileStore();
 
   const handleFileClick = (file: FileData) => {
@@ -26,7 +28,7 @@ export function FileTree({ className }: FileTreeProps) {
     <ScrollArea className={cn('h-full w-64 border-r', className)}>
       <div className="p-2">
         <h2 className="mb-2 px-2 text-lg font-semibold tracking-tight">
-          ファイル
+          {t('fileTree.title')}
         </h2>
         <div className="space-y-1">
           {files.map((file) => (

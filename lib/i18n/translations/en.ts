@@ -217,5 +217,97 @@ export const en = {
     light: 'Light mode',
     position: '{{line}} ln, {{col}} col',
     document: '{{lines}} lines / {{chars}} chars',
+    encoding: 'UTF-8',
+  },
+  app: {
+    title: 'Sakura Editor',
+  },
+  fileTree: {
+    title: 'Files',
+  },
+  split: {
+    vertical: 'Split side by side',
+    horizontal: 'Split top and bottom',
+  },
+  pwa: {
+    install: {
+      title: 'Install Sakura Editor',
+      desktop: 'Use as desktop app',
+      mobile: 'Add to Home Screen',
+      button: 'Install',
+      later: 'Later',
+      next: 'Next',
+      done: 'Done',
+      laterInstall: 'Install later',
+    },
+    benefits: {
+      fastStartup: {
+        label: 'Fast Startup',
+        description: 'Native app-like speed',
+      },
+      offline: {
+        label: 'Offline Support',
+        description: 'Works without internet',
+      },
+      autoUpdate: {
+        label: 'Auto Update',
+        description: 'Always up to date',
+      },
+    },
+    ios: {
+      title: 'Add to iPhone',
+      steps: '3 easy steps',
+      step1: {
+        title: 'Tap the Share button',
+        description: 'Tap the share icon at the bottom of the screen',
+        highlight: 'Bottom center icon',
+      },
+      step2: {
+        title: 'Select "Add to Home Screen"',
+        description: 'Scroll through the menu to find it',
+        highlight: 'May need to scroll',
+      },
+      step3: {
+        title: 'Tap "Add"',
+        description: 'Tap the "Add" button in the top right',
+        highlight: 'Top right button',
+      },
+    },
+    mac: {
+      title: 'Add to Mac',
+      steps: '3 easy steps',
+      step1: {
+        title: 'Click the Share button',
+        description: 'Click the share icon in the toolbar',
+        highlight: 'Near address bar',
+      },
+      step2: {
+        title: 'Select "Add to Dock"',
+        description: 'Select "Add to Dock" from the menu',
+        highlight: 'macOS Sonoma or later',
+      },
+      step3: {
+        title: 'Click "Add"',
+        description: 'Click "Add" in the dialog to complete',
+        highlight: '',
+      },
+    },
+    browser: {
+      safari: 'Install via Safari',
+      chrome: 'Install from Chrome',
+      edge: 'Install from Edge',
+      default: 'Install from browser',
+    },
+    status: {
+      online: 'Back online',
+      offline: 'Offline mode',
+    },
+    update: {
+      available: 'Update available',
+      description: 'New features are ready',
+      later: 'Later',
+      updating: 'Updating...',
+      now: 'Update now',
+    },
   },
 };

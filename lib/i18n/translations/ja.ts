@@ -217,5 +217,97 @@ export const ja = {
     light: 'ライトモード',
     position: '{{line}}行, {{col}}列',
     document: '{{lines}}行 / {{chars}}文字',
+    encoding: 'UTF-8',
+  },
+  app: {
+    title: 'Sakura Editor',
+  },
+  fileTree: {
+    title: 'ファイル',
+  },
+  split: {
+    vertical: '横に並べて表示',
+    horizontal: '縦に並べて表示',
+  },
+  pwa: {
+    install: {
+      title: 'Sakura Editorをインストール',
+      desktop: 'デスクトップアプリとして使用',
+      mobile: 'ホーム画面に追加',
+      button: 'インストール',
+      later: '後で',
+      next: '次へ',
+      done: '完了',
+      laterInstall: '後でインストールする',
+    },
+    benefits: {
+      fastStartup: {
+        label: '高速起動',
+        description: 'ネイティブアプリ並みの速度',
+      },
+      offline: {
+        label: 'オフライン対応',
+        description: 'ネット接続なしで動作',
+      },
+      autoUpdate: {
+        label: '自動更新',
+        description: '常に最新バージョン',
+      },
+    },
+    ios: {
+      title: 'iPhoneに追加',
+      steps: '3ステップで完了',
+      step1: {
+        title: '共有ボタンをタップ',
+        description: '画面下部の共有アイコン（□に↑）をタップ',
+        highlight: '下部中央のアイコン',
+      },
+      step2: {
+        title: '「ホーム画面に追加」を選択',
+        description: 'メニューをスクロールして見つけてください',
+        highlight: 'スクロールが必要な場合も',
+      },
+      step3: {
+        title: '「追加」をタップ',
+        description: '右上の「追加」ボタンで完了です',
+        highlight: '右上のボタン',
+      },
+    },
+    mac: {
+      title: 'Macに追加',
+      steps: '3ステップで完了',
+      step1: {
+        title: '共有ボタンをクリック',
+        description: 'ツールバーの共有アイコンをクリック',
+        highlight: 'アドレスバー付近',
+      },
+      step2: {
+        title: '「Dockに追加」を選択',
+        description: 'メニューから「Dockに追加」を選択',
+        highlight: 'macOS Sonoma以降',
+      },
+      step3: {
+        title: '「追加」をクリック',
+        description: 'ダイアログで「追加」をクリックして完了',
+        highlight: '',
+      },
+    },
+    browser: {
+      safari: 'Safari経由でインストール',
+      chrome: 'Chromeからインストール',
+      edge: 'Edgeからインストール',
+      default: 'ブラウザからインストール',
+    },
+    status: {
+      online: 'オンラインに復帰しました',
+      offline: 'オフラインモード',
+    },
+    update: {
+      available: 'アップデートがあります',
+      description: '最新機能を利用できます',
+      later: '後で',
+      updating: '更新中...',
+      now: '今すぐ更新',
+    },
   },
 };
