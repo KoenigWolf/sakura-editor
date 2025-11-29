@@ -2,6 +2,15 @@ export const en = {
   common: {
     close: 'Close',
   },
+  error: {
+    fileError: 'File Error',
+    fileReadFailed: 'Failed to read file',
+    fileTooLarge: 'File size is too large',
+    invalidFileType: 'Unsupported file type',
+    searchQueryTooLong: 'Search query is too long',
+    invalidRegex: 'Invalid regular expression',
+    complexRegex: 'Regular expression pattern is too complex',
+  },
   editor: {
     loading: 'Loading editor...',
   },

@@ -1,11 +1,12 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
-import { metadata as seoMetadata, jsonLd } from './metadata';
+import { metadata as seoMetadata, viewport as seoViewport, jsonLd } from './metadata';
 import { Providers } from './providers';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = seoMetadata;
+export const viewport = seoViewport;
 
 export default function RootLayout({
   children,

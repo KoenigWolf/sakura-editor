@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useSearchStore, type SearchMatch } from '@/lib/store/search-store';
 import { cn } from '@/lib/utils';
+import { validateSearchQuery } from '@/lib/security';
 import { X, ChevronDown, ChevronUp, Regex, CaseSensitive, WholeWord, Replace, Search, ChevronRight } from 'lucide-react';
 
 interface SearchOptions {
@@ -231,6 +232,20 @@ export const SearchDialog = memo(({
         return;
       }
 
+      // セキュリティバリデーション
+      const validation = validateSearchQuery(normalizedQuery, isRegex);
+      if (!validation.valid) {
+        toast({
+          title: t('error.fileError'),
+          description: validation.error,
+          variant: 'destructive',
+        });
+        setMatches([]);
+        setCurrentMatchIndex(-1);
+        clearHighlights();
+        return;
+      }
+
       const editor = getEditorInstance();
       const model = editor?.getModel();
       if (!editor || !model) return;
@@ -280,7 +295,7 @@ export const SearchDialog = memo(({
     } else {
       searchTimeoutRef.current = setTimeout(doSearch, 100);
     }
-  }, [getEditorInstance, isRegex, isWholeWord, isCaseSensitive, setMatches, setSearchTerm, setCurrentMatchIndex, goToMatch, applyHighlights, clearHighlights, onSearch, options]);
+  }, [getEditorInstance, isRegex, isWholeWord, isCaseSensitive, setMatches, setSearchTerm, setCurrentMatchIndex, goToMatch, applyHighlights, clearHighlights, onSearch, options, toast, t]);
 
   const handleQueryChange = useCallback((value: string) => {
     setQuery(value);

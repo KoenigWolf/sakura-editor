@@ -1,19 +1,20 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 
 const siteName = 'Mochi Editor';
 const siteUrl = 'https://mochi-editor.vercel.app';
 const description = '無料で使えるオンラインテキストエディタ。インストール不要でブラウザから即座に利用可能。日本語完全対応、全角スペース表示、ダークモード、検索・置換機能搭載。プログラミングからメモまで幅広く対応。';
 
-export const metadata: Metadata = {
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
     { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
   ],
+};
+
+export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: `${siteName} - 無料オンラインテキストエディタ | Free Online Text Editor`,

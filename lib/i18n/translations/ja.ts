@@ -2,6 +2,15 @@ export const ja = {
   common: {
     close: '閉じる',
   },
+  error: {
+    fileError: 'ファイルエラー',
+    fileReadFailed: 'ファイルの読み込みに失敗しました',
+    fileTooLarge: 'ファイルサイズが大きすぎます',
+    invalidFileType: 'サポートされていないファイル形式です',
+    searchQueryTooLong: '検索文字列が長すぎます',
+    invalidRegex: '無効な正規表現です',
+    complexRegex: '複雑すぎる正規表現パターンです',
+  },
   editor: {
     loading: 'エディタを読み込み中...',
   },

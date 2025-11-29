@@ -33,11 +33,14 @@ import {
 import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { SearchDialog } from '@/components/editor/SearchDialog';
 import { cn } from '@/lib/utils';
+import { validateFile, FILE_SECURITY } from '@/lib/security';
+import { useToast } from '@/components/ui/use-toast';
 
 const toolbarButtonClass = "h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary shrink-0";
 
 export function EditorToolbar() {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const { addFile, getActiveFile } = useFileStore();
   const { setIsOpen: setSearchOpen, isOpen: searchOpen } = useSearchStore();
   const { getEditorInstance } = useEditorInstanceStore();
@@ -93,18 +96,37 @@ export function EditorToolbar() {
   const handleLoad = () => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.txt,.md,.js,.ts,.jsx,.tsx,.json,.html,.css';
+    input.accept = FILE_SECURITY.ALLOWED_EXTENSIONS.join(',');
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
-      const text = await file.text();
-      addFile({
-        name: file.name,
-        content: text,
-        path: '',
-        lastModified: file.lastModified,
-      });
+      // セキュリティバリデーション
+      const validation = validateFile(file);
+      if (!validation.valid) {
+        toast({
+          title: t('error.fileError'),
+          description: validation.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      try {
+        const text = await file.text();
+        addFile({
+          name: validation.sanitizedName,
+          content: text,
+          path: '',
+          lastModified: file.lastModified,
+        });
+      } catch {
+        toast({
+          title: t('error.fileError'),
+          description: t('error.fileReadFailed'),
+          variant: 'destructive',
+        });
+      }
     };
     input.click();
   };

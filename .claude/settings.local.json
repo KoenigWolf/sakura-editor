@@ -27,7 +27,10 @@
       "Bash(/Users/toshikisakuta/Documents/sakura-editor/components/ui/avatar.tsx)",
       "Bash(npm install)",
       "Bash(npx tsc:*)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(npm audit:*)",
+      "Bash(find:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []
