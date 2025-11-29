@@ -302,74 +302,105 @@ export const EditorContainer = memo(function EditorContainer() {
         )}
       </div>
 
-      <div className="mochi-statusbar-modern flex-shrink-0 overflow-x-auto overflow-y-hidden safe-area-bottom">
+      {/* デスクトップ用ステータスバー */}
+      <div className="mochi-statusbar-modern flex-shrink-0 overflow-x-auto overflow-y-hidden safe-area-bottom hidden sm:flex">
         {/* 左側: ファイル情報 */}
         <div className="flex items-center gap-1">
           <button
             onClick={() => setShowCommandPalette(true)}
-            className="mochi-statusbar-item mochi-statusbar-item-clickable mochi-touch-target gap-2"
+            className="mochi-statusbar-item mochi-statusbar-item-clickable gap-2"
             title="Command Palette (⌘P)"
           >
-            <Command className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
-            <span className="truncate max-w-[80px] sm:max-w-[180px] flex items-center gap-1.5 text-xs sm:text-sm">
+            <Command className="h-3 w-3" />
+            <span className="truncate max-w-[180px] flex items-center gap-1.5 text-sm">
               {activeFile?.isDirty && (
-                <span className="w-2 h-2 sm:w-1.5 sm:h-1.5 rounded-full bg-primary animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
               )}
               {getDisplayFileName(activeFile?.name, t('status.untitled'))}
             </span>
           </button>
 
-          <div className="h-4 w-px bg-border/50 mx-1 hidden sm:block" />
+          <div className="h-4 w-px bg-border/50 mx-1" />
 
-          <div className="mochi-statusbar-item gap-1.5 hidden sm:flex">
+          <div className="mochi-statusbar-item gap-1.5">
             <Type className="h-3 w-3 text-muted-foreground" />
             <span className="mochi-statusbar-badge">{statusInfo.language}</span>
           </div>
 
-          <div className="mochi-statusbar-item gap-1.5 hidden sm:flex">
+          <div className="mochi-statusbar-item gap-1.5">
             <CornerDownLeft className="h-3 w-3 text-muted-foreground" />
             <span>{statusInfo.eol}</span>
           </div>
 
-          <div className="mochi-statusbar-item hidden sm:flex">
+          <div className="mochi-statusbar-item">
             <span className="text-muted-foreground">UTF-8</span>
           </div>
         </div>
 
         {/* 右側: カーソル位置・統計 */}
         <div className="flex items-center gap-1">
-          {/* モバイル: 簡略化された位置表示 */}
           <div className="mochi-statusbar-item gap-1 text-xs">
             <span className="font-medium">{statusInfo.cursorLine}</span>
             <span className="text-muted-foreground">:</span>
             <span className="font-medium">{statusInfo.cursorColumn}</span>
           </div>
 
-          <div className="h-4 w-px bg-border/50 mx-1 hidden sm:block" />
+          <div className="h-4 w-px bg-border/50 mx-1" />
 
-          <div className="mochi-statusbar-item hidden sm:flex gap-1.5">
+          <div className="mochi-statusbar-item gap-1.5">
             <FileCode2 className="h-3 w-3 text-muted-foreground" />
             <span>{statusInfo.lineCount} lines</span>
           </div>
 
-          <div className="h-4 w-px bg-border/50 mx-0.5 sm:mx-1" />
+          <div className="h-4 w-px bg-border/50 mx-1" />
 
           <button
             onClick={() => setTheme(getNextTheme(resolvedTheme))}
-            className="mochi-statusbar-item mochi-statusbar-item-clickable mochi-touch-target gap-1.5"
+            className="mochi-statusbar-item mochi-statusbar-item-clickable gap-1.5"
           >
             {mounted && (
               <>
                 {resolvedTheme === 'dark' ? (
-                  <Moon className="h-4 w-4 sm:h-3 sm:w-3" />
+                  <Moon className="h-3 w-3" />
                 ) : (
-                  <Sun className="h-4 w-4 sm:h-3 sm:w-3" />
+                  <Sun className="h-3 w-3" />
                 )}
-                <span className="hidden sm:inline">{t(getThemeLabelKey(resolvedTheme))}</span>
+                <span>{t(getThemeLabelKey(resolvedTheme))}</span>
               </>
             )}
           </button>
         </div>
+      </div>
+
+      {/* モバイル用ミニステータスバー */}
+      <div className="mochi-mobile-statusbar sm:hidden">
+        <button
+          onClick={() => setShowCommandPalette(true)}
+          className="mochi-mobile-status-item"
+        >
+          {activeFile?.isDirty && (
+            <span className="mochi-dirty-indicator" />
+          )}
+          <span className="truncate">{getDisplayFileName(activeFile?.name, t('status.untitled'))}</span>
+        </button>
+
+        <div className="mochi-mobile-status-info">
+          <span>{statusInfo.cursorLine}:{statusInfo.cursorColumn}</span>
+          <span className="mochi-mobile-status-badge">{statusInfo.language}</span>
+        </div>
+
+        <button
+          onClick={() => setTheme(getNextTheme(resolvedTheme))}
+          className="mochi-mobile-status-icon"
+        >
+          {mounted && (
+            resolvedTheme === 'dark' ? (
+              <Moon className="h-3.5 w-3.5" />
+            ) : (
+              <Sun className="h-3.5 w-3.5" />
+            )
+          )}
+        </button>
       </div>
 
       <CommandPalette

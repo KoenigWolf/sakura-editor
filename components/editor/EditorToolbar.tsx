@@ -169,117 +169,130 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
     input.click();
   };
 
-  // モバイル版ツールバー（iPhone最適化）
+  // モバイル版ツールバー（iPhone最適化 - フローティングピルスタイル）
   if (isMobile) {
     return (
-      <div className="mochi-toolbar-modern mochi-mobile-toolbar flex items-center justify-between px-2 py-1.5 w-full overflow-hidden safe-area-top">
-        {/* 左側: 設定とファイル操作 */}
-        <div className="flex items-center gap-1">
-          {/* 設定ボタン */}
+      <>
+        {/* コンパクトトップバー */}
+        <div className="mochi-mobile-top-bar">
           <button
             type="button"
             onClick={onOpenSettings}
-            className="mochi-toolbar-btn mochi-touch-btn"
+            className="mochi-mobile-icon-btn"
             aria-label={t('toolbar.settings')}
           >
-            <Settings2 className="h-5 w-5" />
+            <Settings2 className="h-[18px] w-[18px]" />
           </button>
 
-          {/* ファイル操作 */}
-          <button
-            type="button"
-            onClick={handleNewFile}
-            className="mochi-toolbar-btn mochi-touch-btn"
-            aria-label={t('toolbar.newFile')}
-          >
-            <FilePlus2 className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            className="mochi-toolbar-btn mochi-touch-btn"
-            aria-label={t('toolbar.save')}
-          >
-            <HardDriveDownload className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={handleLoad}
-            className="mochi-toolbar-btn mochi-touch-btn"
-            aria-label={t('toolbar.load')}
-          >
-            <FolderOpen className="h-5 w-5" />
-          </button>
-        </div>
+          <div className="mochi-mobile-title">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            <span>Sakura Editor</span>
+          </div>
 
-        {/* 右側: 編集と検索 */}
-        <div className="flex items-center gap-1">
-          {/* 元に戻す/やり直し */}
-          <button
-            type="button"
-            onClick={handleUndo}
-            className="mochi-toolbar-btn mochi-touch-btn"
-            aria-label={t('toolbar.undo')}
-          >
-            <Undo2 className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={handleRedo}
-            className="mochi-toolbar-btn mochi-touch-btn"
-            aria-label={t('toolbar.redo')}
-          >
-            <Redo2 className="h-5 w-5" />
-          </button>
-
-          {/* 検索 */}
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
-            className="mochi-toolbar-btn mochi-touch-btn"
+            className="mochi-mobile-icon-btn"
             aria-label={t('toolbar.search')}
           >
-            <Search className="h-5 w-5" />
+            <Search className="h-[18px] w-[18px]" />
           </button>
+        </div>
 
-          {/* 分割ビュー（アイコンのみ） */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className={cn(
-                  'mochi-toolbar-btn mochi-touch-btn',
-                  splitDirection && 'mochi-toolbar-btn-active'
-                )}
-                aria-label={t('toolbar.split')}
-              >
-                {splitDirection === 'horizontal' ? (
-                  <PanelTopClose className="h-5 w-5" />
-                ) : (
+        {/* フローティングアクションピル（下部） */}
+        <div className="mochi-floating-pill">
+          <div className="mochi-pill-inner">
+            {/* ファイル操作 */}
+            <button
+              type="button"
+              onClick={handleNewFile}
+              className="mochi-pill-btn"
+              aria-label={t('toolbar.newFile')}
+            >
+              <FilePlus2 className="h-5 w-5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleLoad}
+              className="mochi-pill-btn"
+              aria-label={t('toolbar.load')}
+            >
+              <FolderOpen className="h-5 w-5" />
+            </button>
+
+            <div className="mochi-pill-divider" />
+
+            {/* 編集操作 */}
+            <button
+              type="button"
+              onClick={handleUndo}
+              className="mochi-pill-btn"
+              aria-label={t('toolbar.undo')}
+            >
+              <Undo2 className="h-5 w-5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleRedo}
+              className="mochi-pill-btn"
+              aria-label={t('toolbar.redo')}
+            >
+              <Redo2 className="h-5 w-5" />
+            </button>
+
+            <div className="mochi-pill-divider" />
+
+            {/* 保存（プライマリ） */}
+            <button
+              type="button"
+              onClick={handleSave}
+              className="mochi-pill-btn mochi-pill-btn-primary"
+              aria-label={t('toolbar.save')}
+            >
+              <HardDriveDownload className="h-5 w-5" />
+            </button>
+
+            {/* 分割ビュー */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    'mochi-pill-btn',
+                    splitDirection && 'mochi-pill-btn-active'
+                  )}
+                  aria-label={t('toolbar.split')}
+                >
+                  {splitDirection === 'horizontal' ? (
+                    <PanelTopClose className="h-5 w-5" />
+                  ) : (
+                    <PanelLeftClose className="h-5 w-5" />
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" side="top" sideOffset={12} className="mochi-mobile-menu">
+                <DropdownMenuItem onClick={() => setSplitDirection('vertical')} className="mochi-mobile-menu-item">
                   <PanelLeftClose className="h-5 w-5" />
+                  <span>{t('toolbar.splitVertical')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSplitDirection('horizontal')} className="mochi-mobile-menu-item">
+                  <PanelTopClose className="h-5 w-5" />
+                  <span>{t('toolbar.splitHorizontal')}</span>
+                </DropdownMenuItem>
+                {splitDirection && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={closeSplit} className="mochi-mobile-menu-item text-destructive">
+                      <X className="h-5 w-5" />
+                      <span>{t('toolbar.closeSplit')}</span>
+                    </DropdownMenuItem>
+                  </>
                 )}
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" side="bottom" className="mochi-mobile-menu">
-              <DropdownMenuItem onClick={() => setSplitDirection('vertical')} className="mochi-mobile-menu-item">
-                <PanelLeftClose className="h-5 w-5" />
-                <span>{t('toolbar.splitVertical')}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSplitDirection('horizontal')} className="mochi-mobile-menu-item">
-                <PanelTopClose className="h-5 w-5" />
-                <span>{t('toolbar.splitHorizontal')}</span>
-              </DropdownMenuItem>
-              {splitDirection && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={closeSplit} className="mochi-mobile-menu-item text-destructive">
-                    <X className="h-5 w-5" />
-                    <span>{t('toolbar.closeSplit')}</span>
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         <SearchDialog
@@ -288,7 +301,7 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
           onSearch={() => {}}
           onReplace={() => {}}
         />
-      </div>
+      </>
     );
   }
 
