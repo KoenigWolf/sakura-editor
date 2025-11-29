@@ -61,7 +61,7 @@ export const useFileStore = create<FileStore>()(
         // 更新をキューに追加
         pendingUpdates.set(id, content);
 
-        // 既にスケジュール済みならスキップ
+        // Guard: 既にスケジュール済みならスキップ
         if (updateRafId !== null) return;
 
         // 次のフレームでバッチ更新
@@ -73,11 +73,18 @@ export const useFileStore = create<FileStore>()(
           set((state) => ({
             files: state.files.map((file) => {
               const newContent = updates.get(file.id);
-              if (newContent !== undefined && newContent !== file.content) {
-                const isDirty = newContent !== file.originalContent;
-                return { ...file, content: newContent, lastModified: Date.now(), isDirty };
-              }
-              return file;
+              // Guard: 更新がない場合はそのまま返す
+              if (newContent === undefined) return file;
+              // Guard: 内容が同じ場合はそのまま返す
+              if (newContent === file.content) return file;
+
+              const isDirty = newContent !== file.originalContent;
+              return {
+                ...file,
+                content: newContent,
+                lastModified: Date.now(),
+                isDirty,
+              };
             }),
           }));
         });

@@ -31,6 +31,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
 
   const handleSave = useCallback(async () => {
     const activeFile = getActiveFile();
+    // Guard: アクティブファイルがない場合は何もしない
     if (!activeFile) return;
 
     const blob = new Blob([activeFile.content], { type: 'text/plain' });
@@ -52,11 +53,14 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = FILE_SECURITY.ALLOWED_EXTENSIONS.join(',');
+
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
+      // Guard: ファイルが選択されていない場合は何もしない
       if (!file) return;
 
       const validation = validateFile(file);
+      // Guard: バリデーション失敗時はエラー表示して終了
       if (!validation.valid) {
         toast({
           title: t('error.fileError'),
@@ -82,24 +86,32 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
         });
       }
     };
+
     input.click();
   }, [addFile, toast, t]);
 
   const handleCloseTab = useCallback(() => {
-    if (activeFileId && files.length > 1) {
-      removeFile(activeFileId);
-    }
+    // Guard: アクティブなファイルがない場合は何もしない
+    if (!activeFileId) return;
+    // Guard: ファイルが1つしかない場合は閉じない
+    if (files.length <= 1) return;
+
+    removeFile(activeFileId);
   }, [activeFileId, files.length, removeFile]);
 
   const handleNextTab = useCallback(() => {
+    // Guard: ファイルが1つ以下の場合は何もしない
     if (files.length <= 1) return;
+
     const currentIndex = files.findIndex(f => f.id === activeFileId);
     const nextIndex = (currentIndex + 1) % files.length;
     setActiveFileId(files[nextIndex].id);
   }, [files, activeFileId, setActiveFileId]);
 
   const handlePrevTab = useCallback(() => {
+    // Guard: ファイルが1つ以下の場合は何もしない
     if (files.length <= 1) return;
+
     const currentIndex = files.findIndex(f => f.id === activeFileId);
     const prevIndex = (currentIndex - 1 + files.length) % files.length;
     setActiveFileId(files[prevIndex].id);
@@ -107,9 +119,10 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
 
   const handleGoToLine = useCallback(() => {
     const editor = getEditorInstance();
-    if (editor) {
-      editor.trigger('keyboard', 'editor.action.gotoLine', null);
-    }
+    // Guard: エディタインスタンスがない場合は何もしない
+    if (!editor) return;
+
+    editor.trigger('keyboard', 'editor.action.gotoLine', null);
   }, [getEditorInstance]);
 
   useEffect(() => {

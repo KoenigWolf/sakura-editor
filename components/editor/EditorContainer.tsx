@@ -30,6 +30,44 @@ import {
   Replace,
 } from 'lucide-react';
 
+// ヘルパー関数: テーマを切り替える
+const getNextTheme = (currentTheme: string | undefined): string => {
+  if (currentTheme === 'dark') return 'light';
+  return 'dark';
+};
+
+// ヘルパー関数: テーマアイコンを取得
+const getThemeIcon = (currentTheme: string | undefined) => {
+  if (currentTheme === 'dark') return Sun;
+  return Moon;
+};
+
+// ヘルパー関数: テーマラベルキーを取得
+const getThemeLabelKey = (currentTheme: string | undefined): string => {
+  if (currentTheme === 'dark') return 'status.dark';
+  return 'status.light';
+};
+
+// ヘルパー関数: ファイル名を取得（アクティブファイルがなければデフォルト値）
+const getDisplayFileName = (fileName: string | undefined, fallback: string): string => {
+  if (fileName) return fileName;
+  return fallback;
+};
+
+// ヘルパー関数: スプリット方向に応じたスタイルプロパティ名を取得
+const getSplitStyleKey = (direction: 'vertical' | 'horizontal' | null, isPrimary: boolean): 'width' | 'height' => {
+  if (direction === 'vertical') {
+    return isPrimary ? 'width' : 'height';
+  }
+  return isPrimary ? 'height' : 'width';
+};
+
+// ヘルパー関数: スプリット方向に応じたサイズ値を取得
+const getSplitStyleValue = (direction: 'vertical' | 'horizontal' | null, ratio: number): string => {
+  if (!direction) return '100%';
+  return `${ratio * 100}%`;
+};
+
 export const EditorContainer = memo(function EditorContainer() {
   const activeFile = useFileStore((state) => state.files.find(f => f.id === state.activeFileId));
   const files = useFileStore((state) => state.files);
@@ -50,16 +88,16 @@ export const EditorContainer = memo(function EditorContainer() {
 
   const handleUndo = useCallback(() => {
     const editor = getEditorInstance();
-    if (editor) {
-      editor.trigger('toolbar', 'undo', null);
-    }
+    if (!editor) return;
+
+    editor.trigger('toolbar', 'undo', null);
   }, [getEditorInstance]);
 
   const handleRedo = useCallback(() => {
     const editor = getEditorInstance();
-    if (editor) {
-      editor.trigger('toolbar', 'redo', null);
-    }
+    if (!editor) return;
+
+    editor.trigger('toolbar', 'redo', null);
   }, [getEditorInstance]);
 
   const commands: CommandItem[] = useMemo(() => [
@@ -147,8 +185,8 @@ export const EditorContainer = memo(function EditorContainer() {
     {
       id: 'toggle-theme',
       label: t('commandPalette.actions.toggleTheme'),
-      icon: resolvedTheme === 'dark' ? Sun : Moon,
-      action: () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark'),
+      icon: getThemeIcon(resolvedTheme),
+      action: () => setTheme(getNextTheme(resolvedTheme)),
       category: 'view',
     },
     // Settings commands
@@ -166,12 +204,17 @@ export const EditorContainer = memo(function EditorContainer() {
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
-    if (splitDirection && !secondaryFileId && files.length > 1) {
-      const otherFile = files.find(f => f.id !== activeFile?.id);
-      if (otherFile) {
-        setSecondaryFileId(otherFile.id);
-      }
-    }
+    // Guard: スプリットモードでない場合は何もしない
+    if (!splitDirection) return;
+    // Guard: 既にセカンダリファイルが設定されている場合は何もしない
+    if (secondaryFileId) return;
+    // Guard: ファイルが1つ以下の場合はスプリット不可
+    if (files.length <= 1) return;
+
+    const otherFile = files.find(f => f.id !== activeFile?.id);
+    if (!otherFile) return;
+
+    setSecondaryFileId(otherFile.id);
   }, [splitDirection, secondaryFileId, files, activeFile?.id, setSecondaryFileId]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -180,16 +223,14 @@ export const EditorContainer = memo(function EditorContainer() {
   }, []);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !containerRef.current) return;
+    if (!isDragging) return;
+    if (!containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
-    let ratio: number;
 
-    if (splitDirection === 'vertical') {
-      ratio = (e.clientX - rect.left) / rect.width;
-    } else {
-      ratio = (e.clientY - rect.top) / rect.height;
-    }
+    const ratio = splitDirection === 'vertical'
+      ? (e.clientX - rect.left) / rect.width
+      : (e.clientY - rect.top) / rect.height;
 
     setSplitRatio(ratio);
   }, [isDragging, splitDirection, setSplitRatio]);
@@ -225,10 +266,8 @@ export const EditorContainer = memo(function EditorContainer() {
         <div
           className="overflow-hidden min-w-0 min-h-0"
           style={{
-            [splitDirection === 'vertical' ? 'width' : 'height']: splitDirection
-              ? `${splitRatio * 100}%`
-              : '100%',
-            [splitDirection === 'vertical' ? 'height' : 'width']: '100%',
+            [getSplitStyleKey(splitDirection, true)]: getSplitStyleValue(splitDirection, splitRatio),
+            [getSplitStyleKey(splitDirection, false)]: '100%',
             flexShrink: 0,
           }}
         >
@@ -263,7 +302,7 @@ export const EditorContainer = memo(function EditorContainer() {
             {activeFile?.isDirty && (
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             )}
-            {activeFile?.name || t('status.untitled')}
+            {getDisplayFileName(activeFile?.name, t('status.untitled'))}
           </span>
         </button>
         <div className="mochi-editor-statusbar-item whitespace-nowrap">
@@ -282,11 +321,11 @@ export const EditorContainer = memo(function EditorContainer() {
           {statusInfo.language}
         </div>
         <button
-          onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+          onClick={() => setTheme(getNextTheme(resolvedTheme))}
           className="mochi-editor-statusbar-item ml-auto whitespace-nowrap hover:bg-primary/10 transition-colors rounded px-2"
           suppressHydrationWarning
         >
-          {resolvedTheme === 'dark' ? t('status.dark') : t('status.light')}
+          {t(getThemeLabelKey(resolvedTheme))}
         </button>
       </div>
 

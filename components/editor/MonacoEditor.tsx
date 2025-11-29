@@ -53,9 +53,52 @@ const LANGUAGE_MAPPINGS: Record<string, string> = {
  */
 const getLanguageFromFilename = (filename: string | null): string => {
   if (!filename) return 'plaintext';
-  
+
   const extension = filename.substring(filename.lastIndexOf('.')).toLowerCase();
   return LANGUAGE_MAPPINGS[extension] || 'plaintext';
+};
+
+/**
+ * EOL文字列から表示用ラベルを取得
+ * @param eol 改行コード
+ * @returns ラベル文字列
+ */
+const getEolLabel = (eol: string): string => {
+  if (eol === '\n') return 'LF';
+  if (eol === '\r\n') return 'CRLF';
+  return 'CR';
+};
+
+/**
+ * 全角スペースをハイライトすべきか判定
+ */
+const shouldHighlightFullWidthSpace = (
+  mode: string,
+  startPos: { lineNumber: number; column: number },
+  endPos: { lineNumber: number; column: number },
+  selection: { startLineNumber: number; startColumn: number; endLineNumber: number; endColumn: number } | null,
+  lineContent: string,
+  monaco: Monaco
+): boolean => {
+  if (mode === 'all') return true;
+  if (mode === 'boundary') return true;
+
+  if (mode === 'selection' && selection) {
+    const range = new monaco.Range(
+      startPos.lineNumber,
+      startPos.column,
+      endPos.lineNumber,
+      endPos.column
+    );
+    return monaco.Range.areIntersectingOrTouching(selection, range);
+  }
+
+  if (mode === 'trailing') {
+    const afterSpace = lineContent.substring(startPos.column - 1);
+    return afterSpace.trim().length === 0;
+  }
+
+  return false;
 };
 
 /**
@@ -95,9 +138,14 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
     setMounted(true);
   }, []);
 
-  const targetFileId = fileId ?? activeFileId;
+  const targetFileId = fileId || activeFileId;
   const activeFile = files.find(f => f.id === targetFileId);
-  currentFileIdRef.current = activeFile?.id ?? null;
+
+  if (activeFile) {
+    currentFileIdRef.current = activeFile.id;
+  } else {
+    currentFileIdRef.current = null;
+  }
 
   /**
    * エディタのステータス情報を更新
@@ -122,7 +170,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
         lineCount: model.getLineCount(),
         charCount: model.getValueLength(),
         language: model.getLanguageId(),
-        eol: eol === '\n' ? 'LF' : eol === '\r\n' ? 'CRLF' : 'CR',
+        eol: getEolLabel(eol),
       });
     }
   }, [updateStatusInfo]);
@@ -150,11 +198,13 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
   const updateFullWidthSpaceDecorations = useCallback(() => {
     const ed = editorRef.current;
     const monaco = monacoRef.current;
-    if (!ed || !monaco) return;
+    if (!ed) return;
+    if (!monaco) return;
 
     const model = ed.getModel();
     if (!model) return;
 
+    // ハイライト無効の場合はクリアして終了
     if (settings.showFullWidthSpace === 'none') {
       if (fullWidthSpaceDecorationsRef.current) {
         fullWidthSpaceDecorationsRef.current.clear();
@@ -171,40 +221,31 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
     while ((match = fullWidthSpaceRegex.exec(content)) !== null) {
       const startPos = model.getPositionAt(match.index);
       const endPos = model.getPositionAt(match.index + 1);
+      const lineContent = model.getLineContent(startPos.lineNumber);
 
-      let shouldHighlight = false;
-      if (settings.showFullWidthSpace === 'all') {
-        shouldHighlight = true;
-      } else if (settings.showFullWidthSpace === 'selection' && selection) {
-        const range = new monaco.Range(
+      const shouldHighlight = shouldHighlightFullWidthSpace(
+        settings.showFullWidthSpace,
+        startPos,
+        endPos,
+        selection,
+        lineContent,
+        monaco
+      );
+
+      if (!shouldHighlight) continue;
+
+      decorations.push({
+        range: new monaco.Range(
           startPos.lineNumber,
           startPos.column,
           endPos.lineNumber,
           endPos.column
-        );
-        shouldHighlight = monaco.Range.areIntersectingOrTouching(selection, range);
-      } else if (settings.showFullWidthSpace === 'trailing') {
-        const lineContent = model.getLineContent(startPos.lineNumber);
-        const afterSpace = lineContent.substring(startPos.column - 1);
-        shouldHighlight = afterSpace.trim().length === 0;
-      } else if (settings.showFullWidthSpace === 'boundary') {
-        shouldHighlight = true;
-      }
-
-      if (shouldHighlight) {
-        decorations.push({
-          range: new monaco.Range(
-            startPos.lineNumber,
-            startPos.column,
-            endPos.lineNumber,
-            endPos.column
-          ),
-          options: {
-            inlineClassName: 'full-width-space-highlight',
-            hoverMessage: { value: '全角スペース (U+3000)' },
-          },
-        });
-      }
+        ),
+        options: {
+          inlineClassName: 'full-width-space-highlight',
+          hoverMessage: { value: '全角スペース (U+3000)' },
+        },
+      });
     }
 
     if (!fullWidthSpaceDecorationsRef.current) {
@@ -390,7 +431,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
         lineCount: model.getLineCount(),
         charCount: model.getValueLength(),
         language: model.getLanguageId(),
-        eol: eol === '\n' ? 'LF' : eol === '\r\n' ? 'CRLF' : 'CR',
+        eol: getEolLabel(eol),
       });
     }
 

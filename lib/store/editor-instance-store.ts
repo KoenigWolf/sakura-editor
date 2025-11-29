@@ -57,25 +57,36 @@ export const useEditorInstanceStore = create<EditorInstanceStore>((set, get) => 
 
   updateStatusInfo: (info) => {
     // 更新をマージ
-    pendingUpdate = pendingUpdate ? { ...pendingUpdate, ...info } : info;
+    if (pendingUpdate) {
+      pendingUpdate = { ...pendingUpdate, ...info };
+    } else {
+      pendingUpdate = info;
+    }
 
-    // 既にスケジュール済みならスキップ
+    // Guard: 既にスケジュール済みならスキップ
     if (rafId !== null) return;
 
     // 次のフレームでバッチ更新
     rafId = requestAnimationFrame(() => {
-      if (pendingUpdate) {
-        const current = get().statusInfo;
-        // 実際に変更がある場合のみ更新
-        const hasChanges = Object.entries(pendingUpdate).some(
-          ([key, value]) => current[key as keyof StatusInfo] !== value
-        );
-        if (hasChanges) {
-          set((state) => ({
-            statusInfo: { ...state.statusInfo, ...pendingUpdate! },
-          }));
-        }
+      // Guard: 保留中の更新がない場合は何もしない
+      if (!pendingUpdate) {
+        rafId = null;
+        return;
       }
+
+      const current = get().statusInfo;
+      // 実際に変更がある場合のみ更新
+      const hasChanges = Object.entries(pendingUpdate).some(
+        ([key, value]) => current[key as keyof StatusInfo] !== value
+      );
+
+      if (hasChanges) {
+        const update = pendingUpdate;
+        set((state) => ({
+          statusInfo: { ...state.statusInfo, ...update },
+        }));
+      }
+
       pendingUpdate = null;
       rafId = null;
     });

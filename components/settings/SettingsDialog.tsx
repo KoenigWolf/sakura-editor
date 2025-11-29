@@ -66,6 +66,126 @@ type SettingsDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
+// ヘルパー関数: デバイスタイプを判定
+const getDeviceType = (width: number): 'mobile' | 'tablet' | 'desktop' => {
+  if (width < MOBILE_BREAKPOINT) return 'mobile';
+  if (width < TABLET_BREAKPOINT) return 'tablet';
+  return 'desktop';
+};
+
+// ヘルパー関数: ダイアログの初期位置とサイズを計算
+const calculateInitialLayout = (deviceType: 'mobile' | 'tablet' | 'desktop') => {
+  if (deviceType === 'mobile') {
+    return {
+      position: { x: 0, y: 0 },
+      size: { width: window.innerWidth, height: window.innerHeight },
+    };
+  }
+
+  if (deviceType === 'tablet') {
+    const width = Math.min(DEFAULT_WIDTH, window.innerWidth * 0.9);
+    const height = Math.min(DEFAULT_HEIGHT, window.innerHeight * 0.9);
+    return {
+      position: {
+        x: (window.innerWidth - width) / 2,
+        y: (window.innerHeight - height) / 2,
+      },
+      size: { width, height },
+    };
+  }
+
+  // desktop
+  return {
+    position: {
+      x: (window.innerWidth - DEFAULT_WIDTH) / 2,
+      y: (window.innerHeight - DEFAULT_HEIGHT) / 2,
+    },
+    size: { width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT },
+  };
+};
+
+// ヘルパー関数: リサイズ後の新しい幅を計算
+const calculateNewWidth = (
+  direction: ResizeDirection,
+  currentWidth: number,
+  currentX: number,
+  deltaX: number
+): { width: number; x: number } => {
+  if (!direction) return { width: currentWidth, x: currentX };
+
+  if (direction.includes('e')) {
+    return {
+      width: Math.max(MIN_WIDTH, currentWidth + deltaX),
+      x: currentX,
+    };
+  }
+
+  if (direction.includes('w')) {
+    const potentialWidth = currentWidth - deltaX;
+    if (potentialWidth >= MIN_WIDTH) {
+      return {
+        width: potentialWidth,
+        x: currentX + deltaX,
+      };
+    }
+  }
+
+  return { width: currentWidth, x: currentX };
+};
+
+// ヘルパー関数: リサイズ後の新しい高さを計算
+const calculateNewHeight = (
+  direction: ResizeDirection,
+  currentHeight: number,
+  currentY: number,
+  deltaY: number
+): { height: number; y: number } => {
+  if (!direction) return { height: currentHeight, y: currentY };
+
+  if (direction.includes('s')) {
+    return {
+      height: Math.max(MIN_HEIGHT, currentHeight + deltaY),
+      y: currentY,
+    };
+  }
+
+  if (direction.includes('n')) {
+    const potentialHeight = currentHeight - deltaY;
+    if (potentialHeight >= MIN_HEIGHT) {
+      return {
+        height: potentialHeight,
+        y: currentY + deltaY,
+      };
+    }
+  }
+
+  return { height: currentHeight, y: currentY };
+};
+
+// ヘルパー関数: ダイアログのスタイルを生成
+const getDialogStyles = (
+  isMobile: boolean,
+  position: { x: number; y: number },
+  size: { width: number; height: number }
+): React.CSSProperties => {
+  if (isMobile) {
+    return {
+      position: 'fixed',
+      inset: 0,
+      width: '100%',
+      height: '100%',
+    };
+  }
+
+  return {
+    position: 'fixed',
+    left: position.x,
+    top: position.y,
+    width: size.width,
+    height: size.height,
+  };
+};
+
 export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -88,9 +208,9 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
 
   useEffect(() => {
     const checkResponsive = () => {
-      const width = window.innerWidth;
-      setIsMobile(width < MOBILE_BREAKPOINT);
-      setIsTablet(width >= MOBILE_BREAKPOINT && width < TABLET_BREAKPOINT);
+      const deviceType = getDeviceType(window.innerWidth);
+      setIsMobile(deviceType === 'mobile');
+      setIsTablet(deviceType === 'tablet');
     };
     checkResponsive();
     window.addEventListener('resize', checkResponsive);
@@ -98,45 +218,45 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   }, []);
 
   useEffect(() => {
-    if (open && !isInitialized) {
-      if (isMobile) {
-        setPosition({ x: 0, y: 0 });
-        setSize({ width: window.innerWidth, height: window.innerHeight });
-      } else if (isTablet) {
-        const width = Math.min(DEFAULT_WIDTH, window.innerWidth * 0.9);
-        const height = Math.min(DEFAULT_HEIGHT, window.innerHeight * 0.9);
-        const centerX = (window.innerWidth - width) / 2;
-        const centerY = (window.innerHeight - height) / 2;
-        setPosition({ x: centerX, y: centerY });
-        setSize({ width, height });
-      } else {
-        const centerX = (window.innerWidth - DEFAULT_WIDTH) / 2;
-        const centerY = (window.innerHeight - DEFAULT_HEIGHT) / 2;
-        setPosition({ x: centerX, y: centerY });
-        setSize({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
-      }
-      setIsInitialized(true);
-      setOriginalSettings(currentSettings);
-      setTempSettings(currentSettings);
-    }
+    // Guard: ダイアログが閉じられた場合は初期化フラグをリセット
     if (!open) {
       setIsInitialized(false);
+      return;
     }
+
+    // Guard: 既に初期化済みの場合は何もしない
+    if (isInitialized) return;
+
+    // デバイスタイプに応じた初期レイアウトを計算
+    const deviceType = isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop';
+    const layout = calculateInitialLayout(deviceType);
+
+    setPosition(layout.position);
+    setSize(layout.size);
+    setIsInitialized(true);
+    setOriginalSettings(currentSettings);
+    setTempSettings(currentSettings);
   }, [open, isInitialized, currentSettings, isMobile, isTablet]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (isMobile || isTablet) return;
-    if (dialogRef.current) {
-      setIsDragging(true);
-      setDragOffset({
-        x: e.clientX - position.x,
-        y: e.clientY - position.y,
-      });
-    }
+    // Guard: モバイル・タブレットではドラッグ無効
+    if (isMobile) return;
+    if (isTablet) return;
+    // Guard: ダイアログ参照がない場合は何もしない
+    if (!dialogRef.current) return;
+
+    setIsDragging(true);
+    setDragOffset({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y,
+    });
   }, [position, isMobile, isTablet]);
 
   const handleResizeStart = useCallback((e: React.MouseEvent, direction: ResizeDirection) => {
-    if (isMobile || isTablet) return;
+    // Guard: モバイル・タブレットではリサイズ無効
+    if (isMobile) return;
+    if (isTablet) return;
+
     e.preventDefault();
     e.stopPropagation();
     setIsResizing(true);
@@ -175,41 +295,31 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   }, [isDragging, dragOffset]);
 
   useEffect(() => {
-    if (!isResizing || !resizeDirection) return;
+    // Guard: リサイズ中でない場合は何もしない
+    if (!isResizing) return;
+    // Guard: リサイズ方向が指定されていない場合は何もしない
+    if (!resizeDirection) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       const deltaX = e.clientX - resizeStart.x;
       const deltaY = e.clientY - resizeStart.y;
 
-      let newWidth = resizeStart.width;
-      let newHeight = resizeStart.height;
-      let newX = resizeStart.posX;
-      let newY = resizeStart.posY;
+      const widthResult = calculateNewWidth(
+        resizeDirection,
+        resizeStart.width,
+        resizeStart.posX,
+        deltaX
+      );
 
-      if (resizeDirection.includes('e')) {
-        newWidth = Math.max(MIN_WIDTH, resizeStart.width + deltaX);
-      }
-      if (resizeDirection.includes('w')) {
-        const potentialWidth = resizeStart.width - deltaX;
-        if (potentialWidth >= MIN_WIDTH) {
-          newWidth = potentialWidth;
-          newX = resizeStart.posX + deltaX;
-        }
-      }
+      const heightResult = calculateNewHeight(
+        resizeDirection,
+        resizeStart.height,
+        resizeStart.posY,
+        deltaY
+      );
 
-      if (resizeDirection.includes('s')) {
-        newHeight = Math.max(MIN_HEIGHT, resizeStart.height + deltaY);
-      }
-      if (resizeDirection.includes('n')) {
-        const potentialHeight = resizeStart.height - deltaY;
-        if (potentialHeight >= MIN_HEIGHT) {
-          newHeight = potentialHeight;
-          newY = resizeStart.posY + deltaY;
-        }
-      }
-
-      setSize({ width: newWidth, height: newHeight });
-      setPosition({ x: newX, y: newY });
+      setSize({ width: widthResult.width, height: heightResult.height });
+      setPosition({ x: widthResult.x, y: heightResult.y });
     };
 
     const handleMouseUp = () => {
@@ -245,7 +355,9 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   }, [updateSettings]);
 
   const handleClose = useCallback(() => {
-    if (JSON.stringify(tempSettings) !== JSON.stringify(originalSettings)) {
+    // 設定が変更されている場合は元に戻す
+    const hasChanges = JSON.stringify(tempSettings) !== JSON.stringify(originalSettings);
+    if (hasChanges) {
       updateSettings(originalSettings);
       setTempSettings(originalSettings);
     }
@@ -258,20 +370,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const resizeHandleEdge = 'bg-transparent hover:bg-primary/20 transition-colors';
   const resizeHandleCorner = 'w-3 h-3 bg-transparent hover:bg-primary/30 transition-colors rounded-sm';
 
-  const dialogStyles = isMobile
-    ? {
-        position: 'fixed' as const,
-        inset: 0,
-        width: '100%',
-        height: '100%',
-      }
-    : {
-        position: 'fixed' as const,
-        left: position.x,
-        top: position.y,
-        width: size.width,
-        height: size.height,
-      };
+  const dialogStyles = getDialogStyles(isMobile, position, size);
 
   return (
     <>

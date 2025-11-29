@@ -201,8 +201,10 @@ export const SearchDialog = memo(({
 
   const goToMatch = useCallback((index: number, targetMatches?: SearchMatch[]) => {
     const editor = getEditorInstance();
-    const list = targetMatches ?? matches;
-    if (!editor || list.length === 0) return;
+    if (!editor) return;
+
+    const list = targetMatches || matches;
+    if (list.length === 0) return;
 
     const safeIndex = ((index % list.length) + list.length) % list.length;
     const match = list[safeIndex];
@@ -247,16 +249,22 @@ export const SearchDialog = memo(({
       }
 
       const editor = getEditorInstance();
-      const model = editor?.getModel();
-      if (!editor || !model) return;
+      if (!editor) return;
+
+      const model = editor.getModel();
+      if (!model) return;
 
       try {
         const isRegexMode = isRegex || isWholeWord;
-        const searchString = isRegex
-          ? normalizedQuery
-          : isWholeWord
-            ? `\\b${escapeRegExp(normalizedQuery)}\\b`
-            : normalizedQuery;
+
+        let searchString: string;
+        if (isRegex) {
+          searchString = normalizedQuery;
+        } else if (isWholeWord) {
+          searchString = `\\b${escapeRegExp(normalizedQuery)}\\b`;
+        } else {
+          searchString = normalizedQuery;
+        }
 
         const foundMatches = model.findMatches(
           searchString,
@@ -319,11 +327,14 @@ export const SearchDialog = memo(({
   }, [currentMatchIndex, goToMatch, matches.length, performSearch, query]);
 
   const handleReplace = useCallback(() => {
-    if (!query.trim()) return;
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) return;
 
     const editor = getEditorInstance();
-    const model = editor?.getModel();
-    if (!editor || !model) return;
+    if (!editor) return;
+
+    const model = editor.getModel();
+    if (!model) return;
 
     const selection = editor.getSelection();
     if (!selection || selection.isEmpty()) {
@@ -341,17 +352,23 @@ export const SearchDialog = memo(({
   }, [query, replacement, getEditorInstance, onReplace, options, performSearch, handleNextMatch]);
 
   const handleReplaceAll = useCallback(() => {
-    if (!query.trim()) return;
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) return;
 
     const editor = getEditorInstance();
-    const model = editor?.getModel();
-    if (!editor || !model) return;
+    if (!editor) return;
 
-    const searchString = isRegex
-      ? query
-      : isWholeWord
-        ? `\\b${escapeRegExp(query)}\\b`
-        : escapeRegExp(query);
+    const model = editor.getModel();
+    if (!model) return;
+
+    let searchString: string;
+    if (isRegex) {
+      searchString = query;
+    } else if (isWholeWord) {
+      searchString = `\\b${escapeRegExp(query)}\\b`;
+    } else {
+      searchString = escapeRegExp(query);
+    }
 
     const foundMatches = model.findMatches(
       searchString,
