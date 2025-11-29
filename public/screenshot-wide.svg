@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
   <rect width="1280" height="720" fill="#1a1a2e"/>
-  <text x="640" y="360" text-anchor="middle" fill="#ffb7c5" font-family="system-ui" font-size="24">
-    Sakura Editor
+  <text x="640" y="360" text-anchor="middle" fill="#a8e6cf" font-family="system-ui" font-size="24">
+    Zen Editor
   </text>
 </svg>

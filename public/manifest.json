@@ -1,6 +1,6 @@
 {
-  "name": "Sakura Editor",
-  "short_name": "Sakura",
+  "name": "Zen Editor",
+  "short_name": "Zen",
   "description": "無料で使えるオンラインテキストエディタ。MacBook・Windows対応。オフラインでも動作します。",
   "start_url": "/",
   "scope": "/",
@@ -12,7 +12,7 @@
   "categories": ["productivity", "utilities", "developer tools"],
   "lang": "ja",
   "dir": "ltr",
-  "id": "sakura-editor",
+  "id": "zen-editor",
   "prefer_related_applications": false,
   "icons": [
     {
@@ -82,14 +82,14 @@
       "sizes": "1280x720",
       "type": "image/svg+xml",
       "form_factor": "wide",
-      "label": "Sakura Editor - デスクトップ画面"
+      "label": "Zen Editor - デスクトップ画面"
     },
     {
       "src": "/screenshot-narrow.svg",
       "sizes": "390x844",
       "type": "image/svg+xml",
       "form_factor": "narrow",
-      "label": "Sakura Editor - モバイル画面"
+      "label": "Zen Editor - モバイル画面"
     }
   ],
   "shortcuts": [

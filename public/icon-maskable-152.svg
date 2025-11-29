@@ -4,9 +4,9 @@
       <stop offset="0%" style="stop-color:#1a1a2e"/>
       <stop offset="100%" style="stop-color:#16213e"/>
     </linearGradient>
-    <linearGradient id="sakura" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#ffb7c5"/>
-      <stop offset="100%" style="stop-color:#ff69b4"/>
+    <linearGradient id="zen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a8e6cf"/>
+      <stop offset="100%" style="stop-color:#88d8b0"/>
     </linearGradient>
   </defs>
 
@@ -14,19 +14,19 @@
   <rect width="512" height="512" rx="96" fill="url(#bg)"/>
 
   <!-- 桜の花びら1 -->
-  <path d="M256 120 Q280 180 256 220 Q232 180 256 120" fill="url(#sakura)" opacity="0.9"/>
+  <path d="M256 120 Q280 180 256 220 Q232 180 256 120" fill="url(#zen)" opacity="0.9"/>
 
   <!-- 桜の花びら2 -->
-  <path d="M320 160 Q300 200 256 220 Q290 210 320 160" fill="url(#sakura)" opacity="0.85"/>
+  <path d="M320 160 Q300 200 256 220 Q290 210 320 160" fill="url(#zen)" opacity="0.85"/>
 
   <!-- 桜の花びら3 -->
-  <path d="M350 240 Q300 240 256 220 Q300 250 350 240" fill="url(#sakura)" opacity="0.8"/>
+  <path d="M350 240 Q300 240 256 220 Q300 250 350 240" fill="url(#zen)" opacity="0.8"/>
 
   <!-- 桜の花びら4 -->
-  <path d="M192 160 Q212 200 256 220 Q222 210 192 160" fill="url(#sakura)" opacity="0.85"/>
+  <path d="M192 160 Q212 200 256 220 Q222 210 192 160" fill="url(#zen)" opacity="0.85"/>
 
   <!-- 桜の花びら5 -->
-  <path d="M162 240 Q212 240 256 220 Q212 250 162 240" fill="url(#sakura)" opacity="0.8"/>
+  <path d="M162 240 Q212 240 256 220 Q212 250 162 240" fill="url(#zen)" opacity="0.8"/>
 
   <!-- 中心 -->
   <circle cx="256" cy="220" r="16" fill="#ffd700" opacity="0.9"/>
@@ -60,7 +60,7 @@
     <rect x="210" y="350" width="80" height="10" rx="2" fill="#56b6c2"/>
 
     <!-- コードライン4 - 空行カーソル -->
-    <rect x="150" y="375" width="2" height="14" fill="#ffb7c5" opacity="0.8"/>
+    <rect x="150" y="375" width="2" height="14" fill="#a8e6cf" opacity="0.8"/>
 
     <!-- コードライン5 -->
     <rect x="150" y="400" width="8" height="10" rx="2" fill="#abb2bf"/>

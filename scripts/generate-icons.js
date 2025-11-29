@@ -75,17 +75,17 @@ function createPlaceholderPNG(outputPath, size) {
       <stop offset="0%" style="stop-color:#1a1a2e"/>
       <stop offset="100%" style="stop-color:#16213e"/>
     </linearGradient>
-    <linearGradient id="sakura" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#ffb7c5"/>
-      <stop offset="100%" style="stop-color:#ff69b4"/>
+    <linearGradient id="zen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a8e6cf"/>
+      <stop offset="100%" style="stop-color:#88d8b0"/>
     </linearGradient>
   </defs>
   <rect width="512" height="512" rx="96" fill="url(#bg)"/>
-  <path d="M256 120 Q280 180 256 220 Q232 180 256 120" fill="url(#sakura)" opacity="0.9"/>
-  <path d="M320 160 Q300 200 256 220 Q290 210 320 160" fill="url(#sakura)" opacity="0.85"/>
-  <path d="M350 240 Q300 240 256 220 Q300 250 350 240" fill="url(#sakura)" opacity="0.8"/>
-  <path d="M192 160 Q212 200 256 220 Q222 210 192 160" fill="url(#sakura)" opacity="0.85"/>
-  <path d="M162 240 Q212 240 256 220 Q212 250 162 240" fill="url(#sakura)" opacity="0.8"/>
+  <path d="M256 120 Q280 180 256 220 Q232 180 256 120" fill="url(#zen)" opacity="0.9"/>
+  <path d="M320 160 Q300 200 256 220 Q290 210 320 160" fill="url(#zen)" opacity="0.85"/>
+  <path d="M350 240 Q300 240 256 220 Q300 250 350 240" fill="url(#zen)" opacity="0.8"/>
+  <path d="M192 160 Q212 200 256 220 Q222 210 192 160" fill="url(#zen)" opacity="0.85"/>
+  <path d="M162 240 Q212 240 256 220 Q212 250 162 240" fill="url(#zen)" opacity="0.8"/>
   <circle cx="256" cy="220" r="16" fill="#ffd700" opacity="0.9"/>
   <g opacity="0.9">
     <rect x="100" y="280" width="312" height="160" rx="12" fill="#0f0f23"/>
@@ -96,7 +96,7 @@ function createPlaceholderPNG(outputPath, size) {
     <rect x="200" y="325" width="55" height="10" rx="2" fill="#98c379"/>
     <rect x="160" y="350" width="45" height="10" rx="2" fill="#e5c07b"/>
     <rect x="210" y="350" width="80" height="10" rx="2" fill="#56b6c2"/>
-    <rect x="150" y="375" width="2" height="14" fill="#ffb7c5" opacity="0.8"/>
+    <rect x="150" y="375" width="2" height="14" fill="#a8e6cf" opacity="0.8"/>
     <rect x="150" y="400" width="8" height="10" rx="2" fill="#abb2bf"/>
   </g>
 </svg>`;
@@ -109,8 +109,8 @@ function createPlaceholderPNG(outputPath, size) {
 function createScreenshotPlaceholder(outputPath, width, height) {
   const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <rect width="${width}" height="${height}" fill="#1a1a2e"/>
-  <text x="${width/2}" y="${height/2}" text-anchor="middle" fill="#ffb7c5" font-family="system-ui" font-size="24">
-    Sakura Editor
+  <text x="${width/2}" y="${height/2}" text-anchor="middle" fill="#a8e6cf" font-family="system-ui" font-size="24">
+    Zen Editor
   </text>
 </svg>`;
 

@@ -220,7 +220,7 @@ export const en = {
     encoding: 'UTF-8',
   },
   app: {
-    title: 'Sakura Editor',
+    title: 'Zen Editor',
   },
   fileTree: {
     title: 'Files',
@@ -231,7 +231,7 @@ export const en = {
   },
   pwa: {
     install: {
-      title: 'Install Sakura Editor',
+      title: 'Install Zen Editor',
       desktop: 'Use as desktop app',
       mobile: 'Add to Home Screen',
       button: 'Install',
