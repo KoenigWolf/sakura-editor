@@ -90,9 +90,11 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
   const { setIsOpen: setSearchOpen, isOpen: searchOpen } = useSearchStore();
   const { getEditorInstance } = useEditorInstanceStore();
   const { splitDirection, setSplitDirection, closeSplit } = useSplitViewStore();
+  const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 480);
     };
@@ -100,6 +102,9 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // SSR中はデスクトップ版を表示（ハイドレーションエラー回避）
+  const showMobileUI = mounted && isMobile;
 
   const handleUndo = useCallback(() => {
     const editor = getEditorInstance();
@@ -174,7 +179,7 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
   };
 
   // モバイル版ツールバー（iPhone最適化 - フローティングピルスタイル）
-  if (isMobile) {
+  if (showMobileUI) {
     return (
       <>
         {/* コンパクトトップバー */}
@@ -311,6 +316,7 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
 
   // デスクトップ版ツールバー
   return (
+    <>
     <div className="mochi-toolbar-modern flex items-center gap-1.5 px-3 py-2 w-full overflow-hidden">
       {/* 設定（左端） */}
       <Tooltip>
@@ -437,13 +443,14 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <SearchDialog
-        open={searchOpen}
-        onOpenChange={setSearchOpen}
-        onSearch={() => {}}
-        onReplace={() => {}}
-      />
     </div>
+
+    <SearchDialog
+      open={searchOpen}
+      onOpenChange={setSearchOpen}
+      onSearch={() => {}}
+      onReplace={() => {}}
+    />
+    </>
   );
 }
