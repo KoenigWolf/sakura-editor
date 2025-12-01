@@ -199,6 +199,8 @@ export const en = {
     splitHorizontal: 'Split Horizontal',
     closeSplit: 'Close Split',
     settings: 'Settings',
+    fullscreen: 'Focus Mode',
+    exitFocus: 'Tap to exit',
   },
   indent: {
     ruler: 'Indent Ruler',

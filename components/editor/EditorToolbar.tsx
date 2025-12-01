@@ -13,7 +13,6 @@ import {
   Columns2,
   Rows2,
   X,
-  Sparkles,
   TextCursorInput,
   AlignLeft,
   Scaling,
@@ -202,139 +201,15 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
     input.click();
   };
 
-  // モバイル版ツールバー（iPhone最適化 - フローティングピルスタイル）
+  // モバイルの場合はEditorContainerで処理するので何も返さない
   if (showMobileUI) {
     return (
-      <>
-        {/* コンパクトトップバー */}
-        <div className="mochi-mobile-top-bar">
-          <button
-            type="button"
-            onClick={onOpenSettings}
-            className="mochi-mobile-icon-btn"
-            aria-label={t('toolbar.settings')}
-          >
-            <Settings className="h-[18px] w-[18px]" strokeWidth={1.5} />
-          </button>
-
-          <div className="mochi-mobile-title">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-            <span>{t('app.title')}</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setSearchOpen(true)}
-            className="mochi-mobile-icon-btn"
-            aria-label={t('toolbar.search')}
-          >
-            <Search className="h-[18px] w-[18px]" strokeWidth={1.5} />
-          </button>
-        </div>
-
-        {/* フローティングアクションピル（下部） */}
-        <div className="mochi-floating-pill">
-          <div className="mochi-pill-inner">
-            {/* ファイル操作 */}
-            <button
-              type="button"
-              onClick={handleNewFile}
-              className="mochi-pill-btn"
-              aria-label={t('toolbar.newFile')}
-            >
-              <Plus className="h-5 w-5" strokeWidth={1.5} />
-            </button>
-
-            <button
-              type="button"
-              onClick={handleLoad}
-              className="mochi-pill-btn"
-              aria-label={t('toolbar.load')}
-            >
-              <FolderOpen className="h-5 w-5" strokeWidth={1.5} />
-            </button>
-
-            <div className="mochi-pill-divider" />
-
-            {/* 編集操作 */}
-            <button
-              type="button"
-              onClick={handleUndo}
-              className="mochi-pill-btn"
-              aria-label={t('toolbar.undo')}
-            >
-              <RotateCcw className="h-5 w-5" strokeWidth={1.5} />
-            </button>
-
-            <button
-              type="button"
-              onClick={handleRedo}
-              className="mochi-pill-btn"
-              aria-label={t('toolbar.redo')}
-            >
-              <RotateCw className="h-5 w-5" strokeWidth={1.5} />
-            </button>
-
-            <div className="mochi-pill-divider" />
-
-            {/* 保存（プライマリ） */}
-            <button
-              type="button"
-              onClick={handleSave}
-              className="mochi-pill-btn mochi-pill-btn-primary"
-              aria-label={t('toolbar.save')}
-            >
-              <Download className="h-5 w-5" strokeWidth={1.5} />
-            </button>
-
-            {/* 分割ビュー */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className={cn(
-                    'mochi-pill-btn',
-                    splitDirection && 'mochi-pill-btn-active'
-                  )}
-                  aria-label={t('toolbar.split')}
-                >
-                  {splitDirection === 'horizontal' ? (
-                    <Rows2 className="h-5 w-5" strokeWidth={1.5} />
-                  ) : (
-                    <Columns2 className="h-5 w-5" strokeWidth={1.5} />
-                  )}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" side="top" sideOffset={12} className="mochi-mobile-menu">
-                <DropdownMenuItem onClick={() => setSplitDirection('vertical')} className="mochi-mobile-menu-item">
-                  <Columns2 className="h-5 w-5" strokeWidth={1.5} />
-                  <span>{t('toolbar.splitVertical')}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSplitDirection('horizontal')} className="mochi-mobile-menu-item">
-                  <Rows2 className="h-5 w-5" strokeWidth={1.5} />
-                  <span>{t('toolbar.splitHorizontal')}</span>
-                </DropdownMenuItem>
-                {splitDirection && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={closeSplit} className="mochi-mobile-menu-item text-destructive">
-                      <X className="h-5 w-5" strokeWidth={1.5} />
-                      <span>{t('toolbar.closeSplit')}</span>
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        <SearchDialog
-          open={searchOpen}
-          onOpenChange={setSearchOpen}
-          onSearch={() => {}}
-          onReplace={() => {}}
-        />
-      </>
+      <SearchDialog
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        onSearch={() => {}}
+        onReplace={() => {}}
+      />
     );
   }
 

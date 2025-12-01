@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useCallback, useRef, useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import { memo, useCallback, useRef, useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { EditorToolbar } from '@/components/editor/EditorToolbar';
 import { IndentRuler } from '@/components/editor/IndentRuler';
@@ -32,6 +32,9 @@ import {
   FileText,
   Code2,
   WrapText,
+  Maximize2,
+  Minimize2,
+  ChevronUp,
 } from 'lucide-react';
 
 // 重いコンポーネントを遅延読み込み
@@ -109,9 +112,52 @@ export const EditorContainer = memo(function EditorContainer() {
   const [showSettings, setShowSettings] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
+  const [showQuickActions, setShowQuickActions] = useState(false);
+  const focusTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setMounted(true);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 480);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // モバイルでエディターをタップしたらフォーカスモードへ
+  const handleEditorAreaClick = useCallback(() => {
+    if (!isMobile) return;
+
+    if (focusMode) {
+      // フォーカスモード中にタップで解除
+      setFocusMode(false);
+      setShowQuickActions(false);
+    } else {
+      // 2秒後にフォーカスモードに移行
+      if (focusTimeoutRef.current) {
+        clearTimeout(focusTimeoutRef.current);
+      }
+      focusTimeoutRef.current = setTimeout(() => {
+        setFocusMode(true);
+      }, 2000);
+    }
+  }, [isMobile, focusMode]);
+
+  // クリーンアップ
+  useEffect(() => {
+    return () => {
+      if (focusTimeoutRef.current) {
+        clearTimeout(focusTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // クイックアクションバーのトグル
+  const toggleQuickActions = useCallback(() => {
+    setShowQuickActions(prev => !prev);
   }, []);
 
   const { handleNewFile, handleSave, handleOpen, handleGoToLine } = useKeyboardShortcuts({
@@ -285,17 +331,80 @@ export const EditorContainer = memo(function EditorContainer() {
 
   const secondaryFile = files.find(f => f.id === secondaryFileId);
 
-  return (
-    <div className="mochi-editor-container flex flex-col h-full w-full max-w-full overflow-hidden">
-      <EditorToolbar onOpenSettings={() => setShowSettings(true)} />
-      <FileTabs />
-      {rulerVisible && <IndentRuler />}
+  const showMobileUI = mounted && isMobile;
 
+  return (
+    <div className={`mochi-editor-container flex flex-col h-full w-full max-w-full overflow-hidden ${showMobileUI && focusMode ? 'mochi-focus-mode' : ''}`}>
+      {/* デスクトップ or モバイル通常時: フルツールバー */}
+      {!showMobileUI && <EditorToolbar onOpenSettings={() => setShowSettings(true)} />}
+
+      {/* モバイル: ミニマルトップバー */}
+      {showMobileUI && !focusMode && (
+        <div className="mochi-mobile-top-bar">
+          <button
+            type="button"
+            onClick={() => setShowSettings(true)}
+            className="mochi-mobile-icon-btn"
+            aria-label={t('toolbar.settings')}
+          >
+            <Settings className="h-[18px] w-[18px]" strokeWidth={1.5} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowCommandPalette(true)}
+            className="mochi-mobile-title"
+          >
+            {activeFile?.isDirty && (
+              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+            )}
+            <span className="truncate max-w-[150px]">
+              {getDisplayFileName(activeFile?.name, t('status.untitled'))}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setFocusMode(true)}
+            className="mochi-mobile-icon-btn"
+            aria-label={t('toolbar.fullscreen')}
+          >
+            <Maximize2 className="h-[18px] w-[18px]" strokeWidth={1.5} />
+          </button>
+        </div>
+      )}
+
+      {/* モバイル: ウルトラミニマルタブ（フォーカスモード以外） */}
+      {showMobileUI && !focusMode && files.length > 1 && (
+        <div className="mochi-ultra-minimal-tabs">
+          {files.map((file) => (
+            <button
+              key={file.id}
+              type="button"
+              onClick={() => useFileStore.getState().setActiveFile(file.id)}
+              className={`mochi-ultra-minimal-tab ${
+                file.id === activeFile?.id ? 'mochi-ultra-minimal-tab-active' : ''
+              } ${file.isDirty ? 'mochi-ultra-minimal-tab-dirty' : ''}`}
+            >
+              {file.name.length > 12 ? `${file.name.slice(0, 10)}...` : file.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* デスクトップ: 通常タブ */}
+      {!showMobileUI && <FileTabs />}
+
+      {/* ルーラー（デスクトップのみ） */}
+      {!showMobileUI && rulerVisible && <IndentRuler />}
+
+      {/* エディターエリア */}
       <div
         ref={containerRef}
         className={`flex-1 overflow-hidden relative min-h-0 min-w-0 flex ${
           splitDirection === 'vertical' ? 'flex-row' : 'flex-col'
-        }`}
+        } ${showMobileUI && focusMode ? 'mochi-editor-fullscreen' : ''}`}
+        onClick={handleEditorAreaClick}
       >
         <div
           className="overflow-hidden min-w-0 min-h-0"
@@ -325,6 +434,103 @@ export const EditorContainer = memo(function EditorContainer() {
           </div>
         )}
       </div>
+
+      {/* モバイル: フォーカスモード時のミニインジケーター */}
+      {showMobileUI && focusMode && (
+        <div className="mochi-mini-indicator">
+          {activeFile?.isDirty && <span className="mochi-mini-indicator-dot" />}
+          <span className="mochi-mini-indicator-item">
+            {statusInfo.cursorLine}:{statusInfo.cursorColumn}
+          </span>
+          <span className="mochi-mini-indicator-item">{statusInfo.language}</span>
+        </div>
+      )}
+
+      {/* モバイル: クイックアクションバー */}
+      {showMobileUI && (
+        <div className={`mochi-quick-actions ${showQuickActions ? 'visible' : ''}`}>
+          <button
+            type="button"
+            onClick={handleNewFile}
+            className="mochi-quick-action-btn"
+          >
+            <Plus strokeWidth={1.5} />
+            <span>{t('toolbar.newFile')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleOpen}
+            className="mochi-quick-action-btn"
+          >
+            <FolderOpen strokeWidth={1.5} />
+            <span>{t('toolbar.load')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            className="mochi-quick-action-btn mochi-quick-action-primary"
+          >
+            <Download strokeWidth={1.5} />
+            <span>{t('toolbar.save')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="mochi-quick-action-btn"
+          >
+            <Search strokeWidth={1.5} />
+            <span>{t('toolbar.search')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleUndo}
+            className="mochi-quick-action-btn"
+          >
+            <RotateCcw strokeWidth={1.5} />
+            <span>{t('toolbar.undo')}</span>
+          </button>
+        </div>
+      )}
+
+      {/* モバイル: ウルトラミニマルステータスバー */}
+      {showMobileUI && !focusMode && (
+        <div className="mochi-ultra-minimal-status">
+          <div className="mochi-ultra-minimal-status-left">
+            <span className="mochi-ultra-status-text">
+              {statusInfo.cursorLine}:{statusInfo.cursorColumn}
+            </span>
+            <span className="mochi-ultra-status-text">{statusInfo.language}</span>
+          </div>
+          <div className="mochi-ultra-minimal-status-right">
+            <button
+              type="button"
+              onClick={toggleQuickActions}
+              className="mochi-ultra-status-btn"
+            >
+              <ChevronUp className={`h-4 w-4 transition-transform ${showQuickActions ? 'rotate-180' : ''}`} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setTheme(getNextTheme(resolvedTheme))}
+              className="mochi-ultra-status-btn"
+            >
+              {mounted && (resolvedTheme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />)}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* モバイル: フォーカスモード解除ボタン */}
+      {showMobileUI && focusMode && (
+        <button
+          type="button"
+          onClick={() => setFocusMode(false)}
+          className="mochi-focus-exit-hint show"
+        >
+          <Minimize2 className="h-4 w-4" />
+          <span>{t('toolbar.exitFocus')}</span>
+        </button>
+      )}
 
       {/* デスクトップ用ステータスバー */}
       <div className="mochi-statusbar-modern flex-shrink-0 overflow-x-auto overflow-y-hidden safe-area-bottom hidden sm:flex">
@@ -395,36 +601,6 @@ export const EditorContainer = memo(function EditorContainer() {
         </div>
       </div>
 
-      {/* モバイル用ミニステータスバー */}
-      <div className="mochi-mobile-statusbar sm:hidden">
-        <button
-          onClick={() => setShowCommandPalette(true)}
-          className="mochi-mobile-status-item"
-        >
-          {activeFile?.isDirty && (
-            <span className="mochi-dirty-indicator" />
-          )}
-          <span className="truncate">{getDisplayFileName(activeFile?.name, t('status.untitled'))}</span>
-        </button>
-
-        <div className="mochi-mobile-status-info">
-          <span>{statusInfo.cursorLine}:{statusInfo.cursorColumn}</span>
-          <span className="mochi-mobile-status-badge">{statusInfo.language}</span>
-        </div>
-
-        <button
-          onClick={() => setTheme(getNextTheme(resolvedTheme))}
-          className="mochi-mobile-status-icon"
-        >
-          {mounted && (
-            resolvedTheme === 'dark' ? (
-              <Moon className="h-3.5 w-3.5" />
-            ) : (
-              <Sun className="h-3.5 w-3.5" />
-            )
-          )}
-        </button>
-      </div>
 
       <CommandPalette
         open={showCommandPalette}

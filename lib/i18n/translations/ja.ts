@@ -199,6 +199,8 @@ export const ja = {
     splitHorizontal: '横分割',
     closeSplit: '分割を閉じる',
     settings: '設定',
+    fullscreen: 'フォーカスモード',
+    exitFocus: 'タップで戻る',
   },
   indent: {
     ruler: 'インデントルーラー',
