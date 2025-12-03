@@ -312,4 +312,76 @@ export const en = {
       now: 'Update now',
     },
   },
+  seo: {
+    hero: {
+      title: 'Mochi Editor — free online text editor for Japanese and code',
+      description: 'Fast, privacy-first editing with Monaco Editor, Japanese language support, and full-width space visibility built in.',
+      cta: 'Open in your browser with no install or login required.',
+    },
+    features: {
+      title: 'Key features for modern writing and coding',
+      summary: 'Mochi Editor combines a lightweight UX with powerful developer tooling so you can draft notes, Markdown, or source code without friction.',
+      items: [
+        {
+          title: 'Instant start in the browser',
+          description: 'Launch the editor immediately with zero downloads or sign-in steps.',
+        },
+        {
+          title: 'Japanese-first experience',
+          description: 'Full-width space rendering, IME-friendly input, and multilingual UI.',
+        },
+        {
+          title: 'Developer-grade editing',
+          description: 'Monaco-based syntax highlighting, command palette, and go-to-line tools.',
+        },
+        {
+          title: 'Comfortable reading modes',
+          description: 'Light/Dark themes, customizable rulers, and focus mode for distraction-free work.',
+        },
+        {
+          title: 'Productive search and replace',
+          description: 'Regex search, replacement history, and keyboard shortcuts to move faster.',
+        },
+        {
+          title: 'PWA and offline support',
+          description: 'Install on desktop or mobile to keep working even without a network.',
+        },
+      ],
+    },
+    trust: {
+      title: 'Built for reliability and privacy',
+      summary: 'Your content stays local by default, with sensible performance defaults and accessibility-friendly controls.',
+      items: [
+        {
+          title: 'Privacy-first storage',
+          description: 'Files are kept in browser storage—no automatic uploads to external servers.',
+        },
+        {
+          title: 'Performance tuned',
+          description: 'Lazy loading for heavy components and responsive layouts keep typing smooth on any device.',
+        },
+        {
+          title: 'Accessible by design',
+          description: 'Keyboard shortcuts, readable defaults, and screen-reader-friendly labels support every workflow.',
+        },
+      ],
+    },
+    faq: {
+      title: 'Frequently asked questions',
+      items: [
+        {
+          question: 'Is Mochi Editor free to use?',
+          answer: 'Yes. All editing features are available without payment or account registration.',
+        },
+        {
+          question: 'Does Mochi Editor work for programming tasks?',
+          answer: 'Monaco-based syntax highlighting, themes, and spacing controls keep code readable for any language.',
+        },
+        {
+          question: 'Can I keep working offline?',
+          answer: 'Install the PWA to cache the editor locally and continue editing without a network connection.',
+        },
+      ],
+    },
+  },
 };
