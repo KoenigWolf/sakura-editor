@@ -1,4 +1,4 @@
-# Mochi Editor
+# Zen Editor
 
 無料で使えるオンラインテキストエディタ。インストール不要でブラウザから即座に利用可能。Next.js、TypeScript、TailwindCSS を使用して構築された高機能エディタです。
 

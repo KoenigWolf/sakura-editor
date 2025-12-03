@@ -1,4 +1,4 @@
-# Mochi Editor ドキュメント
+# Zen Editor ドキュメント
 
 ## ドキュメント構成
 

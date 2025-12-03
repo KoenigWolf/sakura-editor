@@ -1,4 +1,4 @@
-# Mochi Editor - Claude Code
+# Zen Editor - Claude Code
 
 **詳細なガイドは [docs/ai/README.md](docs/ai/README.md) を参照してください。**
 

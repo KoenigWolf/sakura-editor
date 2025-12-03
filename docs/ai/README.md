@@ -1,4 +1,4 @@
-# Mochi Editor - AI Development Guide
+# Zen Editor - AI Development Guide
 
 このドキュメントは、AI コーディングアシスタント（Claude Code, Cursor, GitHub Copilot, ChatGPT など）向けの開発ガイドです。
 
