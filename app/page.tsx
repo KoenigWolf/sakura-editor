@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { EditorContainer } from '@/components/editor/EditorContainer';
 import { useFileStore } from '@/lib/store/file-store';
+import { SeoContent } from '@/components/seo/SeoContent';
 
 export default function Home() {
   const { files, addFile, _hasHydrated } = useFileStore();
@@ -22,6 +23,7 @@ export default function Home() {
   return (
     <main className="h-full w-full max-w-full flex flex-col overflow-hidden">
       <EditorContainer />
+      <SeoContent />
     </main>
   );
 }
