@@ -1,4 +1,4 @@
-# Mochi Editor - GitHub Copilot
+# Zen Editor - GitHub Copilot
 
 See [docs/ai/README.md](../docs/ai/README.md) for full guide.
 

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 
-const siteName = 'Mochi Editor';
+const siteName = 'Zen Editor';
 const siteUrl = 'https://mochi-editor.vercel.app';
 const description = '無料で使えるオンラインテキストエディタ。インストール不要でブラウザから即座に利用可能。日本語完全対応、全角スペース表示、ダークモード、検索・置換、Markdown プレビューやコマンドパレットなど開発者向け機能を網羅。プライバシーファースト設計でメモからコードまで安全に編集。';
 const featureList = [
@@ -75,9 +75,9 @@ export const metadata: Metadata = {
     'PWA text editor',
     'browser text editor',
   ],
-  authors: [{ name: 'Mochi Editor Team' }],
-  creator: 'Mochi Editor Team',
-  publisher: 'Mochi Editor',
+  authors: [{ name: 'Zen Editor Team' }],
+  creator: 'Zen Editor Team',
+  publisher: 'Zen Editor',
   robots: {
     index: true,
     follow: true,
@@ -109,7 +109,7 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Mochi Editor - 無料オンラインテキストエディタ',
+        alt: 'Zen Editor - 無料オンラインテキストエディタ',
       },
     ],
   },
@@ -188,4 +188,11 @@ export const jsonLd = {
       ],
     },
   ],
+  screenshot: `${siteUrl}/screenshot.png`,
+  softwareVersion: '1.0.0',
+  author: {
+    '@type': 'Organization',
+    name: 'Zen Editor Team',
+  },
+  inLanguage: ['ja', 'en'],
 };

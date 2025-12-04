@@ -2,7 +2,7 @@
 
 ## 概要
 
-Mochi Editor は、Next.js App Router をベースにしたモダンなWebエディタです。
+Zen Editor は、Next.js App Router をベースにしたモダンなWebエディタです。
 
 ```
 ┌─────────────────────────────────────────────────────────┐

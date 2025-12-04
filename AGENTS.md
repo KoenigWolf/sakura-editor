@@ -1,4 +1,4 @@
-# Mochi Editor - AI Agents (OpenAI Codex / ChatGPT)
+# Zen Editor - AI Agents (OpenAI Codex / ChatGPT)
 
 **Full guide: [docs/ai/README.md](docs/ai/README.md)**
 
