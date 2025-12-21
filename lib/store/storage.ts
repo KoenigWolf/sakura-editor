@@ -41,16 +41,12 @@ const secureStorage: StateStorage = {
       // サイズチェック
       const newSize = new Blob([value]).size;
       if (newSize > MAX_STORAGE_SIZE) {
-        console.warn(`Storage limit exceeded for key "${name}": ${newSize} bytes`);
         return;
       }
 
       localStorage.setItem(name, value);
-    } catch (error) {
+    } catch {
       // QuotaExceededErrorなどのエラーをハンドリング
-      if (error instanceof Error) {
-        console.warn(`Failed to save to localStorage: ${error.message}`);
-      }
       // ストレージがいっぱいの場合、古いデータをクリアして再試行
       try {
         localStorage.removeItem(name);

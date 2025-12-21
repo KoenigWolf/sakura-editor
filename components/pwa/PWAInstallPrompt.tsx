@@ -161,8 +161,8 @@ export const PWAInstallPrompt = () => {
       if (outcome === 'accepted') {
         setIsInstalled(true);
       }
-    } catch (error) {
-      console.error('Install prompt error:', error);
+    } catch {
+      // Install prompt failed silently
     } finally {
       setDeferredPrompt(null);
       setShowPrompt(false);

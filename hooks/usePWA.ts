@@ -53,7 +53,6 @@ export function usePWA() {
       navigator.serviceWorker
         .register('/sw.js', { scope: '/' })
         .then((reg) => {
-          console.log('[PWA] Service Worker registered:', reg.scope);
           setRegistration(reg);
 
           // アップデートチェック
@@ -63,14 +62,13 @@ export function usePWA() {
 
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('[PWA] New version available');
                 setHasUpdate(true);
               }
             });
           });
         })
-        .catch((error) => {
-          console.error('[PWA] Service Worker registration failed:', error);
+        .catch(() => {
+          // Service Worker registration failed silently
         });
 
       // コントローラー変更時にリロード
