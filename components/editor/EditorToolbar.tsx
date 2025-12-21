@@ -56,7 +56,7 @@ interface ToolbarButtonProps {
   disabled?: boolean;
 }
 
-function ToolbarButton({ icon: Icon, label, shortcut, onClick, active, disabled }: ToolbarButtonProps) {
+const ToolbarButton = ({ icon: Icon, label, shortcut, onClick, active, disabled }: ToolbarButtonProps) => {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -81,7 +81,7 @@ function ToolbarButton({ icon: Icon, label, shortcut, onClick, active, disabled 
       </TooltipContent>
     </Tooltip>
   );
-}
+};
 
 interface EditorToolbarProps {
   onOpenSettings?: () => void;

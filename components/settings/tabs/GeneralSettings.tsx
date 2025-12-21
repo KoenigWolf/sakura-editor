@@ -15,7 +15,7 @@ interface GeneralSettingsProps {
 }
 
 // セクションカードのラッパー
-function SettingsSection({
+const SettingsSection = ({
   icon: Icon,
   title,
   children
@@ -23,7 +23,7 @@ function SettingsSection({
   icon: React.ElementType;
   title: string;
   children: React.ReactNode;
-}) {
+}) => {
   return (
     <div className="rounded-lg border bg-card/50 overflow-hidden">
       <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 border-b">
@@ -35,10 +35,10 @@ function SettingsSection({
       </div>
     </div>
   );
-}
+};
 
 // 言語選択ボタン
-function LanguageButton({
+const LanguageButton = ({
   value,
   current,
   label,
@@ -50,7 +50,7 @@ function LanguageButton({
   label: string;
   flag: string;
   onClick: () => void;
-}) {
+}) => {
   const isActive = current === value;
   return (
     <button
@@ -67,7 +67,7 @@ function LanguageButton({
       <span className="text-sm font-medium">{label}</span>
     </button>
   );
-}
+};
 
 export function GeneralSettings({ settings, onSettingsChange }: GeneralSettingsProps) {
   const { t, i18n } = useTranslation();

@@ -37,7 +37,7 @@ const resetThemeColors = () => {
   document.documentElement.removeAttribute('data-custom-theme');
 };
 
-function ThemeInitializer({ children }: { children: React.ReactNode }) {
+const ThemeInitializer = ({ children }: { children: React.ReactNode }) => {
   const editorTheme = useEditorStore((state) => state.settings.theme);
   const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
@@ -74,7 +74,7 @@ function ThemeInitializer({ children }: { children: React.ReactNode }) {
   }, [resolvedTheme, editorTheme, mounted]);
 
   return <>{children}</>;
-}
+};
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return (

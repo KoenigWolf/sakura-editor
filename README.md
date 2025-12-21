@@ -20,11 +20,11 @@
 - 大文字小文字の区別
 - 単語単位検索
 - 一括置換
-- Tab キーで検索→置換ボックス間を移動
+- Tab キーで検索 → 置換ボックス間を移動
 
 ### テーマ
 
-- **12種類のカスタムテーマ**
+- **12 種類のカスタムテーマ**
   - ダーク: Midnight Aurora, Synthwave '84, Tokyo Night, Nord Deep, GitHub Dark, Dracula Pro
   - ライト: Cherry Blossom, Ocean Breeze, GitHub Light, Mint Fresh, Sunset Glow, Lavender Dream
 - システム設定連動（ライト/ダーク/自動）
@@ -52,16 +52,16 @@
 
 ## 技術スタック
 
-| カテゴリ | 技術 |
-|---------|------|
-| フレームワーク | Next.js 13.5 (App Router) |
-| 言語 | TypeScript |
-| スタイリング | TailwindCSS |
-| UIコンポーネント | shadcn/ui, Radix UI |
-| エディタ | Monaco Editor |
-| 状態管理 | Zustand |
-| 国際化 | i18next, react-i18next |
-| テーマ | next-themes |
+| カテゴリ          | 技術                   |
+| ----------------- | ---------------------- |
+| フレームワーク    | Next.js (App Router)   |
+| 言語              | TypeScript             |
+| スタイリング      | TailwindCSS            |
+| UI コンポーネント | shadcn/ui, Radix UI    |
+| エディタ          | Monaco Editor          |
+| 状態管理          | Zustand                |
+| 国際化            | i18next, react-i18next |
+| テーマ            | next-themes            |
 
 ## セットアップ
 
@@ -73,8 +73,8 @@
 ### インストール
 
 ```bash
-git clone https://github.com/your-username/mochi-editor.git
-cd mochi-editor
+git clone <repository-url>
+cd <project-root>
 npm install
 ```
 
@@ -96,7 +96,7 @@ npm start
 ## プロジェクト構造
 
 ```
-mochi-editor/
+<project-root>/
 ├── app/                    # Next.js App Router
 │   ├── layout.tsx         # ルートレイアウト
 │   ├── page.tsx           # メインページ
@@ -132,31 +132,31 @@ mochi-editor/
 
 ## キーボードショートカット
 
-| ショートカット | 機能 |
-|---------------|------|
-| Ctrl+F | 検索ダイアログを開く |
-| Ctrl+H | 置換モード切り替え |
-| Enter | 次の検索結果 |
-| Shift+Enter | 前の検索結果 |
-| Tab | 検索→置換ボックスへ移動 |
-| Shift+Tab | 置換→検索ボックスへ移動 |
-| Escape | ダイアログを閉じる |
-| Alt+C | 大文字小文字区別 切り替え |
-| Alt+W | 単語単位検索 切り替え |
-| Alt+R | 正規表現 切り替え |
+| ショートカット | 機能                      |
+| -------------- | ------------------------- |
+| Ctrl+F         | 検索ダイアログを開く      |
+| Ctrl+H         | 置換モード切り替え        |
+| Enter          | 次の検索結果              |
+| Shift+Enter    | 前の検索結果              |
+| Tab            | 検索 → 置換ボックスへ移動 |
+| Shift+Tab      | 置換 → 検索ボックスへ移動 |
+| Escape         | ダイアログを閉じる        |
+| Alt+C          | 大文字小文字区別 切り替え |
+| Alt+W          | 単語単位検索 切り替え     |
+| Alt+R          | 正規表現 切り替え         |
 
 ## AI エージェント向け
 
-このプロジェクトは各種AIコーディングアシスタントをサポートしています。
+このプロジェクトは各種 AI コーディングアシスタントをサポートしています。
 
-| AI Tool | 設定ファイル |
-|---------|-------------|
-| Claude Code | `CLAUDE.md` |
-| Cursor | `.cursorrules` |
-| GitHub Copilot | `.github/copilot-instructions.md` |
-| OpenAI Codex / ChatGPT | `AGENTS.md` |
+| AI Tool                | 設定ファイル                      |
+| ---------------------- | --------------------------------- |
+| Claude Code            | `CLAUDE.md`                       |
+| Cursor                 | `.cursorrules`                    |
+| GitHub Copilot         | `.github/copilot-instructions.md` |
+| OpenAI Codex / ChatGPT | `AGENTS.md`                       |
 
-**AIエージェントへ**: コード変更前に必ず `docs/` 配下のドキュメントを確認してください。
+**AI エージェントへ**: コード変更前に必ず `docs/` 配下のドキュメントを確認してください。
 
 ## コントリビュート
 

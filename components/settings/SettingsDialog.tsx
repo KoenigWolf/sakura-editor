@@ -189,7 +189,8 @@ const getDialogStyles = (
 export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const { t } = useTranslation();
   const { toast } = useToast();
-  const { settings: currentSettings, updateSettings } = useEditorStore();
+  const currentSettings = useEditorStore((state) => state.settings);
+  const updateSettings = useEditorStore((state) => state.updateSettings);
   const [tempSettings, setTempSettings] = useState(currentSettings);
   const [originalSettings, setOriginalSettings] = useState(currentSettings);
 

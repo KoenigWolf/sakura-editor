@@ -5,8 +5,7 @@ import { useEditorStore } from '@/lib/store';
 import i18n from '@/lib/i18n';
 
 export function LanguageSync() {
-  const { settings } = useEditorStore();
-  const lang = settings.language ?? 'en';
+  const lang = useEditorStore((state) => state.settings.language ?? 'en');
 
   useEffect(() => {
     i18n.changeLanguage(lang);

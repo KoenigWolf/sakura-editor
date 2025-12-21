@@ -14,7 +14,7 @@ interface ThemeSettingsProps {
   onSettingsChange: (settings: Partial<EditorSettings>) => void;
 }
 
-function SettingsSection({
+const SettingsSection = ({
   icon: Icon,
   title,
   children
@@ -22,7 +22,7 @@ function SettingsSection({
   icon: React.ElementType;
   title: string;
   children: React.ReactNode;
-}) {
+}) => {
   return (
     <div className="rounded-lg border bg-card/50 overflow-hidden">
       <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 border-b">
@@ -34,9 +34,9 @@ function SettingsSection({
       </div>
     </div>
   );
-}
+};
 
-function BaseThemeButton({
+const BaseThemeButton = ({
   value,
   current,
   icon: Icon,
@@ -48,7 +48,7 @@ function BaseThemeButton({
   icon: React.ElementType;
   label: string;
   onClick: () => void;
-}) {
+}) => {
   const isActive = current === value;
   return (
     <button
@@ -65,9 +65,9 @@ function BaseThemeButton({
       <span className="text-xs font-medium">{label}</span>
     </button>
   );
-}
+};
 
-function ThemeCard({
+const ThemeCard = ({
   theme,
   isActive,
   onClick,
@@ -77,7 +77,7 @@ function ThemeCard({
   isActive: boolean;
   onClick: () => void;
   language: string;
-}) {
+}) => {
   const displayName = language === 'ja' ? theme.nameJa : theme.name;
 
   return (
@@ -141,7 +141,7 @@ function ThemeCard({
       </div>
     </button>
   );
-}
+};
 
 export function ThemeSettings({ settings, onSettingsChange }: ThemeSettingsProps) {
   const { t, i18n } = useTranslation();

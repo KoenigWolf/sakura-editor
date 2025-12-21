@@ -22,7 +22,7 @@ interface FileSettingsProps {
 }
 
 // セクションカードのラッパー
-function SettingsSection({
+const SettingsSection = ({
   icon: Icon,
   title,
   children
@@ -30,7 +30,7 @@ function SettingsSection({
   icon: React.ElementType;
   title: string;
   children: React.ReactNode;
-}) {
+}) => {
   return (
     <div className="rounded-lg border bg-card/50 overflow-hidden">
       <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 border-b">
@@ -42,10 +42,10 @@ function SettingsSection({
       </div>
     </div>
   );
-}
+};
 
 // 選択カード
-function SelectionCard({
+const SelectionCard = ({
   value,
   current,
   label,
@@ -57,7 +57,7 @@ function SelectionCard({
   label: string;
   description: string;
   onClick: () => void;
-}) {
+}) => {
   const isActive = current === value;
   return (
     <button
@@ -74,10 +74,10 @@ function SelectionCard({
       <span className="text-xs text-muted-foreground">{description}</span>
     </button>
   );
-}
+};
 
 // スイッチ付き設定行
-function SettingRow({
+const SettingRow = ({
   icon: Icon,
   label,
   description,
@@ -89,7 +89,7 @@ function SettingRow({
   description?: string;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
-}) {
+}) => {
   return (
     <div className="flex items-center justify-between py-2 px-1 rounded hover:bg-muted/50 transition-colors">
       <div className="flex items-center gap-2 flex-1">
@@ -104,7 +104,7 @@ function SettingRow({
       <Switch checked={checked} onCheckedChange={onCheckedChange} />
     </div>
   );
-}
+};
 
 export function FileSettings({ settings, onSettingsChange }: FileSettingsProps) {
   const { t } = useTranslation();

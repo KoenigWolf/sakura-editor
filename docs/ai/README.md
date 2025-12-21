@@ -6,23 +6,23 @@
 
 コード変更前に必ず読んでください：
 
-| ドキュメント | 内容 |
-|-------------|------|
+| ドキュメント                                                   | 内容                               |
+| -------------------------------------------------------------- | ---------------------------------- |
 | [プロジェクト構造](../developments/project-structure-guide.md) | ディレクトリ構成、コーディング規約 |
-| [アーキテクチャ](../architecture/README.md) | システム設計、状態管理 |
-| [国際化](../i18n/README.md) | UIテキスト変更時 |
+| [アーキテクチャ](../architecture/README.md)                    | システム設計、状態管理             |
+| [国際化](../i18n/README.md)                                    | UI テキスト変更時                  |
 
 ## 技術スタック
 
-| カテゴリ | 技術 |
-|---------|------|
-| フレームワーク | Next.js 13.5 (App Router) |
-| 言語 | TypeScript 5.2 |
-| 状態管理 | Zustand |
-| UIライブラリ | shadcn/ui + Radix UI |
-| エディタ | Monaco Editor |
-| スタイリング | Tailwind CSS |
-| 国際化 | i18next + react-i18next |
+| カテゴリ       | 技術                    |
+| -------------- | ----------------------- |
+| フレームワーク | Next.js (App Router)    |
+| 言語           | TypeScript 5.2          |
+| 状態管理       | Zustand                 |
+| UI ライブラリ  | shadcn/ui + Radix UI    |
+| エディタ       | Monaco Editor           |
+| スタイリング   | Tailwind CSS            |
+| 国際化         | i18next + react-i18next |
 
 ## プロジェクト構造
 
@@ -61,12 +61,12 @@ mochi-editor/
 
 ## 主要ストア
 
-| ストア | ファイル | 用途 | 永続化 |
-|--------|----------|------|--------|
-| EditorStore | `lib/store.ts` | エディタ設定 | ○ |
-| FileStore | `lib/store/file-store.ts` | ファイル管理 | ○ |
-| SearchStore | `lib/store/search-store.ts` | 検索状態 | × |
-| SplitViewStore | `lib/store/split-view-store.ts` | 分割ビュー | × |
+| ストア         | ファイル                        | 用途         | 永続化 |
+| -------------- | ------------------------------- | ------------ | ------ |
+| EditorStore    | `lib/store.ts`                  | エディタ設定 | ○      |
+| FileStore      | `lib/store/file-store.ts`       | ファイル管理 | ○      |
+| SearchStore    | `lib/store/search-store.ts`     | 検索状態     | ×      |
+| SplitViewStore | `lib/store/split-view-store.ts` | 分割ビュー   | ×      |
 
 ## コーディング規約
 
@@ -87,37 +87,37 @@ const { t } = useTranslation()
 // lib/i18n/translations/ja.ts
 export const ja = {
   toolbar: {
-    save: '保存',
+    save: "保存",
   },
-}
+};
 
 // lib/i18n/translations/en.ts
 export const en = {
   toolbar: {
-    save: 'Save',
+    save: "Save",
   },
-}
+};
 ```
 
 ### 3. Zustand セレクタを使用
 
 ```typescript
 // NG
-const store = useEditorStore()
-const fontSize = store.settings.fontSize
+const store = useEditorStore();
+const fontSize = store.settings.fontSize;
 
 // OK
-const fontSize = useEditorStore((state) => state.settings.fontSize)
+const fontSize = useEditorStore((state) => state.settings.fontSize);
 ```
 
 ### 4. 絶対インポート
 
 ```typescript
 // NG
-import { Button } from '../../../components/ui/button'
+import { Button } from "../../../components/ui/button";
 
 // OK
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 ```
 
 ### 5. アロー関数
@@ -127,7 +127,7 @@ import { Button } from '@/components/ui/button'
 function handleClick() {}
 
 // OK
-const handleClick = () => {}
+const handleClick = () => {};
 ```
 
 ### 6. 不要なコメント禁止
@@ -136,7 +136,7 @@ const handleClick = () => {}
 
 ## よくある作業
 
-### 新しいUI テキストの追加
+### 新しい UI テキストの追加
 
 1. `lib/i18n/translations/ja.ts` にキー追加
 2. `lib/i18n/translations/en.ts` にキー追加
@@ -147,7 +147,7 @@ const handleClick = () => {}
 
 1. `lib/types/editor.ts` - EditorSettings に型追加
 2. `lib/types/editor.ts` - DEFAULT_EDITOR_SETTINGS にデフォルト値追加
-3. `components/settings/tabs/*.tsx` - UIを追加
+3. `components/settings/tabs/*.tsx` - UI を追加
 4. 両翻訳ファイルにラベル追加
 
 ### 新しいストアの追加
@@ -165,16 +165,16 @@ npm run lint     # 必須: リントパス
 
 ## 主要ファイル一覧
 
-| 目的 | ファイル |
-|------|----------|
-| エディタ設定型 | `lib/types/editor.ts` |
-| エディタ設定ストア | `lib/store.ts` |
-| ファイル管理 | `lib/store/file-store.ts` |
-| 日本語翻訳 | `lib/i18n/translations/ja.ts` |
-| 英語翻訳 | `lib/i18n/translations/en.ts` |
-| メインエディタ | `components/editor/MonacoEditor.tsx` |
-| 設定ダイアログ | `components/settings/SettingsDialog.tsx` |
-| ツールバー | `components/editor/EditorToolbar.tsx` |
+| 目的               | ファイル                                 |
+| ------------------ | ---------------------------------------- |
+| エディタ設定型     | `lib/types/editor.ts`                    |
+| エディタ設定ストア | `lib/store.ts`                           |
+| ファイル管理       | `lib/store/file-store.ts`                |
+| 日本語翻訳         | `lib/i18n/translations/ja.ts`            |
+| 英語翻訳           | `lib/i18n/translations/en.ts`            |
+| メインエディタ     | `components/editor/MonacoEditor.tsx`     |
+| 設定ダイアログ     | `components/settings/SettingsDialog.tsx` |
+| ツールバー         | `components/editor/EditorToolbar.tsx`    |
 
 ## コード参照形式
 

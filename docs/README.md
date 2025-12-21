@@ -22,47 +22,47 @@ docs/
 
 ### 開発ガイド
 
-| ドキュメント | 説明 |
-|-------------|------|
+| ドキュメント                                                  | 説明                                         |
+| ------------------------------------------------------------- | -------------------------------------------- |
 | [プロジェクト構造](./developments/project-structure-guide.md) | ディレクトリ構成、コーディング規約、開発環境 |
-| [アーキテクチャ](./architecture/README.md) | レイヤー構成、状態管理、データフロー |
-| [国際化 (i18n)](./i18n/README.md) | 翻訳ファイルの管理、使用方法 |
+| [アーキテクチャ](./architecture/README.md)                    | レイヤー構成、状態管理、データフロー         |
+| [国際化 (i18n)](./i18n/README.md)                             | 翻訳ファイルの管理、使用方法                 |
 
 ### コンポーネント
 
-| ドキュメント | 説明 |
-|-------------|------|
-| [エディタ](./components/editor.md) | Monaco Editor 統合、設定、検索機能 |
-| [UIコンポーネント](./components/ui-components.md) | ボタン、ダイアログ、フォーム要素 |
+| ドキュメント                                       | 説明                               |
+| -------------------------------------------------- | ---------------------------------- |
+| [エディタ](./components/editor.md)                 | Monaco Editor 統合、設定、検索機能 |
+| [UI コンポーネント](./components/ui-components.md) | ボタン、ダイアログ、フォーム要素   |
 
 ### AI エージェント向け
 
-| ドキュメント | 説明 |
-|-------------|------|
+| ドキュメント                    | 説明                                  |
+| ------------------------------- | ------------------------------------- |
 | [AI 開発ガイド](./ai/README.md) | AI アシスタント向け統合ガイド（推奨） |
 
 ## AI エージェント設定ファイル
 
 ルートディレクトリの設定ファイルは `docs/ai/README.md` へのポインタです：
 
-| ファイル | 対象 AI |
-|---------|---------|
-| `CLAUDE.md` | Claude Code |
-| `.cursorrules` | Cursor |
-| `.github/copilot-instructions.md` | GitHub Copilot |
-| `AGENTS.md` | OpenAI Codex / ChatGPT |
+| ファイル                          | 対象 AI                |
+| --------------------------------- | ---------------------- |
+| `CLAUDE.md`                       | Claude Code            |
+| `.cursorrules`                    | Cursor                 |
+| `.github/copilot-instructions.md` | GitHub Copilot         |
+| `AGENTS.md`                       | OpenAI Codex / ChatGPT |
 
 ## 技術スタック
 
-| カテゴリ | 技術 |
-|---------|------|
-| フレームワーク | Next.js 13.5 (App Router) |
-| 言語 | TypeScript 5.2 |
-| 状態管理 | Zustand |
-| UIライブラリ | shadcn/ui + Radix UI |
-| エディタ | Monaco Editor |
-| スタイリング | Tailwind CSS |
-| 国際化 | i18next + react-i18next |
+| カテゴリ       | 技術                    |
+| -------------- | ----------------------- |
+| フレームワーク | Next.js (App Router)    |
+| 言語           | TypeScript 5.2          |
+| 状態管理       | Zustand                 |
+| UI ライブラリ  | shadcn/ui + Radix UI    |
+| エディタ       | Monaco Editor           |
+| スタイリング   | Tailwind CSS            |
+| 国際化         | i18next + react-i18next |
 
 ## 開発コマンド
 

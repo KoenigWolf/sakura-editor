@@ -57,7 +57,7 @@ const detectBrowser = (): Browser => {
 const benefitIcons = [Zap, WifiOff, Sparkles] as const;
 const benefitKeys = ['fastStartup', 'offline', 'autoUpdate'] as const;
 
-export function PWAInstallPrompt() {
+export const PWAInstallPrompt = () => {
   const { t } = useTranslation();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
@@ -446,12 +446,12 @@ export function PWAInstallPrompt() {
       </div>
     </div>
   );
-}
+};
 
 /**
  * オフラインインジケーター - モダンデザイン
  */
-export function OfflineIndicator() {
+export const OfflineIndicator = () => {
   const { t } = useTranslation();
   const [isOnline, setIsOnline] = useState(true);
   const [showReconnected, setShowReconnected] = useState(false);
@@ -501,12 +501,12 @@ export function OfflineIndicator() {
       </div>
     </div>
   );
-}
+};
 
 /**
  * アプリ更新通知 - モダンデザイン
  */
-export function UpdateNotification() {
+export const UpdateNotification = () => {
   const { t } = useTranslation();
   const [showUpdate, setShowUpdate] = useState(false);
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
@@ -582,4 +582,4 @@ export function UpdateNotification() {
       </div>
     </div>
   );
-}
+};

@@ -44,7 +44,7 @@ interface EditorSettingsProps {
   onSettingsChange: (settings: Partial<EditorSettingsType>) => void;
 }
 
-function SettingsSection({
+const SettingsSection = ({
   icon: Icon,
   title,
   children
@@ -52,7 +52,7 @@ function SettingsSection({
   icon: React.ElementType;
   title: string;
   children: React.ReactNode;
-}) {
+}) => {
   return (
     <div className="rounded-lg border bg-card/50 overflow-hidden">
       <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 border-b">
@@ -64,9 +64,9 @@ function SettingsSection({
       </div>
     </div>
   );
-}
+};
 
-function SettingRow({
+const SettingRow = ({
   icon: Icon,
   label,
   checked,
@@ -76,7 +76,7 @@ function SettingRow({
   label: string;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
-}) {
+}) => {
   return (
     <div className="flex items-center justify-between py-2 px-1 rounded hover:bg-muted/50 transition-colors">
       <div className="flex items-center gap-2">
@@ -86,7 +86,7 @@ function SettingRow({
       <Switch checked={checked} onCheckedChange={onCheckedChange} />
     </div>
   );
-}
+};
 
 export function EditorSettings({ settings, onSettingsChange }: EditorSettingsProps) {
   const { t } = useTranslation();
