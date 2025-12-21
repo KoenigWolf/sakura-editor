@@ -14,6 +14,7 @@ import { FileTabs } from '@/components/editor/FileTabs';
 import { useTranslation } from 'react-i18next';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
+import { useEditorActions } from '@/hooks/use-editor-actions';
 import type { CommandItem } from '@/components/editor/CommandPalette';
 import {
   Plus,
@@ -91,7 +92,6 @@ export const EditorContainer = memo(function EditorContainer() {
   const activeFile = useFileStore((state) => state.files.find(f => f.id === state.activeFileId));
   const files = useFileStore((state) => state.files);
   const statusInfo = useEditorInstanceStore((state) => state.statusInfo);
-  const { getEditorInstance } = useEditorInstanceStore();
   const { splitDirection, splitRatio, setSplitRatio, secondaryFileId, setSecondaryFileId, setSplitDirection, closeSplit } = useSplitViewStore();
   const { setIsOpen: setSearchOpen } = useSearchStore();
   const rulerVisible = useIndentStore((state) => state.rulerVisible);
@@ -137,20 +137,7 @@ export const EditorContainer = memo(function EditorContainer() {
     onOpenSettings: () => setShowSettings(true),
     onOpenCommandPalette: () => setShowCommandPalette(true),
   });
-
-  const handleUndo = useCallback(() => {
-    const editor = getEditorInstance();
-    if (!editor) return;
-
-    editor.trigger('toolbar', 'undo', null);
-  }, [getEditorInstance]);
-
-  const handleRedo = useCallback(() => {
-    const editor = getEditorInstance();
-    if (!editor) return;
-
-    editor.trigger('toolbar', 'redo', null);
-  }, [getEditorInstance]);
+  const { handleUndo, handleRedo } = useEditorActions();
 
   const commands: CommandItem[] = useMemo(() => [
     {

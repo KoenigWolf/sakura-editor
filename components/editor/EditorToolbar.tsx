@@ -1,6 +1,5 @@
 'use client';
 
-import { useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import {
   Download,
@@ -19,10 +18,8 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSearchStore } from '@/lib/store/search-store';
-import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useSplitViewStore } from '@/lib/store/split-view-store';
 import { useIndentStore } from '@/lib/store/indent-store';
-import { indentLines, outdentLines } from '@/lib/indent-utils';
 import {
   Tooltip,
   TooltipContent,
@@ -38,6 +35,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import { useFileOperations } from '@/hooks/use-file-operations';
+import { useEditorActions } from '@/hooks/use-editor-actions';
 
 const SearchDialog = dynamic(
   () => import('@/components/editor/SearchDialog').then(mod => ({ default: mod.SearchDialog })),
@@ -88,43 +86,18 @@ interface EditorToolbarProps {
 export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
   const { t } = useTranslation();
   const { setIsOpen: setSearchOpen, isOpen: searchOpen } = useSearchStore();
-  const { getEditorInstance } = useEditorInstanceStore();
   const { splitDirection, setSplitDirection, closeSplit } = useSplitViewStore();
-  const indentSettings = useIndentStore((state) => state.settings);
   const rulerVisible = useIndentStore((state) => state.rulerVisible);
   const setRulerVisible = useIndentStore((state) => state.setRulerVisible);
   const { isMobile, mounted } = useMobileDetection();
   const { handleNewFile, handleSave, handleOpen } = useFileOperations({ showToast: false });
+  const { handleUndo, handleRedo, handleIndent, handleOutdent } = useEditorActions();
 
   const showMobileUI = mounted && isMobile;
 
-  const handleUndo = useCallback(() => {
-    const editor = getEditorInstance();
-    if (!editor) return;
-    editor.trigger('toolbar', 'undo', null);
-  }, [getEditorInstance]);
-
-  const handleRedo = useCallback(() => {
-    const editor = getEditorInstance();
-    if (!editor) return;
-    editor.trigger('toolbar', 'redo', null);
-  }, [getEditorInstance]);
-
-  const handleIndent = useCallback(() => {
-    const editor = getEditorInstance();
-    if (!editor) return;
-    indentLines(editor, indentSettings);
-  }, [getEditorInstance, indentSettings]);
-
-  const handleOutdent = useCallback(() => {
-    const editor = getEditorInstance();
-    if (!editor) return;
-    outdentLines(editor, indentSettings);
-  }, [getEditorInstance, indentSettings]);
-
-  const handleToggleRuler = useCallback(() => {
+  const handleToggleRuler = () => {
     setRulerVisible(!rulerVisible);
-  }, [rulerVisible, setRulerVisible]);
+  };
 
   if (showMobileUI) {
     return (
