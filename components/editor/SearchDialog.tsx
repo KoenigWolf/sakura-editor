@@ -69,7 +69,7 @@ const OptionButton = memo(({
   <button
     type="button"
     onClick={onClick}
-    title={`${label}${shortcut ? ` (${shortcut})` : ''}`}
+    aria-label={`${label}${shortcut ? ` (${shortcut})` : ''}`}
     className={cn(
       'h-6 w-6 rounded flex items-center justify-center transition-colors',
       active ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-muted'
@@ -564,7 +564,7 @@ export const SearchDialog = memo(({
               onClick={handlePreviousMatch}
               disabled={matches.length === 0}
               className="h-7 w-7 rounded hover:bg-muted disabled:opacity-40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-              title={`${t('search.actions.previous')} (Shift+Enter)`}
+              aria-label={`${t('search.actions.previous')} (Shift+Enter)`}
             >
               <ChevronUp className="h-4 w-4" strokeWidth={1.5} />
             </button>
@@ -573,7 +573,7 @@ export const SearchDialog = memo(({
               onClick={handleNextMatch}
               disabled={matches.length === 0}
               className="h-7 w-7 rounded hover:bg-muted disabled:opacity-40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-              title={`${t('search.actions.next')} (Enter)`}
+              aria-label={`${t('search.actions.next')} (Enter)`}
             >
               <ChevronDown className="h-4 w-4" strokeWidth={1.5} />
             </button>
@@ -581,7 +581,7 @@ export const SearchDialog = memo(({
               type="button"
               onClick={() => onOpenChange(false)}
               className="h-7 w-7 rounded hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors ml-1"
-              title={`${t('search.close')} (Esc)`}
+              aria-label={`${t('search.close')} (Esc)`}
             >
               <X className="h-4 w-4" strokeWidth={1.5} />
             </button>

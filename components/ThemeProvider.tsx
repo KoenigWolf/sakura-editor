@@ -1,6 +1,6 @@
 'use client';
 
-import * as React from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes';
 import { type ThemeProviderProps } from 'next-themes/dist/types';
 import { useEditorStore } from '@/lib/store';
@@ -37,17 +37,17 @@ const resetThemeColors = () => {
   document.documentElement.removeAttribute('data-custom-theme');
 };
 
-const ThemeInitializer = ({ children }: { children: React.ReactNode }) => {
+const ThemeInitializer = ({ children }: { children: ReactNode }) => {
   const editorTheme = useEditorStore((state) => state.settings.theme);
   const { setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-  const prevThemeRef = React.useRef<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const prevThemeRef = useRef<string | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setMounted(true);
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!mounted) return;
     if (prevThemeRef.current === editorTheme) return;
     prevThemeRef.current = editorTheme;
@@ -65,7 +65,7 @@ const ThemeInitializer = ({ children }: { children: React.ReactNode }) => {
     }
   }, [editorTheme, mounted, setTheme]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!mounted) return;
     const customTheme = CUSTOM_THEMES.find(t => t.id === editorTheme);
     if (customTheme) {

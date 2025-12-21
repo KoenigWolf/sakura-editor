@@ -34,11 +34,13 @@ interface IndentRulerProps {
 const FirstLineIndentHandle = memo(({
   position,
   onDragStart,
+  onKeyDown,
   label,
   value
 }: {
   position: number;
   onDragStart: (e: React.MouseEvent) => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
   label: string;
   value: number;
 }) => (
@@ -48,6 +50,7 @@ const FirstLineIndentHandle = memo(({
         className="indent-handle indent-handle-first-line"
         style={{ left: position }}
         onMouseDown={onDragStart}
+        onKeyDown={onKeyDown}
         role="slider"
         aria-label={label}
         aria-valuemin={0}
@@ -70,11 +73,13 @@ FirstLineIndentHandle.displayName = 'FirstLineIndentHandle';
 const HangingIndentHandle = memo(({
   position,
   onDragStart,
+  onKeyDown,
   label,
   value
 }: {
   position: number;
   onDragStart: (e: React.MouseEvent) => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
   label: string;
   value: number;
 }) => (
@@ -84,6 +89,7 @@ const HangingIndentHandle = memo(({
         className="indent-handle indent-handle-hanging"
         style={{ left: position }}
         onMouseDown={onDragStart}
+        onKeyDown={onKeyDown}
         role="slider"
         aria-label={label}
         aria-valuemin={0}
@@ -106,11 +112,13 @@ HangingIndentHandle.displayName = 'HangingIndentHandle';
 const LeftMarginHandle = memo(({
   position,
   onDragStart,
+  onKeyDown,
   label,
   value
 }: {
   position: number;
   onDragStart: (e: React.MouseEvent) => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
   label: string;
   value: number;
 }) => (
@@ -120,6 +128,7 @@ const LeftMarginHandle = memo(({
         className="indent-handle indent-handle-left-margin"
         style={{ left: position }}
         onMouseDown={onDragStart}
+        onKeyDown={onKeyDown}
         role="slider"
         aria-label={label}
         aria-valuemin={0}
@@ -142,11 +151,13 @@ LeftMarginHandle.displayName = 'LeftMarginHandle';
 const RightMarginHandle = memo(({
   position,
   onDragStart,
+  onKeyDown,
   label,
   value
 }: {
   position: number;
   onDragStart: (e: React.MouseEvent) => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
   label: string;
   value: number;
 }) => (
@@ -156,6 +167,7 @@ const RightMarginHandle = memo(({
         className="indent-handle indent-handle-right-margin"
         style={{ right: position }}
         onMouseDown={onDragStart}
+        onKeyDown={onKeyDown}
         role="slider"
         aria-label={label}
         aria-valuemin={0}
@@ -178,12 +190,14 @@ RightMarginHandle.displayName = 'RightMarginHandle';
 const TabStopHandle = memo(({
   position,
   onDragStart,
+  onKeyDown,
   onRemove,
   label,
   value
 }: {
   position: number;
   onDragStart: (e: React.MouseEvent) => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
   onRemove: () => void;
   label: string;
   value: number;
@@ -194,6 +208,7 @@ const TabStopHandle = memo(({
         className="indent-handle indent-handle-tab-stop"
         style={{ left: position }}
         onMouseDown={onDragStart}
+        onKeyDown={onKeyDown}
         onDoubleClick={onRemove}
         role="slider"
         aria-label={label}
@@ -351,6 +366,79 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
     removeTabStop(position);
   }, [removeTabStop]);
 
+  const STEP_SIZE = 0.127;
+  const maxCm = pixelsToCm(rulerWidth);
+
+  const handleKeyDown = useCallback((type: DragType, e: React.KeyboardEvent, tabIndex?: number) => {
+    const step = e.shiftKey ? STEP_SIZE * 5 : STEP_SIZE;
+    let delta = 0;
+
+    switch (e.key) {
+      case 'ArrowLeft':
+      case 'ArrowDown':
+        delta = -step;
+        break;
+      case 'ArrowRight':
+      case 'ArrowUp':
+        delta = step;
+        break;
+      case 'Home':
+        delta = -Infinity;
+        break;
+      case 'End':
+        delta = Infinity;
+        break;
+      default:
+        return;
+    }
+
+    e.preventDefault();
+
+    switch (type) {
+      case 'firstLine': {
+        const newValue = delta === -Infinity ? -settings.leftMargin :
+                         delta === Infinity ? maxCm - settings.leftMargin :
+                         snapToGrid(settings.firstLineIndent + delta);
+        updateSettings({ firstLineIndent: Math.max(-settings.leftMargin, Math.min(newValue, maxCm - settings.leftMargin)) });
+        break;
+      }
+      case 'hanging': {
+        const newValue = delta === -Infinity ? -settings.leftMargin :
+                         delta === Infinity ? maxCm - settings.leftMargin :
+                         snapToGrid(settings.hangingIndent + delta);
+        updateSettings({ hangingIndent: Math.max(-settings.leftMargin, Math.min(newValue, maxCm - settings.leftMargin)) });
+        break;
+      }
+      case 'leftMargin': {
+        const newValue = delta === -Infinity ? 0 :
+                         delta === Infinity ? maxCm :
+                         snapToGrid(settings.leftMargin + delta);
+        updateSettings({ leftMargin: Math.max(0, Math.min(newValue, maxCm)) });
+        break;
+      }
+      case 'rightMargin': {
+        const newValue = delta === -Infinity ? 0 :
+                         delta === Infinity ? maxCm :
+                         snapToGrid(settings.rightMargin - delta);
+        updateSettings({ rightMargin: Math.max(0, Math.min(newValue, maxCm)) });
+        break;
+      }
+      case 'tabStop': {
+        if (tabIndex !== undefined && tabIndex >= 0) {
+          const currentValue = settings.tabStops[tabIndex];
+          const newValue = delta === -Infinity ? 0 :
+                           delta === Infinity ? maxCm :
+                           snapToGrid(currentValue + delta);
+          const newTabStops = [...settings.tabStops];
+          newTabStops[tabIndex] = Math.max(0, Math.min(newValue, maxCm));
+          newTabStops.sort((a, b) => a - b);
+          updateSettings({ tabStops: newTabStops });
+        }
+        break;
+      }
+    }
+  }, [settings, maxCm, updateSettings, snapToGrid]);
+
   const renderTicks = useCallback(() => {
     const ticks: JSX.Element[] = [];
     const maxCm = pixelsToCm(rulerWidth);
@@ -438,6 +526,7 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
           <FirstLineIndentHandle
             position={firstLineIndentPx - HANDLE_SIZE / 2}
             onDragStart={(e) => handleMouseDown('firstLine', e)}
+            onKeyDown={(e) => handleKeyDown('firstLine', e)}
             label={t('indent.firstLineIndent')}
             value={Math.round(settings.firstLineIndent * 10)}
           />
@@ -445,6 +534,7 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
           <HangingIndentHandle
             position={hangingIndentPx - HANDLE_SIZE / 2}
             onDragStart={(e) => handleMouseDown('hanging', e)}
+            onKeyDown={(e) => handleKeyDown('hanging', e)}
             label={t('indent.hangingIndent')}
             value={Math.round(settings.hangingIndent * 10)}
           />
@@ -452,6 +542,7 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
           <LeftMarginHandle
             position={leftMarginPx - HANDLE_SIZE / 2}
             onDragStart={(e) => handleMouseDown('leftMargin', e)}
+            onKeyDown={(e) => handleKeyDown('leftMargin', e)}
             label={t('indent.leftMargin')}
             value={Math.round(settings.leftMargin * 10)}
           />
@@ -459,6 +550,7 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
           <RightMarginHandle
             position={rightMarginPx - HANDLE_SIZE / 2}
             onDragStart={(e) => handleMouseDown('rightMargin', e)}
+            onKeyDown={(e) => handleKeyDown('rightMargin', e)}
             label={t('indent.rightMargin')}
             value={Math.round(settings.rightMargin * 10)}
           />
@@ -468,6 +560,7 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
               key={`tab-${index}`}
               position={cmToPixels(tabStop) + lineNumberWidth - 3}
               onDragStart={(e) => handleMouseDown('tabStop', e, index)}
+              onKeyDown={(e) => handleKeyDown('tabStop', e, index)}
               onRemove={() => handleRemoveTabStop(tabStop)}
               label={`${t('indent.tabStop')}: ${tabStop.toFixed(2)}cm`}
               value={Math.round(tabStop * 10)}
