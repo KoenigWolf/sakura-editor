@@ -127,17 +127,3 @@ export const validateSearchQuery = (query: string, isRegex: boolean): { valid: b
 export const escapeRegExp = (string: string): string => {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
-
-/**
- * HTMLエスケープ（念のため）
- */
-export const escapeHtml = (text: string): string => {
-  const htmlEscapes: Record<string, string> = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;',
-  };
-  return text.replace(/[&<>"']/g, (char) => htmlEscapes[char]);
-};

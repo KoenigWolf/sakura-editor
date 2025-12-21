@@ -1,25 +1,4 @@
 /**
- * Represents a single file in the editor.
- */
-export interface EditorFile {
-  id: string;
-  name: string;
-  content: string;
-  isDirty: boolean;
-  encoding: 'utf-8' | 'shift-jis' | 'euc-jp';
-  lineEnding: 'crlf' | 'lf' | 'cr';
-}
-
-/**
- * Maintains undo/redo history for editor content.
- */
-export interface HistoryState {
-  past: string[];
-  future: string[];
-  totalEntries: number;
-}
-
-/**
  * Configuration settings for the editor.
  */
 export interface EditorSettings {
