@@ -287,13 +287,42 @@ export const EditorContainer = memo(function EditorContainer() {
     if (!splitDirection) return;
     // Guard: 既にセカンダリファイルが設定されている場合は何もしない
     if (secondaryFileId) return;
-    // Guard: ファイルが1つ以下の場合はスプリット不可
-    if (files.length <= 1) return;
 
-    const otherFile = files.find(f => f.id !== activeFile?.id);
-    if (!otherFile) return;
+    // ファイルが複数ある場合は別のファイルをセカンダリに設定
+    if (files.length > 1) {
+      const otherFile = files.find(f => f.id !== activeFile?.id);
+      if (otherFile) {
+        setSecondaryFileId(otherFile.id);
+        return;
+      }
+    }
 
-    setSecondaryFileId(otherFile.id);
+    // ファイルが1つ以下の場合は新規ファイルを作成してセカンダリに設定
+    const currentActiveId = activeFile?.id;
+    const existingNames = files.map(f => f.name);
+    let newFileName = 'Untitled-2';
+    let counter = 2;
+    while (existingNames.includes(newFileName)) {
+      counter++;
+      newFileName = `Untitled-${counter}`;
+    }
+
+    useFileStore.getState().addFile({
+      name: newFileName,
+      content: '',
+      path: '',
+      lastModified: Date.now(),
+    });
+
+    // addFile は新しいファイルを activeFileId に設定するので、
+    // 新しいファイルのIDを取得してセカンダリに設定し、元のファイルをアクティブに戻す
+    const newActiveId = useFileStore.getState().activeFileId;
+    if (newActiveId && newActiveId !== currentActiveId) {
+      setSecondaryFileId(newActiveId);
+      if (currentActiveId) {
+        useFileStore.getState().setActiveFileId(currentActiveId);
+      }
+    }
   }, [splitDirection, secondaryFileId, files, activeFile?.id, setSecondaryFileId]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
