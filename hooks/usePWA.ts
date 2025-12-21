@@ -14,6 +14,21 @@ export function usePWA() {
   useEffect(() => {
     // ブラウザ環境チェック
     if (typeof window === 'undefined') return;
+    // 開発環境では Service Worker を使わない（Hydration mismatch/キャッシュ不整合の原因になる）
+    if (process.env.NODE_ENV !== 'production') {
+      if ('serviceWorker' in navigator) {
+        // 既に制御されている場合は登録解除してからリロード（古いJSキャッシュがSSRと食い違うのを防ぐ）
+        navigator.serviceWorker.getRegistrations().then((regs) => {
+          if (regs.length === 0) return;
+          Promise.all(regs.map((reg) => reg.unregister())).then(() => {
+            if (navigator.serviceWorker.controller) {
+              window.location.reload();
+            }
+          });
+        });
+      }
+      return;
+    }
 
     // オンライン状態
     setIsOnline(navigator.onLine);
