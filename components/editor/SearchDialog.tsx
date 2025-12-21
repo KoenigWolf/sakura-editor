@@ -11,7 +11,7 @@ import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useSearchStore, type SearchMatch } from '@/lib/store/search-store';
 import { cn } from '@/lib/utils';
 import { validateSearchQuery, escapeRegExp } from '@/lib/security';
-import { X, ChevronDown, ChevronUp, Regex, CaseSensitive, WholeWord, Replace, Search, ChevronRight } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Regex, CaseSensitive, WholeWord, Search, ChevronRight } from 'lucide-react';
 
 interface SearchOptions {
   caseSensitive: boolean;
@@ -118,7 +118,7 @@ export const SearchDialog = memo(({
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState(false);
-  const { isMobile } = useMobileDetection({ mobileBreakpoint: 640 });
+  const { isMobile } = useMobileDetection();
 
   const options = useMemo(() => ({
     caseSensitive: isCaseSensitive,

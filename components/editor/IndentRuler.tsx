@@ -3,7 +3,6 @@
 import { useCallback, useRef, useState, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useIndentStore } from '@/lib/store/indent-store';
-import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useEditorStore } from '@/lib/store';
 import {
   Tooltip,
@@ -22,8 +21,6 @@ import { cn } from '@/lib/utils';
 const CM_TO_PX = 37.795275591;
 const RULER_HEIGHT = 18;
 const HANDLE_SIZE = 8;
-const TICK_HEIGHT_MAJOR = 6;
-const TICK_HEIGHT_MINOR = 3;
 
 type DragType = 'firstLine' | 'hanging' | 'leftMargin' | 'rightMargin' | 'tabStop' | null;
 
@@ -31,204 +28,108 @@ interface IndentRulerProps {
   className?: string;
 }
 
-const FirstLineIndentHandle = memo(({
-  position,
-  onDragStart,
-  onKeyDown,
-  label,
-  value
-}: {
+type HandleVariant = 'firstLine' | 'hanging' | 'leftMargin' | 'rightMargin' | 'tabStop';
+
+interface IndentHandleProps {
+  variant: HandleVariant;
   position: number;
   onDragStart: (e: React.MouseEvent) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
   label: string;
   value: number;
-}) => (
-  <Tooltip>
-    <TooltipTrigger asChild>
-      <div
-        className="indent-handle indent-handle-first-line"
-        style={{ left: position }}
-        onMouseDown={onDragStart}
-        onKeyDown={onKeyDown}
-        role="slider"
-        aria-label={label}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={value}
-        tabIndex={0}
-      >
-        <svg width={HANDLE_SIZE} height={HANDLE_SIZE} viewBox="0 0 10 10">
-          <polygon points="0,0 10,0 5,8" fill="currentColor" />
-        </svg>
-      </div>
-    </TooltipTrigger>
-    <TooltipContent side="bottom" className="text-xs">
-      {label}
-    </TooltipContent>
-  </Tooltip>
-));
-FirstLineIndentHandle.displayName = 'FirstLineIndentHandle';
+  onRemove?: () => void;
+}
 
-const HangingIndentHandle = memo(({
+const HANDLE_CONFIGS: Record<HandleVariant, {
+  className: string;
+  positionProp: 'left' | 'right';
+  svg: React.ReactNode;
+}> = {
+  firstLine: {
+    className: 'indent-handle-first-line',
+    positionProp: 'left',
+    svg: (
+      <svg width={HANDLE_SIZE} height={HANDLE_SIZE} viewBox="0 0 10 10">
+        <polygon points="0,0 10,0 5,8" fill="currentColor" />
+      </svg>
+    ),
+  },
+  hanging: {
+    className: 'indent-handle-hanging',
+    positionProp: 'left',
+    svg: (
+      <svg width={HANDLE_SIZE} height={HANDLE_SIZE} viewBox="0 0 10 10">
+        <polygon points="0,10 10,10 5,2" fill="currentColor" />
+      </svg>
+    ),
+  },
+  leftMargin: {
+    className: 'indent-handle-left-margin',
+    positionProp: 'left',
+    svg: (
+      <svg width={HANDLE_SIZE} height={6} viewBox="0 0 10 6">
+        <rect x="0" y="0" width="10" height="6" fill="currentColor" />
+      </svg>
+    ),
+  },
+  rightMargin: {
+    className: 'indent-handle-right-margin',
+    positionProp: 'right',
+    svg: (
+      <svg width={HANDLE_SIZE} height={HANDLE_SIZE} viewBox="0 0 10 10">
+        <polygon points="0,10 10,10 5,2" fill="currentColor" />
+      </svg>
+    ),
+  },
+  tabStop: {
+    className: 'indent-handle-tab-stop',
+    positionProp: 'left',
+    svg: (
+      <svg width={6} height={10} viewBox="0 0 6 10">
+        <line x1="3" y1="0" x2="3" y2="10" stroke="currentColor" strokeWidth="2" />
+        <line x1="0" y1="10" x2="6" y2="10" stroke="currentColor" strokeWidth="2" />
+      </svg>
+    ),
+  },
+};
+
+const IndentHandle = memo(({
+  variant,
   position,
   onDragStart,
   onKeyDown,
   label,
-  value
-}: {
-  position: number;
-  onDragStart: (e: React.MouseEvent) => void;
-  onKeyDown: (e: React.KeyboardEvent) => void;
-  label: string;
-  value: number;
-}) => (
-  <Tooltip>
-    <TooltipTrigger asChild>
-      <div
-        className="indent-handle indent-handle-hanging"
-        style={{ left: position }}
-        onMouseDown={onDragStart}
-        onKeyDown={onKeyDown}
-        role="slider"
-        aria-label={label}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={value}
-        tabIndex={0}
-      >
-        <svg width={HANDLE_SIZE} height={HANDLE_SIZE} viewBox="0 0 10 10">
-          <polygon points="0,10 10,10 5,2" fill="currentColor" />
-        </svg>
-      </div>
-    </TooltipTrigger>
-    <TooltipContent side="bottom" className="text-xs">
-      {label}
-    </TooltipContent>
-  </Tooltip>
-));
-HangingIndentHandle.displayName = 'HangingIndentHandle';
-
-const LeftMarginHandle = memo(({
-  position,
-  onDragStart,
-  onKeyDown,
-  label,
-  value
-}: {
-  position: number;
-  onDragStart: (e: React.MouseEvent) => void;
-  onKeyDown: (e: React.KeyboardEvent) => void;
-  label: string;
-  value: number;
-}) => (
-  <Tooltip>
-    <TooltipTrigger asChild>
-      <div
-        className="indent-handle indent-handle-left-margin"
-        style={{ left: position }}
-        onMouseDown={onDragStart}
-        onKeyDown={onKeyDown}
-        role="slider"
-        aria-label={label}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={value}
-        tabIndex={0}
-      >
-        <svg width={HANDLE_SIZE} height={6} viewBox="0 0 10 6">
-          <rect x="0" y="0" width="10" height="6" fill="currentColor" />
-        </svg>
-      </div>
-    </TooltipTrigger>
-    <TooltipContent side="bottom" className="text-xs">
-      {label}
-    </TooltipContent>
-  </Tooltip>
-));
-LeftMarginHandle.displayName = 'LeftMarginHandle';
-
-const RightMarginHandle = memo(({
-  position,
-  onDragStart,
-  onKeyDown,
-  label,
-  value
-}: {
-  position: number;
-  onDragStart: (e: React.MouseEvent) => void;
-  onKeyDown: (e: React.KeyboardEvent) => void;
-  label: string;
-  value: number;
-}) => (
-  <Tooltip>
-    <TooltipTrigger asChild>
-      <div
-        className="indent-handle indent-handle-right-margin"
-        style={{ right: position }}
-        onMouseDown={onDragStart}
-        onKeyDown={onKeyDown}
-        role="slider"
-        aria-label={label}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={value}
-        tabIndex={0}
-      >
-        <svg width={HANDLE_SIZE} height={HANDLE_SIZE} viewBox="0 0 10 10">
-          <polygon points="0,10 10,10 5,2" fill="currentColor" />
-        </svg>
-      </div>
-    </TooltipTrigger>
-    <TooltipContent side="bottom" className="text-xs">
-      {label}
-    </TooltipContent>
-  </Tooltip>
-));
-RightMarginHandle.displayName = 'RightMarginHandle';
-
-const TabStopHandle = memo(({
-  position,
-  onDragStart,
-  onKeyDown,
+  value,
   onRemove,
-  label,
-  value
-}: {
-  position: number;
-  onDragStart: (e: React.MouseEvent) => void;
-  onKeyDown: (e: React.KeyboardEvent) => void;
-  onRemove: () => void;
-  label: string;
-  value: number;
-}) => (
-  <Tooltip>
-    <TooltipTrigger asChild>
-      <div
-        className="indent-handle indent-handle-tab-stop"
-        style={{ left: position }}
-        onMouseDown={onDragStart}
-        onKeyDown={onKeyDown}
-        onDoubleClick={onRemove}
-        role="slider"
-        aria-label={label}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={value}
-        tabIndex={0}
-      >
-        <svg width={6} height={10} viewBox="0 0 6 10">
-          <line x1="3" y1="0" x2="3" y2="10" stroke="currentColor" strokeWidth="2" />
-          <line x1="0" y1="10" x2="6" y2="10" stroke="currentColor" strokeWidth="2" />
-        </svg>
-      </div>
-    </TooltipTrigger>
-    <TooltipContent side="bottom" className="text-xs">
-      {label}
-    </TooltipContent>
-  </Tooltip>
-));
-TabStopHandle.displayName = 'TabStopHandle';
+}: IndentHandleProps) => {
+  const config = HANDLE_CONFIGS[variant];
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div
+          className={`indent-handle ${config.className}`}
+          style={{ [config.positionProp]: position }}
+          onMouseDown={onDragStart}
+          onKeyDown={onKeyDown}
+          onDoubleClick={onRemove}
+          role="slider"
+          aria-label={label}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={value}
+          tabIndex={0}
+        >
+          {config.svg}
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" className="text-xs">
+        {label}
+      </TooltipContent>
+    </Tooltip>
+  );
+});
+IndentHandle.displayName = 'IndentHandle';
 
 export const IndentRuler = memo(({ className }: IndentRulerProps) => {
   const { t } = useTranslation();
@@ -249,7 +150,6 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
   const resetSettings = useIndentStore((state) => state.resetSettings);
 
   const editorSettings = useEditorStore((state) => state.settings);
-  const getEditorInstance = useEditorInstanceStore((state) => state.getEditorInstance);
 
   const lineNumberWidth = editorSettings.showLineNumbers ? 50 : 0;
 
@@ -523,7 +423,8 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
             }}
           />
 
-          <FirstLineIndentHandle
+          <IndentHandle
+            variant="firstLine"
             position={firstLineIndentPx - HANDLE_SIZE / 2}
             onDragStart={(e) => handleMouseDown('firstLine', e)}
             onKeyDown={(e) => handleKeyDown('firstLine', e)}
@@ -531,7 +432,8 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
             value={Math.round(settings.firstLineIndent * 10)}
           />
 
-          <HangingIndentHandle
+          <IndentHandle
+            variant="hanging"
             position={hangingIndentPx - HANDLE_SIZE / 2}
             onDragStart={(e) => handleMouseDown('hanging', e)}
             onKeyDown={(e) => handleKeyDown('hanging', e)}
@@ -539,7 +441,8 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
             value={Math.round(settings.hangingIndent * 10)}
           />
 
-          <LeftMarginHandle
+          <IndentHandle
+            variant="leftMargin"
             position={leftMarginPx - HANDLE_SIZE / 2}
             onDragStart={(e) => handleMouseDown('leftMargin', e)}
             onKeyDown={(e) => handleKeyDown('leftMargin', e)}
@@ -547,7 +450,8 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
             value={Math.round(settings.leftMargin * 10)}
           />
 
-          <RightMarginHandle
+          <IndentHandle
+            variant="rightMargin"
             position={rightMarginPx - HANDLE_SIZE / 2}
             onDragStart={(e) => handleMouseDown('rightMargin', e)}
             onKeyDown={(e) => handleKeyDown('rightMargin', e)}
@@ -556,8 +460,9 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
           />
 
           {settings.tabStops.map((tabStop, index) => (
-            <TabStopHandle
+            <IndentHandle
               key={`tab-${index}`}
+              variant="tabStop"
               position={cmToPixels(tabStop) + lineNumberWidth - 3}
               onDragStart={(e) => handleMouseDown('tabStop', e, index)}
               onKeyDown={(e) => handleKeyDown('tabStop', e, index)}

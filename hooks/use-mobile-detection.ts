@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { BREAKPOINTS, DEBOUNCE } from '@/lib/constants/breakpoints';
 
 interface MobileDetectionOptions {
   mobileBreakpoint?: number;
@@ -15,15 +16,11 @@ interface MobileDetectionResult {
   mounted: boolean;
 }
 
-const DEFAULT_MOBILE_BREAKPOINT = 480;
-const DEFAULT_TABLET_BREAKPOINT = 768;
-const DEFAULT_DEBOUNCE_MS = 100;
-
 export const useMobileDetection = (options: MobileDetectionOptions = {}): MobileDetectionResult => {
   const {
-    mobileBreakpoint = DEFAULT_MOBILE_BREAKPOINT,
-    tabletBreakpoint = DEFAULT_TABLET_BREAKPOINT,
-    debounceMs = DEFAULT_DEBOUNCE_MS,
+    mobileBreakpoint = BREAKPOINTS.MOBILE,
+    tabletBreakpoint = BREAKPOINTS.TABLET,
+    debounceMs = DEBOUNCE.RESIZE,
   } = options;
 
   const [mounted, setMounted] = useState(false);

@@ -33,7 +33,7 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-  const { isMobile } = useMobileDetection({ mobileBreakpoint: 640 });
+  const { isMobile } = useMobileDetection();
 
   const filteredCommands = useMemo(() => {
     if (!query.trim()) return commands;

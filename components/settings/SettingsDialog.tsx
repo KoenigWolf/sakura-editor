@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -53,20 +53,11 @@ const MIN_HEIGHT = 400;
 const DEFAULT_WIDTH = 560;
 const DEFAULT_HEIGHT = 640;
 
-const MOBILE_BREAKPOINT = 640;
-const TABLET_BREAKPOINT = 1024;
-
 type ResizeDirection = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null;
 
 type SettingsDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-};
-
-const getDeviceType = (width: number): 'mobile' | 'tablet' | 'desktop' => {
-  if (width < MOBILE_BREAKPOINT) return 'mobile';
-  if (width < TABLET_BREAKPOINT) return 'tablet';
-  return 'desktop';
 };
 
 const calculateInitialLayout = (deviceType: 'mobile' | 'tablet' | 'desktop') => {
@@ -185,10 +176,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const [tempSettings, setTempSettings] = useState(currentSettings);
   const [originalSettings, setOriginalSettings] = useState(currentSettings);
 
-  const { isMobile, isTablet } = useMobileDetection({
-    mobileBreakpoint: MOBILE_BREAKPOINT,
-    tabletBreakpoint: TABLET_BREAKPOINT,
-  });
+  const { isMobile, isTablet } = useMobileDetection();
 
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [size, setSize] = useState({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
