@@ -59,7 +59,8 @@ export function usePWA() {
             });
           });
         })
-        .catch(() => {
+        .catch((e) => {
+          console.warn('[PWA] Service Worker registration failed:', e);
         });
 
       let refreshing = false;

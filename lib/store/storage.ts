@@ -17,10 +17,12 @@ const secureStorage: StateStorage = {
 
       JSON.parse(item);
       return item;
-    } catch {
+    } catch (e) {
+      console.warn('[Storage] Failed to parse item:', name, e);
       try {
         localStorage.removeItem(name);
-      } catch {
+      } catch (removeErr) {
+        console.warn('[Storage] Failed to remove corrupted item:', name, removeErr);
       }
       return null;
     }
@@ -34,11 +36,13 @@ const secureStorage: StateStorage = {
       }
 
       localStorage.setItem(name, value);
-    } catch {
+    } catch (e) {
+      console.warn('[Storage] Failed to set item, retrying:', name, e);
       try {
         localStorage.removeItem(name);
         localStorage.setItem(name, value);
-      } catch {
+      } catch (retryErr) {
+        console.warn('[Storage] Retry failed:', name, retryErr);
       }
     }
   },
@@ -46,7 +50,8 @@ const secureStorage: StateStorage = {
   removeItem: (name: string): void => {
     try {
       localStorage.removeItem(name);
-    } catch {
+    } catch (e) {
+      console.warn('[Storage] Failed to remove item:', name, e);
     }
   },
 };

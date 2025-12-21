@@ -1,9 +1,7 @@
-/**
- * リッチな閉じるボタンコンポーネント
- */
 'use client';
 
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
 interface CloseButtonProps {
@@ -19,8 +17,9 @@ export function CloseButton({
   className,
   size = 'md',
   variant = 'default',
-  'aria-label': ariaLabel = '閉じる',
+  'aria-label': ariaLabel,
 }: CloseButtonProps) {
+  const { t } = useTranslation();
   const sizeClasses = {
     sm: 'h-6 w-6',
     md: 'h-7 w-7',
@@ -43,7 +42,7 @@ export function CloseButton({
     <button
       type="button"
       onClick={onClick}
-      aria-label={ariaLabel}
+      aria-label={ariaLabel ?? t('common.close')}
       className={cn(
         'inline-flex items-center justify-center rounded-full',
         'text-muted-foreground transition-all duration-150',
