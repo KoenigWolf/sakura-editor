@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, memo } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import {
   Download,
@@ -40,13 +40,11 @@ import { cn } from '@/lib/utils';
 import { validateFile, FILE_SECURITY } from '@/lib/security';
 import { useToast } from '@/components/ui/use-toast';
 
-// 検索ダイアログを遅延読み込み
 const SearchDialog = dynamic(
   () => import('@/components/editor/SearchDialog').then(mod => ({ default: mod.SearchDialog })),
   { ssr: false }
 );
 
-// ツールバーボタンコンポーネント
 interface ToolbarButtonProps {
   icon: React.ElementType;
   label: string;
@@ -64,6 +62,7 @@ const ToolbarButton = ({ icon: Icon, label, shortcut, onClick, active, disabled 
           type="button"
           onClick={onClick}
           disabled={disabled}
+          aria-label={label}
           className={cn(
             'mochi-toolbar-btn group',
             active && 'mochi-toolbar-btn-active',
@@ -110,7 +109,6 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // SSR中はデスクトップ版を表示（ハイドレーションエラー回避）
   const showMobileUI = mounted && isMobile;
 
   const handleUndo = useCallback(() => {
@@ -171,7 +169,6 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
-      // セキュリティバリデーション
       const validation = validateFile(file);
       if (!validation.valid) {
         toast({
@@ -201,7 +198,6 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
     input.click();
   };
 
-  // モバイルの場合はEditorContainerで処理するので何も返さない
   if (showMobileUI) {
     return (
       <SearchDialog
@@ -213,16 +209,15 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
     );
   }
 
-  // デスクトップ版ツールバー
   return (
     <>
     <div className="mochi-toolbar-modern flex items-center gap-1.5 px-2 py-1 w-full overflow-hidden">
-      {/* 設定（左端） */}
       <Tooltip>
         <TooltipTrigger asChild>
           <button
             type="button"
             onClick={onOpenSettings}
+            aria-label={t('toolbar.settings')}
             className="mochi-toolbar-btn group"
           >
             <Settings className="h-[14px] w-[14px] transition-all duration-200 group-hover:rotate-45" strokeWidth={1.5} />
@@ -236,7 +231,6 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
 
       <div className="mochi-toolbar-separator" />
 
-      {/* ファイル操作グループ */}
       <div className="mochi-toolbar-group">
         <ToolbarButton
           icon={Plus}
@@ -260,7 +254,6 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
 
       <div className="mochi-toolbar-separator" />
 
-      {/* 編集操作グループ */}
       <div className="mochi-toolbar-group">
         <ToolbarButton
           icon={RotateCcw}
@@ -278,7 +271,6 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
 
       <div className="mochi-toolbar-separator" />
 
-      {/* 検索グループ */}
       <div className="mochi-toolbar-group">
         <ToolbarButton
           icon={Search}
@@ -290,7 +282,6 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
 
       <div className="mochi-toolbar-separator" />
 
-      {/* インデントグループ */}
       <div className="mochi-toolbar-group">
         <ToolbarButton
           icon={AlignLeft}
@@ -312,13 +303,13 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
         />
       </div>
 
-      {/* 分割ビュー */}
       <DropdownMenu>
         <Tooltip>
           <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
+                aria-label={t('toolbar.split')}
                 className={cn(
                   'mochi-toolbar-btn group',
                   splitDirection && 'mochi-toolbar-btn-active'
