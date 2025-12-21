@@ -243,7 +243,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
         ),
         options: {
           inlineClassName: 'full-width-space-highlight',
-          hoverMessage: { value: '全角スペース (U+3000)' },
+          hoverMessage: { value: t('editor.fullWidthSpace') },
         },
       });
     }

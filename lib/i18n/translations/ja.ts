@@ -44,6 +44,7 @@ export const ja = {
   },
   editor: {
     loading: 'エディタを読み込み中...',
+    fullWidthSpace: '全角スペース (U+3000)',
   },
   settings: {
     title: '設定',

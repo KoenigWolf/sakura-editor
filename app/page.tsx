@@ -6,7 +6,9 @@ import { useFileStore } from '@/lib/store/file-store';
 import { SeoContent } from '@/components/seo/SeoContent';
 
 export default function Home() {
-  const { files, addFile, _hasHydrated } = useFileStore();
+  const files = useFileStore((state) => state.files);
+  const addFile = useFileStore((state) => state.addFile);
+  const _hasHydrated = useFileStore((state) => state._hasHydrated);
 
   useEffect(() => {
     if (!_hasHydrated) return;

@@ -44,6 +44,7 @@ export const en = {
   },
   editor: {
     loading: 'Loading editor...',
+    fullWidthSpace: 'Full-width Space (U+3000)',
   },
   settings: {
     title: 'Settings',
