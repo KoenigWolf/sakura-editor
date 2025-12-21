@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import {
   Download,
@@ -39,6 +39,7 @@ import {
 import { cn } from '@/lib/utils';
 import { validateFile, FILE_SECURITY } from '@/lib/security';
 import { useToast } from '@/components/ui/use-toast';
+import { useMobileDetection } from '@/hooks/use-mobile-detection';
 
 const SearchDialog = dynamic(
   () => import('@/components/editor/SearchDialog').then(mod => ({ default: mod.SearchDialog })),
@@ -96,18 +97,7 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
   const indentSettings = useIndentStore((state) => state.settings);
   const rulerVisible = useIndentStore((state) => state.rulerVisible);
   const setRulerVisible = useIndentStore((state) => state.setRulerVisible);
-  const [mounted, setMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 480);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  const { isMobile, mounted } = useMobileDetection();
 
   const showMobileUI = mounted && isMobile;
 

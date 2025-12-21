@@ -13,6 +13,7 @@ import { useTheme } from 'next-themes';
 import { FileTabs } from '@/components/editor/FileTabs';
 import { useTranslation } from 'react-i18next';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
+import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import type { CommandItem } from '@/components/editor/CommandPalette';
 import {
   Plus,
@@ -99,21 +100,10 @@ export const EditorContainer = memo(function EditorContainer() {
 
   const [showSettings, setShowSettings] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(false);
   const focusTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 480);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  const { isMobile, mounted } = useMobileDetection();
 
   const handleEditorAreaClick = useCallback(() => {
     if (!isMobile) return;

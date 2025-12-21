@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
+import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import {
   Command,
   ArrowRight,
@@ -30,16 +31,9 @@ export function CommandPalette({ open, onOpenChange, commands }: CommandPaletteP
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 640);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  const { isMobile } = useMobileDetection({ mobileBreakpoint: 640 });
 
   const filteredCommands = useMemo(() => {
     if (!query.trim()) return commands;

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, useMemo, memo } from 'react';
+import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import type { editor } from 'monaco-editor';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
@@ -117,22 +118,13 @@ export const SearchDialog = memo(({
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const { isMobile } = useMobileDetection({ mobileBreakpoint: 640 });
 
   const options = useMemo(() => ({
     caseSensitive: isCaseSensitive,
     useRegex: isRegex,
     wholeWord: isWholeWord,
   }), [isCaseSensitive, isRegex, isWholeWord]);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   useEffect(() => {
     if (open) {

@@ -9,6 +9,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
@@ -194,8 +195,10 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const [tempSettings, setTempSettings] = useState(currentSettings);
   const [originalSettings, setOriginalSettings] = useState(currentSettings);
 
-  const [isMobile, setIsMobile] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
+  const { isMobile, isTablet } = useMobileDetection({
+    mobileBreakpoint: MOBILE_BREAKPOINT,
+    tabletBreakpoint: TABLET_BREAKPOINT,
+  });
 
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [size, setSize] = useState({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
@@ -206,17 +209,6 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0, posX: 0, posY: 0 });
   const dialogRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-
-  useEffect(() => {
-    const checkResponsive = () => {
-      const deviceType = getDeviceType(window.innerWidth);
-      setIsMobile(deviceType === 'mobile');
-      setIsTablet(deviceType === 'tablet');
-    };
-    checkResponsive();
-    window.addEventListener('resize', checkResponsive);
-    return () => window.removeEventListener('resize', checkResponsive);
-  }, []);
 
   useEffect(() => {
     // Guard: ダイアログが閉じられた場合は初期化フラグをリセット
