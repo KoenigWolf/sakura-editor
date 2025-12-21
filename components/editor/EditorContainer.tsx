@@ -364,7 +364,6 @@ export const EditorContainer = memo(function EditorContainer() {
         </div>
       )}
 
-      {/* モバイル: ウルトラミニマルタブ（フォーカスモード以外） */}
       {showMobileUI && !focusMode && files.length > 1 && (
         <div className="mochi-ultra-minimal-tabs">
           {files.map((file) => (
@@ -382,13 +381,10 @@ export const EditorContainer = memo(function EditorContainer() {
         </div>
       )}
 
-      {/* デスクトップ: 通常タブ */}
       {!showMobileUI && <FileTabs />}
 
-      {/* ルーラー（デスクトップのみ） */}
       {!showMobileUI && rulerVisible && <IndentRuler />}
 
-      {/* エディターエリア */}
       <div
         ref={containerRef}
         className={`flex-1 overflow-hidden relative min-h-0 min-w-0 flex ${
@@ -425,7 +421,6 @@ export const EditorContainer = memo(function EditorContainer() {
         )}
       </div>
 
-      {/* モバイル: フォーカスモード時のミニインジケーター */}
       {showMobileUI && focusMode && (
         <div className="mochi-mini-indicator">
           {activeFile?.isDirty && <span className="mochi-mini-indicator-dot" />}
@@ -436,7 +431,6 @@ export const EditorContainer = memo(function EditorContainer() {
         </div>
       )}
 
-      {/* モバイル: クイックアクションバー */}
       {showMobileUI && (
         <div className={`mochi-quick-actions ${showQuickActions ? 'visible' : ''}`}>
           <button
@@ -482,7 +476,6 @@ export const EditorContainer = memo(function EditorContainer() {
         </div>
       )}
 
-      {/* モバイル: ウルトラミニマルステータスバー */}
       {showMobileUI && !focusMode && (
         <div className="mochi-ultra-minimal-status">
           <div className="mochi-ultra-minimal-status-left">
@@ -510,7 +503,6 @@ export const EditorContainer = memo(function EditorContainer() {
         </div>
       )}
 
-      {/* モバイル: フォーカスモード解除ボタン */}
       {showMobileUI && focusMode && (
         <button
           type="button"
@@ -522,9 +514,7 @@ export const EditorContainer = memo(function EditorContainer() {
         </button>
       )}
 
-      {/* デスクトップ用ステータスバー */}
       <div className="mochi-statusbar-modern flex-shrink-0 overflow-x-auto overflow-y-hidden safe-area-bottom hidden sm:flex">
-        {/* 左側: ファイル情報 */}
         <div className="flex items-center gap-1">
           <button
             onClick={() => setShowCommandPalette(true)}
@@ -557,7 +547,6 @@ export const EditorContainer = memo(function EditorContainer() {
           </div>
         </div>
 
-        {/* 右側: カーソル位置・統計 */}
         <div className="flex items-center gap-1">
           <div className="mochi-statusbar-item gap-0.5 text-[11px] font-mono">
             <span className="text-foreground">{statusInfo.cursorLine}</span>

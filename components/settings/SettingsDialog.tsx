@@ -1,10 +1,3 @@
-/**
- * SettingsDialogコンポーネント
- * 非モーダル設定ダイアログ
- * エディタの各種設定をタブ切替形式で表示・編集する
- * モバイル: フルスクリーンボトムシート
- * デスクトップ: ドラッグ&リサイズ可能なフローティングダイアログ
- */
 'use client';
 
 import { useTranslation } from 'react-i18next';
@@ -19,10 +12,9 @@ import { FileSettings } from './tabs/FileSettings';
 import { GeneralSettings } from './tabs/GeneralSettings';
 import { useEditorStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
-import { Palette, Type, FileText, Settings2, X } from 'lucide-react';
+import { Palette, Type, FileText, Settings2 } from 'lucide-react';
 import { CloseButton } from '@/components/ui/close-button';
 
-// タブ定義（アイコン追加）
 const settingsTabs = [
   {
     value: 'theme',
@@ -50,13 +42,11 @@ const settingsTabs = [
   },
 ];
 
-// サイズの制限
 const MIN_WIDTH = 400;
 const MIN_HEIGHT = 400;
 const DEFAULT_WIDTH = 560;
 const DEFAULT_HEIGHT = 640;
 
-// ブレークポイント
 const MOBILE_BREAKPOINT = 640;
 const TABLET_BREAKPOINT = 1024;
 
@@ -67,14 +57,12 @@ type SettingsDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-// ヘルパー関数: デバイスタイプを判定
 const getDeviceType = (width: number): 'mobile' | 'tablet' | 'desktop' => {
   if (width < MOBILE_BREAKPOINT) return 'mobile';
   if (width < TABLET_BREAKPOINT) return 'tablet';
   return 'desktop';
 };
 
-// ヘルパー関数: ダイアログの初期位置とサイズを計算
 const calculateInitialLayout = (deviceType: 'mobile' | 'tablet' | 'desktop') => {
   if (deviceType === 'mobile') {
     return {
@@ -95,7 +83,6 @@ const calculateInitialLayout = (deviceType: 'mobile' | 'tablet' | 'desktop') => 
     };
   }
 
-  // desktop
   return {
     position: {
       x: (window.innerWidth - DEFAULT_WIDTH) / 2,
@@ -105,7 +92,6 @@ const calculateInitialLayout = (deviceType: 'mobile' | 'tablet' | 'desktop') => 
   };
 };
 
-// ヘルパー関数: リサイズ後の新しい幅を計算
 const calculateNewWidth = (
   direction: ResizeDirection,
   currentWidth: number,
@@ -134,7 +120,6 @@ const calculateNewWidth = (
   return { width: currentWidth, x: currentX };
 };
 
-// ヘルパー関数: リサイズ後の新しい高さを計算
 const calculateNewHeight = (
   direction: ResizeDirection,
   currentHeight: number,
@@ -163,7 +148,6 @@ const calculateNewHeight = (
   return { height: currentHeight, y: currentY };
 };
 
-// ヘルパー関数: ダイアログのスタイルを生成
 const getDialogStyles = (
   isMobile: boolean,
   position: { x: number; y: number },
@@ -211,16 +195,13 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // Guard: ダイアログが閉じられた場合は初期化フラグをリセット
     if (!open) {
       setIsInitialized(false);
       return;
     }
 
-    // Guard: 既に初期化済みの場合は何もしない
     if (isInitialized) return;
 
-    // デバイスタイプに応じた初期レイアウトを計算
     const deviceType = isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop';
     const layout = calculateInitialLayout(deviceType);
 
@@ -232,10 +213,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   }, [open, isInitialized, currentSettings, isMobile, isTablet]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    // Guard: モバイル・タブレットではドラッグ無効
-    if (isMobile) return;
-    if (isTablet) return;
-    // Guard: ダイアログ参照がない場合は何もしない
+    if (isMobile || isTablet) return;
     if (!dialogRef.current) return;
 
     setIsDragging(true);
@@ -246,9 +224,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   }, [position, isMobile, isTablet]);
 
   const handleResizeStart = useCallback((e: React.MouseEvent, direction: ResizeDirection) => {
-    // Guard: モバイル・タブレットではリサイズ無効
-    if (isMobile) return;
-    if (isTablet) return;
+    if (isMobile || isTablet) return;
 
     e.preventDefault();
     e.stopPropagation();
@@ -288,10 +264,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   }, [isDragging, dragOffset]);
 
   useEffect(() => {
-    // Guard: リサイズ中でない場合は何もしない
-    if (!isResizing) return;
-    // Guard: リサイズ方向が指定されていない場合は何もしない
-    if (!resizeDirection) return;
+    if (!isResizing || !resizeDirection) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       const deltaX = e.clientX - resizeStart.x;
@@ -348,7 +321,6 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   }, [updateSettings]);
 
   const handleClose = useCallback(() => {
-    // 設定が変更されている場合は元に戻す
     const hasChanges = JSON.stringify(tempSettings) !== JSON.stringify(originalSettings);
     if (hasChanges) {
       updateSettings(originalSettings);
@@ -367,7 +339,6 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className="fixed inset-0 z-40 bg-black/50"
         onClick={handleClose}
@@ -381,7 +352,6 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
         )}
         style={dialogStyles}
       >
-        {/* Resize handles for desktop */}
         {!isMobile && !isTablet && (
           <>
             <div
@@ -419,7 +389,6 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
           </>
         )}
 
-        {/* Header */}
         <div
           className={cn(
             'px-4 py-3 border-b shrink-0 select-none flex items-center justify-between',
@@ -440,7 +409,6 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
           />
         </div>
 
-        {/* Tabs */}
         <Tabs defaultValue="theme" className="flex-1 min-h-0 flex flex-col">
           <TabsList className={cn(
             'shrink-0 w-full flex bg-transparent border-b',
@@ -480,7 +448,6 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
           </div>
         </Tabs>
 
-        {/* Footer */}
         <div className={cn(
           'flex justify-end gap-3 border-t shrink-0',
           isMobile ? 'px-4 py-4 pb-safe' : 'px-4 py-3'
