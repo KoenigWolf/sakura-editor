@@ -33,7 +33,6 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
 
   const handleSave = useCallback(async () => {
     const activeFile = getActiveFile();
-    // Guard: アクティブファイルがない場合は何もしない
     if (!activeFile) return;
 
     const blob = new Blob([activeFile.content], { type: 'text/plain' });
@@ -58,11 +57,9 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
 
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
-      // Guard: ファイルが選択されていない場合は何もしない
       if (!file) return;
 
       const validation = validateFile(file);
-      // Guard: バリデーション失敗時はエラー表示して終了
       if (!validation.valid) {
         toast({
           title: t('error.fileError'),
@@ -93,16 +90,13 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
   }, [addFile, toast, t]);
 
   const handleCloseTab = useCallback(() => {
-    // Guard: アクティブなファイルがない場合は何もしない
     if (!activeFileId) return;
-    // Guard: ファイルが1つしかない場合は閉じない
     if (files.length <= 1) return;
 
     removeFile(activeFileId);
   }, [activeFileId, files.length, removeFile]);
 
   const handleNextTab = useCallback(() => {
-    // Guard: ファイルが1つ以下の場合は何もしない
     if (files.length <= 1) return;
 
     const currentIndex = files.findIndex(f => f.id === activeFileId);
@@ -111,7 +105,6 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
   }, [files, activeFileId, setActiveFileId]);
 
   const handlePrevTab = useCallback(() => {
-    // Guard: ファイルが1つ以下の場合は何もしない
     if (files.length <= 1) return;
 
     const currentIndex = files.findIndex(f => f.id === activeFileId);
@@ -121,7 +114,6 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
 
   const handleGoToLine = useCallback(() => {
     const editor = getEditorInstance();
-    // Guard: エディタインスタンスがない場合は何もしない
     if (!editor) return;
 
     editor.trigger('keyboard', 'editor.action.gotoLine', null);
@@ -139,84 +131,72 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
     const handleKeyDown = (e: KeyboardEvent) => {
       const isMod = e.metaKey || e.ctrlKey;
 
-      // Ctrl/Cmd + N: New File
       if (isMod && e.key === 'n') {
         e.preventDefault();
         handleNewFile();
         return;
       }
 
-      // Ctrl/Cmd + S: Save
       if (isMod && e.key === 's') {
         e.preventDefault();
         handleSave();
         return;
       }
 
-      // Ctrl/Cmd + O: Open
       if (isMod && e.key === 'o') {
         e.preventDefault();
         handleOpen();
         return;
       }
 
-      // Ctrl/Cmd + W: Close Tab
       if (isMod && e.key === 'w') {
         e.preventDefault();
         handleCloseTab();
         return;
       }
 
-      // Ctrl/Cmd + Tab: Next Tab
       if (isMod && e.key === 'Tab' && !e.shiftKey) {
         e.preventDefault();
         handleNextTab();
         return;
       }
 
-      // Ctrl/Cmd + Shift + Tab: Previous Tab
       if (isMod && e.key === 'Tab' && e.shiftKey) {
         e.preventDefault();
         handlePrevTab();
         return;
       }
 
-      // Ctrl/Cmd + G: Go to Line
       if (isMod && e.key === 'g') {
         e.preventDefault();
         handleGoToLine();
         return;
       }
 
-      // Ctrl/Cmd + P: Command Palette
       if (isMod && e.key === 'p') {
         e.preventDefault();
         options.onOpenCommandPalette?.();
         return;
       }
 
-      // Ctrl/Cmd + ,: Settings
       if (isMod && e.key === ',') {
         e.preventDefault();
         options.onOpenSettings?.();
         return;
       }
 
-      // F1: Help / Keyboard Shortcuts
       if (e.key === 'F1') {
         e.preventDefault();
         options.onOpenCommandPalette?.();
         return;
       }
 
-      // Ctrl/Cmd + \: Toggle Split
       if (isMod && e.key === '\\') {
         e.preventDefault();
         handleToggleSplit();
         return;
       }
 
-      // Ctrl/Cmd + Shift + \: Close Split
       if (isMod && e.shiftKey && e.key === '|') {
         e.preventDefault();
         handleCloseSplit();

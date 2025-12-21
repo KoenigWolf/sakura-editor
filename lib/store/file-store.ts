@@ -26,7 +26,6 @@ interface FileStore {
   renameFile: (id: string, name: string) => void;
 }
 
-// updateFileのデバウンス用
 let pendingUpdates: Map<string, string> = new Map();
 let updateRafId: number | null = null;
 
@@ -57,13 +56,10 @@ export const useFileStore = create<FileStore>()(
       },
 
       updateFile: (id, content) => {
-        // 更新をキューに追加
         pendingUpdates.set(id, content);
 
-        // Guard: 既にスケジュール済みならスキップ
         if (updateRafId !== null) return;
 
-        // 次のフレームでバッチ更新
         updateRafId = requestAnimationFrame(() => {
           const updates = pendingUpdates;
           pendingUpdates = new Map();
@@ -72,9 +68,7 @@ export const useFileStore = create<FileStore>()(
           set((state) => ({
             files: state.files.map((file) => {
               const newContent = updates.get(file.id);
-              // Guard: 更新がない場合はそのまま返す
               if (newContent === undefined) return file;
-              // Guard: 内容が同じ場合はそのまま返す
               if (newContent === file.content) return file;
 
               const isDirty = newContent !== file.originalContent;

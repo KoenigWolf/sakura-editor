@@ -29,19 +29,16 @@ export const useSplitViewStore = create<SplitViewState>((set, get) => ({
   toggleSplit: () => {
     const { splitDirection } = get();
 
-    // スプリットモードでない場合は縦分割を開始
     if (splitDirection === null) {
       set({ splitDirection: 'vertical' });
       return;
     }
 
-    // 縦分割の場合は横分割に切り替え
     if (splitDirection === 'vertical') {
       set({ splitDirection: 'horizontal' });
       return;
     }
 
-    // 横分割の場合はスプリットを閉じる
     set({ splitDirection: null, secondaryFileId: null });
   },
 

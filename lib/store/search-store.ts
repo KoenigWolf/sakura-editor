@@ -50,7 +50,6 @@ export const useSearchStore = create<SearchStore>((set, get) => ({
 
   nextMatch: () => {
     const { matches, currentMatchIndex } = get();
-    // Guard: マッチがない場合は何もしない
     if (matches.length === 0) return;
 
     const nextIndex = (currentMatchIndex + 1) % matches.length;
@@ -59,10 +58,8 @@ export const useSearchStore = create<SearchStore>((set, get) => ({
 
   previousMatch: () => {
     const { matches, currentMatchIndex } = get();
-    // Guard: マッチがない場合は何もしない
     if (matches.length === 0) return;
 
-    // 現在のインデックスが0以下なら最後に戻る
     const isAtStart = currentMatchIndex <= 0;
     const prevIndex = isAtStart ? matches.length - 1 : currentMatchIndex - 1;
     set({ currentMatchIndex: prevIndex });

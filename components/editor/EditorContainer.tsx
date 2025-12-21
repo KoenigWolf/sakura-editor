@@ -37,7 +37,6 @@ import {
   ChevronUp,
 } from 'lucide-react';
 
-// 重いコンポーネントを遅延読み込み
 const MonacoEditor = dynamic(
   () => import('@/components/editor/MonacoEditor').then(mod => ({ default: mod.MonacoEditor })),
   {
@@ -60,25 +59,21 @@ const SettingsDialog = dynamic(
   { ssr: false }
 );
 
-// ヘルパー関数: テーマを切り替える
 const getNextTheme = (currentTheme: string | undefined): string => {
   if (currentTheme === 'dark') return 'light';
   return 'dark';
 };
 
-// ヘルパー関数: テーマアイコンを取得
 const getThemeIcon = (currentTheme: string | undefined) => {
   if (currentTheme === 'dark') return Sun;
   return Moon;
 };
 
-// ヘルパー関数: ファイル名を取得（アクティブファイルがなければデフォルト値）
 const getDisplayFileName = (fileName: string | undefined, fallback: string): string => {
   if (fileName) return fileName;
   return fallback;
 };
 
-// ヘルパー関数: スプリット方向に応じたスタイルプロパティ名を取得
 const getSplitStyleKey = (direction: 'vertical' | 'horizontal' | null, isPrimary: boolean): 'width' | 'height' => {
   if (direction === 'vertical') {
     return isPrimary ? 'width' : 'height';
@@ -86,7 +81,6 @@ const getSplitStyleKey = (direction: 'vertical' | 'horizontal' | null, isPrimary
   return isPrimary ? 'height' : 'width';
 };
 
-// ヘルパー関数: スプリット方向に応じたサイズ値を取得
 const getSplitStyleValue = (direction: 'vertical' | 'horizontal' | null, ratio: number): string => {
   if (!direction) return '100%';
   return `${ratio * 100}%`;
@@ -121,16 +115,13 @@ export const EditorContainer = memo(function EditorContainer() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // モバイルでエディターをタップしたらフォーカスモードへ
   const handleEditorAreaClick = useCallback(() => {
     if (!isMobile) return;
 
     if (focusMode) {
-      // フォーカスモード中にタップで解除
       setFocusMode(false);
       setShowQuickActions(false);
     } else {
-      // 2秒後にフォーカスモードに移行
       if (focusTimeoutRef.current) {
         clearTimeout(focusTimeoutRef.current);
       }
@@ -140,7 +131,6 @@ export const EditorContainer = memo(function EditorContainer() {
     }
   }, [isMobile, focusMode]);
 
-  // クリーンアップ
   useEffect(() => {
     return () => {
       if (focusTimeoutRef.current) {
@@ -149,7 +139,6 @@ export const EditorContainer = memo(function EditorContainer() {
     };
   }, []);
 
-  // クイックアクションバーのトグル
   const toggleQuickActions = useCallback(() => {
     setShowQuickActions(prev => !prev);
   }, []);
@@ -174,7 +163,6 @@ export const EditorContainer = memo(function EditorContainer() {
   }, [getEditorInstance]);
 
   const commands: CommandItem[] = useMemo(() => [
-    // File commands
     {
       id: 'new-file',
       label: t('commandPalette.actions.newFile'),
@@ -199,7 +187,6 @@ export const EditorContainer = memo(function EditorContainer() {
       action: handleSave,
       category: 'file',
     },
-    // Edit commands
     {
       id: 'undo',
       label: t('commandPalette.actions.undo'),
@@ -216,7 +203,6 @@ export const EditorContainer = memo(function EditorContainer() {
       action: handleRedo,
       category: 'edit',
     },
-    // Search commands
     {
       id: 'find',
       label: t('commandPalette.actions.find'),
@@ -233,7 +219,6 @@ export const EditorContainer = memo(function EditorContainer() {
       action: handleGoToLine,
       category: 'search',
     },
-    // View commands
     {
       id: 'split-vertical',
       label: t('commandPalette.actions.splitVertical'),
@@ -265,7 +250,6 @@ export const EditorContainer = memo(function EditorContainer() {
       action: () => setTheme(getNextTheme(resolvedTheme)),
       category: 'view',
     },
-    // Settings commands
     {
       id: 'open-settings',
       label: t('commandPalette.actions.openSettings'),
@@ -280,12 +264,9 @@ export const EditorContainer = memo(function EditorContainer() {
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
-    // Guard: スプリットモードでない場合は何もしない
     if (!splitDirection) return;
-    // Guard: 既にセカンダリファイルが設定されている場合は何もしない
     if (secondaryFileId) return;
 
-    // ファイルが複数ある場合は別のファイルをセカンダリに設定
     if (files.length > 1) {
       const otherFile = files.find(f => f.id !== activeFile?.id);
       if (otherFile) {
@@ -294,7 +275,6 @@ export const EditorContainer = memo(function EditorContainer() {
       }
     }
 
-    // ファイルが1つ以下の場合は新規ファイルを作成してセカンダリに設定
     const currentActiveId = activeFile?.id;
     const existingNames = files.map(f => f.name);
     let newFileName = 'Untitled-2';
@@ -311,8 +291,6 @@ export const EditorContainer = memo(function EditorContainer() {
       lastModified: Date.now(),
     });
 
-    // addFile は新しいファイルを activeFileId に設定するので、
-    // 新しいファイルのIDを取得してセカンダリに設定し、元のファイルをアクティブに戻す
     const newActiveId = useFileStore.getState().activeFileId;
     if (newActiveId && newActiveId !== currentActiveId) {
       setSecondaryFileId(newActiveId);
@@ -359,10 +337,8 @@ export const EditorContainer = memo(function EditorContainer() {
 
   return (
     <div className={`mochi-editor-container flex flex-col h-full w-full max-w-full overflow-hidden ${showMobileUI && focusMode ? 'mochi-focus-mode' : ''}`}>
-      {/* デスクトップ or モバイル通常時: フルツールバー */}
       {!showMobileUI && <EditorToolbar onOpenSettings={() => setShowSettings(true)} />}
 
-      {/* モバイル: ミニマルトップバー */}
       {showMobileUI && !focusMode && (
         <div className="mochi-mobile-top-bar">
           <button

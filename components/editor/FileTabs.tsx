@@ -6,7 +6,6 @@ import { useFileStore, type FileData } from '@/lib/store/file-store';
 import { X, FileCode2, FileJson2, FileType2, FileText, Code2, Braces } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// ファイルアイコンのマッピング（メモリ効率化）
 const FILE_ICON_MAP: Record<string, React.ElementType> = {
   json: FileJson2,
   ts: Braces,
@@ -22,7 +21,6 @@ const FILE_ICON_MAP: Record<string, React.ElementType> = {
   less: FileType2,
 };
 
-// ファイルカラーのマッピング
 const FILE_COLOR_MAP: Record<string, string> = {
   ts: 'text-blue-500',
   tsx: 'text-blue-500',
@@ -35,19 +33,16 @@ const FILE_COLOR_MAP: Record<string, string> = {
   md: 'text-purple-500',
 };
 
-// ファイル拡張子に応じたアイコンを取得
 const getFileIcon = (fileName: string) => {
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
   return FILE_ICON_MAP[ext] || FileCode2;
 };
 
-// ファイル拡張子に応じた色を取得
 const getFileColor = (fileName: string): string => {
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
   return FILE_COLOR_MAP[ext] || 'text-muted-foreground';
 };
 
-// 個別のタブアイテム（メモ化）
 interface FileTabItemProps {
   file: FileData;
   isActive: boolean;
@@ -161,7 +156,6 @@ export const FileTabs = memo(function FileTabs() {
 
     if (!draggedId || draggedId === targetFile.id) return;
 
-    // Reorder files in the store
     const { files: currentFiles } = useFileStore.getState();
     const draggedIndex = currentFiles.findIndex(f => f.id === draggedId);
     const targetIndex = currentFiles.findIndex(f => f.id === targetFile.id);
