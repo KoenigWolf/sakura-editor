@@ -33,7 +33,11 @@
       "Bash(npm install:*)",
       "mcp__ide__getDiagnostics",
       "Bash(node:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(git commit:*)",
+      "Bash(git stash:*)",
+      "Bash(git pull:*)",
+      "Bash(git stash pop:*)"
     ],
     "deny": [],
     "ask": []
