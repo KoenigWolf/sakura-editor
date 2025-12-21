@@ -9,7 +9,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useSearchStore, type SearchMatch } from '@/lib/store/search-store';
 import { cn } from '@/lib/utils';
-import { validateSearchQuery } from '@/lib/security';
+import { validateSearchQuery, escapeRegExp } from '@/lib/security';
 import { X, ChevronDown, ChevronUp, Regex, CaseSensitive, WholeWord, Replace, Search, ChevronRight } from 'lucide-react';
 
 interface SearchOptions {
@@ -23,10 +23,7 @@ interface SearchDialogProps {
   onOpenChange: (open: boolean) => void;
   onSearch: (query: string, options: SearchOptions) => void;
   onReplace?: (query: string, replacement: string, options: SearchOptions) => void;
-  initialQuery?: string;
 }
-
-const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const SearchResultItem = memo(({
   match,
@@ -34,7 +31,6 @@ const SearchResultItem = memo(({
   onClick
 }: {
   match: SearchMatch;
-  index: number;
   isActive: boolean;
   onClick: () => void;
 }) => (
@@ -68,7 +64,6 @@ const OptionButton = memo(({
   icon: React.ElementType;
   label: string;
   shortcut?: string;
-  showLabel?: boolean;
 }) => (
   <button
     type="button"
@@ -741,7 +736,6 @@ export const SearchDialog = memo(({
                   <SearchResultItem
                     key={`${match.lineNumber}-${match.startIndex}`}
                     match={match}
-                    index={index}
                     isActive={index === currentMatchIndex}
                     onClick={() => goToMatch(index)}
                   />

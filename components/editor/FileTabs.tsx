@@ -123,14 +123,14 @@ export const FileTabs = memo(function FileTabs() {
   const { t } = useTranslation();
   const files = useFileStore((state) => state.files);
   const activeFileId = useFileStore((state) => state.activeFileId);
-  const setActiveFile = useFileStore((state) => state.setActiveFile);
+  const setActiveFileId = useFileStore((state) => state.setActiveFileId);
   const removeFile = useFileStore((state) => state.removeFile);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   const handleSelect = useCallback((file: FileData) => {
-    setActiveFile(file.id);
-  }, [setActiveFile]);
+    setActiveFileId(file.id);
+  }, [setActiveFileId]);
 
   const handleClose = useCallback((event: React.MouseEvent, file: FileData) => {
     event.stopPropagation();

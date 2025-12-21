@@ -19,7 +19,6 @@ interface FileStore {
   addFile: (file: Omit<FileData, 'id'>) => void;
   updateFile: (id: string, content: string) => void;
   removeFile: (id: string) => void;
-  setActiveFile: (id: string | null) => void;
   setActiveFileId: (id: string | null) => void;
   getActiveFile: () => FileData | undefined;
   setHasHydrated: (state: boolean) => void;
@@ -47,7 +46,7 @@ export const useFileStore = create<FileStore>()(
           ...file,
           id: typeof crypto !== 'undefined' && crypto.randomUUID
             ? crypto.randomUUID()
-            : `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            : `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
           isDirty: false,
           originalContent: file.content,
         };
@@ -95,10 +94,6 @@ export const useFileStore = create<FileStore>()(
           files: state.files.filter((file) => file.id !== id),
           activeFileId: state.activeFileId === id ? null : state.activeFileId,
         }));
-      },
-
-      setActiveFile: (id) => {
-        set({ activeFileId: id });
       },
 
       setActiveFileId: (id) => {

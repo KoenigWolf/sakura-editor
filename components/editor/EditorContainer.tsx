@@ -72,12 +72,6 @@ const getThemeIcon = (currentTheme: string | undefined) => {
   return Moon;
 };
 
-// ヘルパー関数: テーマラベルキーを取得
-const getThemeLabelKey = (currentTheme: string | undefined): string => {
-  if (currentTheme === 'dark') return 'status.dark';
-  return 'status.light';
-};
-
 // ヘルパー関数: ファイル名を取得（アクティブファイルがなければデフォルト値）
 const getDisplayFileName = (fileName: string | undefined, fallback: string): string => {
   if (fileName) return fileName;
@@ -361,8 +355,6 @@ export const EditorContainer = memo(function EditorContainer() {
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  const secondaryFile = files.find(f => f.id === secondaryFileId);
-
   const showMobileUI = mounted && isMobile;
 
   return (
@@ -413,7 +405,7 @@ export const EditorContainer = memo(function EditorContainer() {
             <button
               key={file.id}
               type="button"
-              onClick={() => useFileStore.getState().setActiveFile(file.id)}
+              onClick={() => useFileStore.getState().setActiveFileId(file.id)}
               className={`mochi-ultra-minimal-tab ${
                 file.id === activeFile?.id ? 'mochi-ultra-minimal-tab-active' : ''
               } ${file.isDirty ? 'mochi-ultra-minimal-tab-dirty' : ''}`}
