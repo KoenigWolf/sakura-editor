@@ -1,6 +1,3 @@
-/**
- * テーマ設定タブ
- */
 'use client';
 
 import { useTranslation } from 'react-i18next';

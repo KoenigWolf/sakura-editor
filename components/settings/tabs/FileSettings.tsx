@@ -1,7 +1,3 @@
-/**
- * ファイル設定タブ
- * 自動保存、バックアップ、エンコーディング、改行コード
- */
 'use client';
 
 import { useTranslation } from 'react-i18next';
@@ -12,7 +8,6 @@ import { FileCode, CornerDownLeft, Save, HardDrive, Clock, Timer } from 'lucide-
 import { cn } from '@/lib/utils';
 import type { EditorSettings } from '@/lib/types/editor';
 
-// エンコーディングと改行コードの値リスト
 const ENCODING_VALUES = ['utf-8', 'utf-8-bom', 'shift-jis', 'euc-jp'] as const;
 const LINE_ENDING_VALUES = ['lf', 'crlf', 'cr'] as const;
 
@@ -21,7 +16,6 @@ interface FileSettingsProps {
   onSettingsChange: (settings: Partial<EditorSettings>) => void;
 }
 
-// セクションカードのラッパー
 const SettingsSection = ({
   icon: Icon,
   title,
@@ -44,7 +38,6 @@ const SettingsSection = ({
   );
 };
 
-// 選択カード
 const SelectionCard = ({
   value,
   current,
@@ -76,7 +69,6 @@ const SelectionCard = ({
   );
 };
 
-// スイッチ付き設定行
 const SettingRow = ({
   icon: Icon,
   label,
@@ -111,7 +103,6 @@ export function FileSettings({ settings, onSettingsChange }: FileSettingsProps) 
 
   return (
     <div className="space-y-4">
-      {/* 自動保存 */}
       <SettingsSection icon={Save} title={t('settings.file.autoSave.title')}>
         <div className="space-y-3">
           <SettingRow
@@ -147,7 +138,6 @@ export function FileSettings({ settings, onSettingsChange }: FileSettingsProps) 
         </div>
       </SettingsSection>
 
-      {/* バックアップ */}
       <SettingsSection icon={HardDrive} title={t('settings.file.backup.title')}>
         <SettingRow
           icon={HardDrive}
@@ -158,7 +148,6 @@ export function FileSettings({ settings, onSettingsChange }: FileSettingsProps) 
         />
       </SettingsSection>
 
-      {/* エンコーディング */}
       <SettingsSection icon={FileCode} title={t('settings.file.encoding.title')}>
         <div className="space-y-2">
           <Label className="text-sm text-muted-foreground">
@@ -179,7 +168,6 @@ export function FileSettings({ settings, onSettingsChange }: FileSettingsProps) 
         </div>
       </SettingsSection>
 
-      {/* 改行コード */}
       <SettingsSection icon={CornerDownLeft} title={t('settings.file.lineEnding.title')}>
         <div className="space-y-2">
           <Label className="text-sm text-muted-foreground">

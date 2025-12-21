@@ -1,7 +1,3 @@
-/**
- * 一般設定タブ
- * 言語設定のみ
- */
 'use client';
 
 import { useTranslation } from 'react-i18next';
@@ -14,7 +10,6 @@ interface GeneralSettingsProps {
   onSettingsChange: (settings: Partial<EditorSettings>) => void;
 }
 
-// セクションカードのラッパー
 const SettingsSection = ({
   icon: Icon,
   title,
@@ -37,7 +32,6 @@ const SettingsSection = ({
   );
 };
 
-// 言語選択ボタン
 const LanguageButton = ({
   value,
   current,
@@ -79,7 +73,6 @@ export function GeneralSettings({ settings, onSettingsChange }: GeneralSettingsP
 
   return (
     <div className="space-y-4">
-      {/* 言語 */}
       <SettingsSection icon={Globe} title={t('settings.general.language.title')}>
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">{t('settings.general.language.label')}</p>

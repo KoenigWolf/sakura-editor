@@ -1,7 +1,3 @@
-/**
- * エディタ設定タブ
- * フォント、表示設定、空白文字
- */
 'use client';
 
 import { useTranslation } from 'react-i18next';
