@@ -6,8 +6,8 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Type, Monitor, Hash, Ruler, WrapText, Space } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import type { EditorSettings as EditorSettingsType } from '@/lib/types/editor';
+import { SettingsSection } from '../SettingsSection';
 
 const FONT_FAMILIES = [
   { value: 'monospace', labelKey: 'settings.editor.font.system' },
@@ -39,28 +39,6 @@ interface EditorSettingsProps {
   settings: EditorSettingsType;
   onSettingsChange: (settings: Partial<EditorSettingsType>) => void;
 }
-
-const SettingsSection = ({
-  icon: Icon,
-  title,
-  children
-}: {
-  icon: React.ElementType;
-  title: string;
-  children: React.ReactNode;
-}) => {
-  return (
-    <div className="rounded-lg border bg-card/50 overflow-hidden">
-      <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 border-b">
-        <Icon className="h-4 w-4 text-primary" />
-        <h3 className="text-sm font-medium">{title}</h3>
-      </div>
-      <div className="p-3">
-        {children}
-      </div>
-    </div>
-  );
-};
 
 const SettingRow = ({
   icon: Icon,

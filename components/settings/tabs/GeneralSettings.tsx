@@ -4,33 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EditorSettings } from '@/lib/types/editor';
+import { SettingsSection } from '../SettingsSection';
 
 interface GeneralSettingsProps {
   settings: EditorSettings;
   onSettingsChange: (settings: Partial<EditorSettings>) => void;
 }
-
-const SettingsSection = ({
-  icon: Icon,
-  title,
-  children
-}: {
-  icon: React.ElementType;
-  title: string;
-  children: React.ReactNode;
-}) => {
-  return (
-    <div className="rounded-lg border bg-card/50 overflow-hidden">
-      <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 border-b">
-        <Icon className="h-4 w-4 text-primary" />
-        <h3 className="text-sm font-medium">{title}</h3>
-      </div>
-      <div className="p-3">
-        {children}
-      </div>
-    </div>
-  );
-};
 
 const LanguageButton = ({
   value,

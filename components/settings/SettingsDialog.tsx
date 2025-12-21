@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,12 @@ import { useEditorStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import { Palette, Type, FileText, Settings2 } from 'lucide-react';
 import { CloseButton } from '@/components/ui/close-button';
+import type { EditorSettings as EditorSettingsType } from '@/lib/types/editor';
+
+const shallowEqual = (a: EditorSettingsType, b: EditorSettingsType): boolean => {
+  const keys = Object.keys(a) as (keyof EditorSettingsType)[];
+  return keys.every(key => a[key] === b[key]);
+};
 
 const settingsTabs = [
   {
@@ -321,8 +327,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   }, [updateSettings]);
 
   const handleClose = useCallback(() => {
-    const hasChanges = JSON.stringify(tempSettings) !== JSON.stringify(originalSettings);
-    if (hasChanges) {
+    if (!shallowEqual(tempSettings, originalSettings)) {
       updateSettings(originalSettings);
       setTempSettings(originalSettings);
     }

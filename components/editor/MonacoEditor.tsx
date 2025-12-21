@@ -147,37 +147,6 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
     currentFileIdRef.current = null;
   }
 
-  /**
-   * エディタのステータス情報を更新
-   */
-  const syncStatusInfo = useCallback(() => {
-    const ed = editorRef.current;
-    if (!ed) return;
-
-    const position = ed.getPosition();
-    const model = ed.getModel();
-
-    if (position) {
-      updateStatusInfo({
-        cursorLine: position.lineNumber,
-        cursorColumn: position.column,
-      });
-    }
-
-    if (model) {
-      const eol = model.getEOL();
-      updateStatusInfo({
-        lineCount: model.getLineCount(),
-        charCount: model.getValueLength(),
-        language: model.getLanguageId(),
-        eol: getEolLabel(eol),
-      });
-    }
-  }, [updateStatusInfo]);
-
-  /**
-   * エディタが変更されたときのハンドラ（refベースで再生成を防ぐ）
-   */
   const handleChange = useCallback((value: string | undefined) => {
     const id = currentFileIdRef.current;
     if (id && value !== undefined) {

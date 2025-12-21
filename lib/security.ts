@@ -82,7 +82,7 @@ export const validateSearchQuery = (query: string, isRegex: boolean): { valid: b
     }
 
     const longRepetition = /\{(\d+),?\d*\}/g;
-    let match;
+    let match: RegExpExecArray | null;
     while ((match = longRepetition.exec(query)) !== null) {
       const num = parseInt(match[1], 10);
       if (num > 100) {

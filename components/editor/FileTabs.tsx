@@ -49,7 +49,7 @@ interface FileTabItemProps {
   isDragging: boolean;
   isDragOver: boolean;
   onSelect: () => void;
-  onClose: (e: React.MouseEvent) => void;
+  onClose: (e: React.MouseEvent | React.KeyboardEvent) => void;
   onDragStart: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
   onDragLeave: () => void;
@@ -104,7 +104,7 @@ const FileTabItem = memo(function FileTabItem({
         role="button"
         tabIndex={0}
         onClick={onClose}
-        onKeyDown={(e) => e.key === 'Enter' && onClose(e as unknown as React.MouseEvent)}
+        onKeyDown={(e) => e.key === 'Enter' && onClose(e)}
         className="mochi-tab-close"
         aria-label={closeLabel}
       >
@@ -127,7 +127,7 @@ export const FileTabs = memo(function FileTabs() {
     setActiveFileId(file.id);
   }, [setActiveFileId]);
 
-  const handleClose = useCallback((event: React.MouseEvent, file: FileData) => {
+  const handleClose = useCallback((event: React.MouseEvent | React.KeyboardEvent, file: FileData) => {
     event.stopPropagation();
     removeFile(file.id);
   }, [removeFile]);

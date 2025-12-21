@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { FileCode, CornerDownLeft, Save, HardDrive, Clock, Timer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EditorSettings } from '@/lib/types/editor';
+import { SettingsSection } from '../SettingsSection';
 
 const ENCODING_VALUES = ['utf-8', 'utf-8-bom', 'shift-jis', 'euc-jp'] as const;
 const LINE_ENDING_VALUES = ['lf', 'crlf', 'cr'] as const;
@@ -15,28 +16,6 @@ interface FileSettingsProps {
   settings: EditorSettings;
   onSettingsChange: (settings: Partial<EditorSettings>) => void;
 }
-
-const SettingsSection = ({
-  icon: Icon,
-  title,
-  children
-}: {
-  icon: React.ElementType;
-  title: string;
-  children: React.ReactNode;
-}) => {
-  return (
-    <div className="rounded-lg border bg-card/50 overflow-hidden">
-      <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 border-b">
-        <Icon className="h-4 w-4 text-primary" />
-        <h3 className="text-sm font-medium">{title}</h3>
-      </div>
-      <div className="p-3">
-        {children}
-      </div>
-    </div>
-  );
-};
 
 const SelectionCard = ({
   value,

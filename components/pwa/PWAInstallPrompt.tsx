@@ -28,6 +28,12 @@ interface BeforeInstallPromptEvent extends Event {
 type Platform = 'ios' | 'android' | 'windows' | 'macos' | 'linux' | 'unknown';
 type Browser = 'safari' | 'chrome' | 'edge' | 'firefox' | 'unknown';
 
+declare global {
+  interface Navigator {
+    standalone?: boolean;
+  }
+}
+
 // プラットフォーム検出
 const detectPlatform = (): Platform => {
   if (typeof window === 'undefined') return 'unknown';
@@ -86,7 +92,6 @@ export const PWAInstallPrompt = () => {
         setIsInstalled(true);
         return true;
       }
-      // @ts-ignore - navigator.standalone は iOS Safari のみ
       if (window.navigator.standalone === true) {
         setIsInstalled(true);
         return true;
