@@ -2,20 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -47,16 +33,6 @@
     --editor-text-dark: 0 0% 88%;
     --editor-cursor-light: 0 0% 0%;
     --editor-cursor-dark: 0 0% 100%;
-    --editor-bg-light: 0 0% 100%;
-    --editor-bg-dark: 220 13% 18%;
-    --editor-line-highlight-light: 210 40% 96%;
-    --editor-line-highlight-dark: 220 13% 22%;
-    --editor-selection-light: 220 80% 85%;
-    --editor-selection-dark: 220 30% 40%;
-    --editor-linenumber-light: 0 0% 60%;
-    --editor-linenumber-dark: 220 30% 50%;
-    --editor-indent-guide-light: 0 0% 80%;
-    --editor-indent-guide-dark: 220 13% 30%;
     --mochi-green: 140 50% 60%;
     --mochi-pink: 350 60% 80%;
     --mochi-blue: 210 60% 70%;
@@ -229,47 +205,6 @@ html {
   touch-action: pan-x pan-y !important;
 }
 
-.mochi-editor-toolbar {
-  display: flex;
-  align-items: center;
-  padding: 4px 8px;
-  background-color: hsl(var(--muted));
-  border-bottom: 1px solid hsl(var(--border));
-}
-
-.mochi-editor-toolbar-button {
-  padding: 2px 6px;
-  margin-right: 4px;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 2px;
-  background-color: hsl(var(--card));
-  color: hsl(var(--card-foreground));
-  border: 1px solid hsl(var(--border));
-}
-
-.mochi-editor-toolbar-button:hover {
-  background-color: hsl(var(--accent));
-}
-
-.mochi-editor-statusbar {
-  display: flex;
-  align-items: center;
-  padding: 2px 8px;
-  font-size: 0.75rem;
-  background-color: hsl(var(--muted));
-  border-top: 1px solid hsl(var(--border));
-  color: hsl(var(--muted-foreground));
-}
-
-.mochi-editor-statusbar-item {
-  margin-right: 12px;
-  display: flex;
-  align-items: center;
-}
-
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -340,29 +275,6 @@ html {
   background-color: rgba(200, 200, 200, 0.12);
   border-left-color: rgba(180, 180, 180, 0.3);
   border-right-color: rgba(180, 180, 180, 0.3);
-}
-
-.mochi-dialog {
-  border-radius: 2px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.08);
-  background-color: hsl(var(--background));
-}
-
-.mochi-dialog-header {
-  background-color: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  font-size: 0.9rem;
-  font-weight: 500;
-  padding: 4px 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: grab;
-  user-select: none;
-}
-
-.mochi-dialog-content {
-  padding: 8px;
 }
 
 /* セーフエリア対応（iPhoneのノッチ・ホームバー） */
@@ -1604,12 +1516,6 @@ button, a, [role="button"] {
   }
 }
 
-/* プルダウンリフレッシュジェスチャー無効化（エディタ領域） */
-.mochi-editor-area {
-  overscroll-behavior-y: contain;
-  touch-action: pan-x pan-y;
-}
-
 /* ハプティックフィードバック強化 */
 @media (max-width: 480px) {
   .mochi-pill-btn:active,
@@ -1715,62 +1621,6 @@ button, a, [role="button"] {
 .mochi-ripple:active::after {
   opacity: 1;
   transform: scale(2);
-}
-
-/* モバイル用ミニステータスバー */
-.mochi-mobile-statusbar {
-  @apply flex items-center justify-between px-3 py-1.5;
-  background: hsl(var(--background));
-  border-top: 1px solid hsl(var(--border) / 0.3);
-  font-size: 11px;
-  /* フローティングピル用のスペース */
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 76px);
-}
-
-.mochi-mobile-status-item {
-  @apply flex items-center gap-1.5;
-  color: hsl(var(--foreground));
-  font-weight: 500;
-  max-width: 120px;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.mochi-mobile-status-item:active {
-  opacity: 0.7;
-}
-
-.mochi-dirty-indicator {
-  @apply w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-.mochi-mobile-status-info {
-  @apply flex items-center gap-2;
-  color: hsl(var(--muted-foreground));
-}
-
-.mochi-mobile-status-badge {
-  @apply px-1.5 py-0.5 rounded-md text-[10px] font-medium;
-  background: hsl(var(--muted) / 0.5);
-  color: hsl(var(--foreground));
-}
-
-.mochi-mobile-status-icon {
-  @apply flex items-center justify-center rounded-full;
-  width: 28px;
-  height: 28px;
-  color: hsl(var(--muted-foreground));
-  -webkit-tap-highlight-color: transparent;
-}
-
-.mochi-mobile-status-icon:active {
-  background: hsl(var(--muted) / 0.5);
-}
-
-/* ダークモード用モバイルステータスバー */
-.dark .mochi-mobile-statusbar {
-  background: hsl(var(--background));
-  border-top-color: hsl(var(--border) / 0.2);
 }
 
 /* フローティングピルをデスクトップで非表示 */
