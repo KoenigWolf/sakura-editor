@@ -122,7 +122,7 @@ const useEditorStore = create<EditorSettingsState>()(
         settings: { ...state.settings, ...newSettings }
       })),
     }),
-    { name: 'mochi-editor-settings' }
+    { name: 'zen-editor-settings' }
   )
 )
 

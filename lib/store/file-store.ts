@@ -131,7 +131,7 @@ export const useFileStore = create<FileStore>()(
       },
     }),
     {
-      name: 'mochi-editor-files',
+      name: 'zen-editor-files',
       storage: createSafeStorage(),
       partialize: (state) => ({
         files: state.files,

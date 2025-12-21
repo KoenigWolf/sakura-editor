@@ -79,7 +79,7 @@ export const useIndentStore = create<IndentState>()(
       resetSettings: () => set({ settings: defaultSettings }),
     }),
     {
-      name: 'mochi-indent-settings',
+      name: 'zen-editor-indent-settings',
       partialize: (state) => ({ settings: state.settings, rulerVisible: state.rulerVisible }),
     }
   )

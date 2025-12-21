@@ -314,7 +314,7 @@ export const ja = {
   },
   seo: {
     hero: {
-      title: 'Mochi Editor — 最高クラスの無料オンラインテキストエディタ',
+      title: 'Zen Editor — 最高クラスの無料オンラインテキストエディタ',
       description: 'ブラウザで即起動。日本語完全対応、全角スペース表示、Monaco Editor ベースの高速体験。',
       cta: 'インストールもログインも不要。開くだけですぐに書き始められます。',
     },
@@ -370,7 +370,7 @@ export const ja = {
       title: 'よくある質問',
       items: [
         {
-          question: 'Mochi Editor は無料で使えますか？',
+          question: 'Zen Editor は無料で使えますか？',
           answer: 'はい。アカウント登録や有料プランなしで、すべてのエディタ機能を無料で利用できます。',
         },
         {

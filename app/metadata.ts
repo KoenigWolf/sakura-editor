@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 
 const siteName = 'Zen Editor';
-const siteUrl = 'https://mochi-editor.vercel.app';
+const siteUrl = 'https://zen-editor.vercel.app';
 const description = '無料で使えるオンラインテキストエディタ。インストール不要でブラウザから即座に利用可能。日本語完全対応、全角スペース表示、ダークモード、検索・置換、Markdown プレビューやコマンドパレットなど開発者向け機能を網羅。プライバシーファースト設計でメモからコードまで安全に編集。';
 const featureList = [
   'インストール不要・ログイン不要で即起動',
@@ -14,7 +14,7 @@ const featureList = [
 ];
 const faqEntities = [
   {
-    question: 'Mochi Editor は無料で使えますか？',
+    question: 'Zen Editor は無料で使えますか？',
     answer: 'はい。アカウント登録や有料プランなしで、すべてのエディタ機能を無料で利用できます。',
   },
   {
@@ -154,7 +154,7 @@ export const jsonLd = {
       softwareVersion: '1.0.0',
       author: {
         '@type': 'Organization',
-        name: 'Mochi Editor Team',
+        name: 'Zen Editor Team',
       },
       inLanguage: ['ja', 'en'],
     },

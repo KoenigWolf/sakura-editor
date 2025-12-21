@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mochi-editor.vercel.app/sitemap.xml
+Sitemap: https://zen-editor.vercel.app/sitemap.xml

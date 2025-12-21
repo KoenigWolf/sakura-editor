@@ -44,7 +44,7 @@ export const useEditorStore = create<EditorSettingsState>()(
         },
       }),
       {
-        name: 'mochi-editor-settings',
+        name: 'zen-editor-settings',
         storage: createSafeStorage(),
       }
     )

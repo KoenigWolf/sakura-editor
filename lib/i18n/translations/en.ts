@@ -314,13 +314,13 @@ export const en = {
   },
   seo: {
     hero: {
-      title: 'Mochi Editor — free online text editor for Japanese and code',
+      title: 'Zen Editor — free online text editor for Japanese and code',
       description: 'Fast, privacy-first editing with Monaco Editor, Japanese language support, and full-width space visibility built in.',
       cta: 'Open in your browser with no install or login required.',
     },
     features: {
       title: 'Key features for modern writing and coding',
-      summary: 'Mochi Editor combines a lightweight UX with powerful developer tooling so you can draft notes, Markdown, or source code without friction.',
+      summary: 'Zen Editor combines a lightweight UX with powerful developer tooling so you can draft notes, Markdown, or source code without friction.',
       items: [
         {
           title: 'Instant start in the browser',
@@ -370,11 +370,11 @@ export const en = {
       title: 'Frequently asked questions',
       items: [
         {
-          question: 'Is Mochi Editor free to use?',
+          question: 'Is Zen Editor free to use?',
           answer: 'Yes. All editing features are available without payment or account registration.',
         },
         {
-          question: 'Does Mochi Editor work for programming tasks?',
+          question: 'Does Zen Editor work for programming tasks?',
           answer: 'Monaco-based syntax highlighting, themes, and spacing controls keep code readable for any language.',
         },
         {
