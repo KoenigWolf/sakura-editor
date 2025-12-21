@@ -116,7 +116,7 @@ export const SearchDialog = memo(({
 
   const [query, setQuery] = useState(searchTerm);
   const [replacement, setReplacement] = useState('');
-  const [showReplace, setShowReplace] = useState(false);
+  const [showReplace, setShowReplace] = useState(true);
   const [showResults, setShowResults] = useState(true);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
