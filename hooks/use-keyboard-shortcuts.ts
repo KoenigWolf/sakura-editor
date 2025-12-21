@@ -4,6 +4,7 @@ import { useEffect, useCallback } from 'react';
 import { useFileStore } from '@/lib/store/file-store';
 import { useSearchStore } from '@/lib/store/search-store';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
+import { useSplitViewStore } from '@/lib/store/split-view-store';
 import { validateFile, FILE_SECURITY } from '@/lib/security';
 import { useToast } from '@/components/ui/use-toast';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +20,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
   const { addFile, getActiveFile, removeFile, files, activeFileId, setActiveFileId } = useFileStore();
   const { setIsOpen: setSearchOpen } = useSearchStore();
   const { getEditorInstance } = useEditorInstanceStore();
+  const { toggleSplit, closeSplit, splitDirection } = useSplitViewStore();
 
   const handleNewFile = useCallback(() => {
     addFile({
@@ -125,6 +127,14 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
     editor.trigger('keyboard', 'editor.action.gotoLine', null);
   }, [getEditorInstance]);
 
+  const handleToggleSplit = useCallback(() => {
+    toggleSplit();
+  }, [toggleSplit]);
+
+  const handleCloseSplit = useCallback(() => {
+    closeSplit();
+  }, [closeSplit]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isMod = e.metaKey || e.ctrlKey;
@@ -198,6 +208,20 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
         options.onOpenCommandPalette?.();
         return;
       }
+
+      // Ctrl/Cmd + \: Toggle Split
+      if (isMod && e.key === '\\') {
+        e.preventDefault();
+        handleToggleSplit();
+        return;
+      }
+
+      // Ctrl/Cmd + Shift + \: Close Split
+      if (isMod && e.shiftKey && e.key === '|') {
+        e.preventDefault();
+        handleCloseSplit();
+        return;
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -210,6 +234,8 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
     handleNextTab,
     handlePrevTab,
     handleGoToLine,
+    handleToggleSplit,
+    handleCloseSplit,
     options,
   ]);
 
@@ -221,5 +247,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
     handleNextTab,
     handlePrevTab,
     handleGoToLine,
+    handleToggleSplit,
+    handleCloseSplit,
   };
 }

@@ -243,6 +243,7 @@ export const EditorContainer = memo(function EditorContainer() {
     {
       id: 'split-vertical',
       label: t('commandPalette.actions.splitVertical'),
+      shortcut: '⌘+\\',
       icon: Columns2,
       action: () => setSplitDirection('vertical'),
       category: 'view',
@@ -250,6 +251,7 @@ export const EditorContainer = memo(function EditorContainer() {
     {
       id: 'split-horizontal',
       label: t('commandPalette.actions.splitHorizontal'),
+      shortcut: '⌘+\\',
       icon: Rows2,
       action: () => setSplitDirection('horizontal'),
       category: 'view',
@@ -257,6 +259,7 @@ export const EditorContainer = memo(function EditorContainer() {
     ...(splitDirection ? [{
       id: 'close-split',
       label: t('commandPalette.actions.closeSplit'),
+      shortcut: '⇧⌘+\\',
       icon: X,
       action: closeSplit,
       category: 'view' as const,
