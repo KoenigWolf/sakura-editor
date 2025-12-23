@@ -14,7 +14,7 @@ interface UseKeyboardShortcutsOptions {
 export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) {
   const { removeFile, files, activeFileId, setActiveFileId } = useFileStore();
   const { getEditorInstance } = useEditorInstanceStore();
-  const { toggleSplit, closeSplit } = useSplitViewStore();
+  const { splitActive, reset, isSplit } = useSplitViewStore();
   const { handleNewFile, handleSave, handleOpen } = useFileOperations();
 
   const handleCloseTab = useCallback(() => {
@@ -48,12 +48,16 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
   }, [getEditorInstance]);
 
   const handleToggleSplit = useCallback(() => {
-    toggleSplit();
-  }, [toggleSplit]);
+    if (isSplit()) {
+      reset();
+    } else {
+      splitActive('vertical');
+    }
+  }, [isSplit, reset, splitActive]);
 
   const handleCloseSplit = useCallback(() => {
-    closeSplit();
-  }, [closeSplit]);
+    reset();
+  }, [reset]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
