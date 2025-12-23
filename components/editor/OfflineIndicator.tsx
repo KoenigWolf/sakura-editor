@@ -7,7 +7,7 @@ import { useOnlineStatus } from '@/hooks/use-online-status';
 
 export const OfflineIndicator = memo(function OfflineIndicator() {
   const { t } = useTranslation();
-  const { isOnline, wasOffline } = useOnlineStatus();
+  const { isOnline, wasOffline, mounted } = useOnlineStatus();
   const [showReconnected, setShowReconnected] = useState(false);
 
   useEffect(() => {
@@ -20,8 +20,8 @@ export const OfflineIndicator = memo(function OfflineIndicator() {
     }
   }, [wasOffline, isOnline]);
 
-  // オンライン状態で復帰通知も不要なら表示しない
-  if (isOnline && !showReconnected) {
+  // マウント前またはオンライン状態で復帰通知も不要なら表示しない
+  if (!mounted || (isOnline && !showReconnected)) {
     return null;
   }
 
