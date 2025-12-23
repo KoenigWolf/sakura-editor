@@ -822,35 +822,44 @@ button, a, [role="button"] {
   background: hsl(var(--muted-foreground) / 0.4);
 }
 
-/* スプリッターハンドル改善 */
+/* スプリッター - 人間工学に基づいた設計 */
 .mochi-splitter {
-  @apply relative flex-shrink-0 transition-colors duration-150;
-  background: hsl(var(--border));
+  @apply relative flex-shrink-0;
+  background: hsl(var(--border) / 0.5);
 }
 
+/* 垂直分割（左右）- 視覚的には2px */
+.mochi-splitter-vertical {
+  @apply w-[2px] cursor-col-resize;
+}
+
+/* 水平分割（上下）- 視覚的には2px */
+.mochi-splitter-horizontal {
+  @apply h-[2px] cursor-row-resize;
+}
+
+/* ヒットエリア拡大（Fitts's Law）- クリック領域は16px */
+.mochi-splitter::before {
+  content: '';
+  @apply absolute z-10;
+}
+
+.mochi-splitter-vertical::before {
+  @apply top-0 bottom-0 -left-[7px] -right-[7px];
+}
+
+.mochi-splitter-horizontal::before {
+  @apply left-0 right-0 -top-[7px] -bottom-[7px];
+}
+
+/* ホバー・アクティブ時のフィードバック */
 .mochi-splitter:hover,
 .mochi-splitter-active {
-  background: hsl(var(--primary) / 0.5);
+  background: hsl(var(--primary) / 0.6);
 }
 
-.mochi-splitter::after {
-  content: '';
-  @apply absolute inset-0;
-  @apply opacity-0 transition-opacity duration-150;
-  background: hsl(var(--primary));
-}
-
-.mochi-splitter:hover::after,
-.mochi-splitter-active::after {
-  opacity: 0.3;
-}
-
-.mochi-splitter-vertical {
-  @apply w-1 cursor-col-resize;
-}
-
-.mochi-splitter-horizontal {
-  @apply h-1 cursor-row-resize;
+.mochi-splitter-active {
+  background: hsl(var(--primary) / 0.8);
 }
 
 /* テキストグラデーション */
