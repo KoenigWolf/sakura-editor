@@ -141,10 +141,43 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
   const currentThemeRef = useRef<string | null>(null);
   const fullWidthSpaceDecorationsRef = useRef<editor.IEditorDecorationsCollection | null>(null);
   const fullWidthSpaceDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const disposablesRef = useRef<{ dispose: () => void }[]>([]);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // クリーンアップ: コンポーネントアンマウント時にリソースを解放
+  useEffect(() => {
+    return () => {
+      // イベントリスナーを解放
+      disposablesRef.current.forEach((d) => d.dispose());
+      disposablesRef.current = [];
+
+      // 保留中のタイムアウトをクリア
+      if (fullWidthSpaceDebounceRef.current) {
+        clearTimeout(fullWidthSpaceDebounceRef.current);
+        fullWidthSpaceDebounceRef.current = null;
+      }
+
+      // デコレーションをクリア
+      if (fullWidthSpaceDecorationsRef.current) {
+        fullWidthSpaceDecorationsRef.current.clear();
+        fullWidthSpaceDecorationsRef.current = null;
+      }
+
+      // エディタインスタンスをストアからクリア
+      if (isSecondary) {
+        setSecondaryEditorInstance(null);
+      } else {
+        setEditorInstance(null);
+      }
+
+      // ローカル参照をクリア
+      editorRef.current = null;
+      monacoRef.current = null;
+    };
+  }, [isSecondary, setEditorInstance, setSecondaryEditorInstance]);
 
   const targetFileId = fileId || activeFileId;
   const activeFile = files.find((f) => f.id === targetFileId);
@@ -180,56 +213,61 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
     const monaco = monacoRef.current;
     if (!ed || !monaco) return;
 
-    const model = ed.getModel();
-    if (!model) return;
+    // エディタがdisposeされていないか確認
+    try {
+      const model = ed.getModel();
+      if (!model) return;
 
-    if (settings.showFullWidthSpace === 'none') {
-      if (fullWidthSpaceDecorationsRef.current) {
-        fullWidthSpaceDecorationsRef.current.clear();
+      if (settings.showFullWidthSpace === 'none') {
+        if (fullWidthSpaceDecorationsRef.current) {
+          fullWidthSpaceDecorationsRef.current.clear();
+        }
+        return;
       }
-      return;
-    }
 
-    const content = model.getValue();
-    const decorations: editor.IModelDeltaDecoration[] = [];
-    const fullWidthSpaceRegex = /\u3000/g;
-    const selection = ed.getSelection();
-    let match;
+      const content = model.getValue();
+      const decorations: editor.IModelDeltaDecoration[] = [];
+      const fullWidthSpaceRegex = /\u3000/g;
+      const selection = ed.getSelection();
+      let match;
 
-    while ((match = fullWidthSpaceRegex.exec(content)) !== null) {
-      const startPos = model.getPositionAt(match.index);
-      const endPos = model.getPositionAt(match.index + 1);
-      const lineContent = model.getLineContent(startPos.lineNumber);
+      while ((match = fullWidthSpaceRegex.exec(content)) !== null) {
+        const startPos = model.getPositionAt(match.index);
+        const endPos = model.getPositionAt(match.index + 1);
+        const lineContent = model.getLineContent(startPos.lineNumber);
 
-      const shouldHighlight = shouldHighlightFullWidthSpace(
-        settings.showFullWidthSpace,
-        startPos,
-        endPos,
-        selection,
-        lineContent,
-        monaco
-      );
+        const shouldHighlight = shouldHighlightFullWidthSpace(
+          settings.showFullWidthSpace,
+          startPos,
+          endPos,
+          selection,
+          lineContent,
+          monaco
+        );
 
-      if (!shouldHighlight) continue;
+        if (!shouldHighlight) continue;
 
-      decorations.push({
-        range: new monaco.Range(
-          startPos.lineNumber,
-          startPos.column,
-          endPos.lineNumber,
-          endPos.column
-        ),
-        options: {
-          inlineClassName: 'full-width-space-highlight',
-          hoverMessage: { value: t('editor.fullWidthSpace') },
-        },
-      });
-    }
+        decorations.push({
+          range: new monaco.Range(
+            startPos.lineNumber,
+            startPos.column,
+            endPos.lineNumber,
+            endPos.column
+          ),
+          options: {
+            inlineClassName: 'full-width-space-highlight',
+            hoverMessage: { value: t('editor.fullWidthSpace') },
+          },
+        });
+      }
 
-    if (!fullWidthSpaceDecorationsRef.current) {
-      fullWidthSpaceDecorationsRef.current = ed.createDecorationsCollection(decorations);
-    } else {
-      fullWidthSpaceDecorationsRef.current.set(decorations);
+      if (!fullWidthSpaceDecorationsRef.current) {
+        fullWidthSpaceDecorationsRef.current = ed.createDecorationsCollection(decorations);
+      } else {
+        fullWidthSpaceDecorationsRef.current.set(decorations);
+      }
+    } catch {
+      // エディタがdisposeされた場合は無視
     }
   }, [settings.showFullWidthSpace, t]);
 
@@ -337,6 +375,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       // パフォーマンス最適化
       automaticLayout: true,
       scrollBeyondLastLine: false,
+      scrollBeyondLastColumn: 5,
       minimap: { enabled: false },
 
       // スクロール最適化
@@ -351,6 +390,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       mouseWheelScrollSensitivity: 1,
       fastScrollSensitivity: 5,
       smoothScrolling: false,
+      revealHorizontalRightPadding: 30,
 
       // レンダリング最適化（不要な機能を無効化）
       renderLineHighlight: 'none',
@@ -444,7 +484,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       const isDark = customTheme ? customTheme.type === 'dark' : resolvedTheme === 'dark';
       applyEditorTheme(monaco as Monaco, editor, settings.theme, isDark);
 
-      editor.onDidChangeCursorPosition(() => {
+      const cursorDisposable = editor.onDidChangeCursorPosition(() => {
         const position = editor.getPosition();
         if (position) {
           updateStatusInfo({
@@ -454,7 +494,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
         }
       });
 
-      editor.onDidChangeModelContent(() => {
+      const contentDisposable = editor.onDidChangeModelContent(() => {
         const model = editor.getModel();
         if (model) {
           updateStatusInfo({
@@ -464,6 +504,8 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
         }
         updateFullWidthSpaceDecorations();
       });
+
+      disposablesRef.current = [cursorDisposable, contentDisposable];
 
       const model = editor.getModel();
       const position = editor.getPosition();
