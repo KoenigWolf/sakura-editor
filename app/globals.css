@@ -50,12 +50,12 @@
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted-foreground: 215 20.2% 72%;
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
+    --border: 217.2 32.6% 25%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
     --chart-1: 220 70% 50%;
@@ -127,7 +127,9 @@
   z-index: 50;
   max-height: 90vh;
   overflow: visible;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .dialog-header {
@@ -150,10 +152,14 @@
 }
 
 /* Monaco Editorのコンテナサイズを確実に制御 */
-.monaco-editor,
-.monaco-editor .overflow-guard {
+.monaco-editor {
   width: 100% !important;
   max-width: 100% !important;
+}
+
+/* overflow-guardは水平スクロールを許可 */
+.monaco-editor .overflow-guard {
+  width: 100% !important;
 }
 
 /* モバイルでの行番号表示を確保 */
@@ -162,13 +168,19 @@
     min-width: 40px !important;
   }
 
-  .monaco-editor .lines-content {
-    max-width: calc(100vw - 60px) !important;
-  }
-
   /* モバイルでの自動ズーム防止 */
   .monaco-editor .inputarea {
     font-size: 16px !important;
+  }
+
+  /* モバイルでカーソル位置を常に表示 */
+  .monaco-editor .lines-content {
+    min-width: 100% !important;
+  }
+
+  /* 水平スクロールを有効化してカーソルを追跡 */
+  .monaco-editor .monaco-scrollable-element {
+    overflow-x: auto !important;
   }
 }
 
@@ -288,33 +300,62 @@ html {
 
 /* アニメーションユーティリティ */
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes slide-in-from-top {
-  from { transform: translateY(-10px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes slide-in-from-bottom {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 @keyframes scale-in {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes pulse-subtle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 .animate-in {
@@ -365,8 +406,14 @@ button:active:not(:disabled) {
 }
 
 /* ホバートランジション改善 */
-button, a, [role="button"] {
-  transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+button,
+a,
+[role='button'] {
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
 }
 
 /* スクロールバーのトランジション */
@@ -446,7 +493,9 @@ button, a, [role="button"] {
   background: hsl(var(--popover));
   border: 1px solid hsl(var(--border) / 0.5);
   border-radius: 8px;
-  box-shadow: 0 4px 12px hsl(var(--foreground) / 0.08), 0 0 0 1px hsl(var(--border) / 0.05);
+  box-shadow:
+    0 4px 12px hsl(var(--foreground) / 0.08),
+    0 0 0 1px hsl(var(--border) / 0.05);
 }
 
 .mochi-kbd {
@@ -464,7 +513,9 @@ button, a, [role="button"] {
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   border: 1px solid hsl(var(--border) / 0.3);
   border-radius: 12px;
-  box-shadow: 0 8px 32px hsl(var(--foreground) / 0.12), 0 0 0 1px hsl(var(--border) / 0.05);
+  box-shadow:
+    0 8px 32px hsl(var(--foreground) / 0.12),
+    0 0 0 1px hsl(var(--border) / 0.05);
 }
 
 .mochi-dropdown-item {
@@ -517,7 +568,8 @@ button, a, [role="button"] {
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
   }
@@ -758,13 +810,17 @@ button, a, [role="button"] {
   background: radial-gradient(circle, hsl(var(--foreground) / 0.1) 0%, transparent 70%);
   transform: scale(0);
   opacity: 0;
-  transition: transform 0.5s, opacity 0.3s;
+  transition:
+    transform 0.5s,
+    opacity 0.3s;
 }
 
 .ripple:active::after {
   transform: scale(2);
   opacity: 1;
-  transition: transform 0s, opacity 0s;
+  transition:
+    transform 0s,
+    opacity 0s;
 }
 
 /* フォーカスリング改善 */
@@ -877,8 +933,12 @@ button, a, [role="button"] {
   content: '';
   @apply absolute inset-0 rounded-[inherit] p-[1px];
   background: linear-gradient(135deg, hsl(var(--primary) / 0.5) 0%, hsl(var(--chart-2) / 0.5) 100%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
 }
@@ -904,7 +964,8 @@ button, a, [role="button"] {
   }
 
   .safe-area-inset {
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+      env(safe-area-inset-left);
   }
 }
 
@@ -941,24 +1002,25 @@ button, a, [role="button"] {
   }
 
   .mochi-tab {
-    @apply px-2 py-1.5 gap-1;
-    min-height: 36px;
+    @apply px-3 py-2 gap-1.5;
+    min-height: 44px;
     flex-shrink: 0;
   }
 
   .mochi-tab span.truncate {
     max-width: 80px;
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .mochi-tab-close {
-    @apply w-5 h-5 opacity-100;
-    min-width: 24px;
-    min-height: 24px;
+    @apply opacity-100;
+    min-width: 44px;
+    min-height: 44px;
+    @apply flex items-center justify-center;
   }
 
   .mochi-tab-close svg {
-    @apply h-3 w-3;
+    @apply h-4 w-4;
   }
 }
 
@@ -967,22 +1029,24 @@ button, a, [role="button"] {
   .mochi-statusbar-modern {
     @apply px-2 py-2;
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0.5rem));
-    min-height: 44px;
+    min-height: 48px;
   }
 
   .mochi-statusbar-item {
-    @apply px-2 py-1.5 text-xs;
-    min-height: 32px;
+    @apply px-2 py-2 text-xs;
+    min-height: 44px;
   }
 
   .mochi-statusbar-badge {
-    @apply px-2 py-1 text-xs;
+    @apply px-2 py-1.5 text-xs;
   }
 }
 
 /* タッチフレンドリーなボタンサイズ */
 @media (max-width: 480px) {
-  button, [role="button"], a {
+  button,
+  [role='button'],
+  a {
     min-height: 44px;
     min-width: 44px;
   }
@@ -996,18 +1060,58 @@ button, a, [role="button"] {
 /* ハプティックフィードバック風視覚効果 */
 @media (max-width: 480px) {
   .mochi-toolbar-btn:active {
-    transform: scale(0.92);
-    transition: transform 0.08s ease-out;
+    transform: scale(0.88);
+    transition: transform 0.06s cubic-bezier(0.2, 0, 0.2, 1);
+    background: hsl(var(--muted) / 0.8);
   }
 
   .mochi-tab:active {
-    transform: scale(0.98);
-    transition: transform 0.08s ease-out;
+    transform: scale(0.96);
+    transition: transform 0.06s cubic-bezier(0.2, 0, 0.2, 1);
+    background: hsl(var(--muted) / 0.6);
   }
 
   .mochi-action-btn:active {
+    transform: scale(0.94);
+    transition: transform 0.06s cubic-bezier(0.2, 0, 0.2, 1);
+  }
+
+  /* 共通タッチフィードバック */
+  .mochi-touch-feedback {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+  }
+
+  .mochi-touch-feedback:active {
     transform: scale(0.95);
-    transition: transform 0.08s ease-out;
+    transition: transform 0.06s cubic-bezier(0.2, 0, 0.2, 1);
+  }
+
+  /* ボタン類のタッチフィードバック強化 */
+  .mochi-mobile-icon-btn:active,
+  .mochi-ultra-status-btn:active,
+  .mochi-pill-btn:active {
+    transform: scale(0.88);
+    transition: transform 0.06s cubic-bezier(0.2, 0, 0.2, 1);
+  }
+
+  /* クイックアクションボタンのフィードバック */
+  .mochi-quick-action-btn:active {
+    transform: scale(0.9);
+    transition: transform 0.06s cubic-bezier(0.2, 0, 0.2, 1);
+    background: hsl(var(--muted) / 0.6);
+  }
+
+  .mochi-quick-action-primary:active {
+    background: hsl(var(--primary) / 0.7);
+  }
+
+  /* ウルトラミニマルタブのフィードバック */
+  .mochi-ultra-minimal-tab:active {
+    transform: scale(0.94);
+    transition: transform 0.06s cubic-bezier(0.2, 0, 0.2, 1);
+    background: hsl(var(--muted) / 0.4);
   }
 }
 
@@ -1076,7 +1180,7 @@ button, a, [role="button"] {
 
 /* iPhoneモーダル/ダイアログ最適化 */
 @media (max-width: 480px) {
-  [role="dialog"] {
+  [role='dialog'] {
     @apply fixed inset-0 rounded-none m-0;
     width: 100% !important;
     max-width: 100% !important;
@@ -1131,7 +1235,9 @@ button, a, [role="button"] {
   }
 
   /* 入力フィールドフォーカス時のズーム防止 */
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     font-size: 16px !important;
   }
 }
@@ -1154,19 +1260,11 @@ button, a, [role="button"] {
 /* ダークモードでのiPhone最適化 */
 @media (max-width: 480px) {
   .dark .mochi-toolbar-modern {
-    background: linear-gradient(
-      180deg,
-      hsl(var(--background)) 0%,
-      hsl(var(--muted) / 0.2) 100%
-    );
+    background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted) / 0.2) 100%);
   }
 
   .dark .mochi-statusbar-modern {
-    background: linear-gradient(
-      0deg,
-      hsl(var(--background)) 0%,
-      hsl(var(--muted) / 0.2) 100%
-    );
+    background: linear-gradient(0deg, hsl(var(--background)) 0%, hsl(var(--muted) / 0.2) 100%);
   }
 }
 
@@ -1189,14 +1287,14 @@ button, a, [role="button"] {
 
 /* iPhone向けドロップダウンメニュー */
 @media (max-width: 480px) {
-  [role="menu"] {
+  [role='menu'] {
     @apply fixed bottom-0 left-0 right-0 rounded-t-2xl;
     max-height: 70vh;
     padding-bottom: env(safe-area-inset-bottom);
     animation: slide-in-from-bottom 0.25s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
-  [role="menuitem"] {
+  [role='menuitem'] {
     @apply py-4 px-5;
     min-height: 52px;
   }
@@ -1303,8 +1401,10 @@ button, a, [role="button"] {
 
 .mochi-mobile-icon-btn {
   @apply flex items-center justify-center rounded-full;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   color: hsl(var(--foreground));
   background: hsl(var(--muted) / 0.5);
   transition: all 0.15s ease;
@@ -1438,8 +1538,8 @@ button, a, [role="button"] {
   }
 
   .mochi-tab {
-    @apply px-3 py-1.5 rounded-lg;
-    min-height: 32px;
+    @apply px-3 py-2 rounded-lg;
+    min-height: 44px;
     background: transparent;
     border: none;
     margin: 0;
@@ -1456,7 +1556,7 @@ button, a, [role="button"] {
 
   .mochi-tab span.truncate {
     max-width: 100px;
-    font-size: 12px;
+    font-size: 13px;
   }
 }
 
@@ -1533,18 +1633,219 @@ button, a, [role="button"] {
   }
 }
 
-/* ダークモード最適化 */
+/* ダークモード最適化 - モバイルUIコントラスト強化 */
 .dark .mochi-mobile-top-bar {
-  background: hsl(var(--background) / 0.9);
-  border-bottom-color: hsl(var(--border) / 0.2);
+  background: hsl(var(--background) / 0.95);
+  border-bottom-color: hsl(var(--border) / 0.4);
 }
 
 .dark .mochi-mobile-icon-btn {
-  background: hsl(var(--muted) / 0.3);
+  background: hsl(var(--muted) / 0.5);
+  color: hsl(var(--foreground) / 0.95);
 }
 
 .dark .mochi-pill-inner {
+  background: hsl(var(--background) / 0.95);
+  border: 1px solid hsl(var(--border) / 0.4);
+}
+
+/* ダークモードステータスバー強化 */
+.dark .mochi-ultra-minimal-status {
+  background: hsl(var(--background));
+  border-top-color: hsl(var(--border) / 0.4);
+}
+
+.dark .mochi-ultra-status-text {
+  color: hsl(var(--foreground) / 0.8);
+}
+
+.dark .mochi-ultra-status-btn {
+  color: hsl(var(--foreground) / 0.85);
+}
+
+/* ダークモードタブ強化 */
+.dark .mochi-ultra-minimal-tab {
+  color: hsl(var(--foreground) / 0.65);
+}
+
+.dark .mochi-ultra-minimal-tab-active {
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted) / 0.6);
+}
+
+/* ダークモードクイックアクション強化 */
+.dark .mochi-quick-actions {
+  background: hsl(var(--background) / 0.98);
+  border-top: 1px solid hsl(var(--border) / 0.3);
+}
+
+.dark .mochi-quick-action-btn {
+  color: hsl(var(--foreground) / 0.95);
+}
+
+.dark .mochi-quick-action-btn span {
+  color: hsl(var(--foreground) / 0.7);
+}
+
+/* ダークモードコンテキストメニュー強化 */
+.dark .mochi-context-menu {
+  background: hsl(var(--background) / 0.98);
+  border: 1px solid hsl(var(--border) / 0.4);
+}
+
+/* ダークモードミニインジケーター強化 */
+.dark .mochi-mini-indicator {
   background: hsl(var(--background) / 0.92);
+  border: 1px solid hsl(var(--border) / 0.3);
+}
+
+.dark .mochi-mini-indicator-item {
+  color: hsl(var(--foreground) / 0.8);
+}
+
+/* オフラインインジケーター */
+.mochi-offline-indicator {
+  @apply fixed top-0 left-0 right-0;
+  @apply flex items-center justify-center gap-2 py-2;
+  @apply text-xs font-medium;
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+  z-index: 100;
+  animation: slide-down 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.mochi-offline-indicator-online {
+  background: hsl(142 76% 36%);
+  color: white;
+  animation: slide-down 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* モバイルでセーフエリア対応 */
+@media (max-width: 480px) {
+  .mochi-offline-indicator {
+    padding-top: max(0.5rem, env(safe-area-inset-top, 0.5rem));
+  }
+}
+
+/* ============================================
+   モバイルランドスケープ対応
+   ============================================ */
+
+/* モバイルランドスケープ: トップバーをコンパクトに */
+@media (max-width: 896px) and (orientation: landscape) {
+  .mochi-mobile-top-bar {
+    @apply py-1;
+    padding-top: max(0.25rem, env(safe-area-inset-top, 0.25rem));
+  }
+
+  .mochi-mobile-icon-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .mochi-mobile-title {
+    @apply text-xs;
+  }
+
+  /* タブバーをコンパクトに */
+  .mochi-ultra-minimal-tabs {
+    @apply py-0.5;
+  }
+
+  .mochi-ultra-minimal-tab {
+    @apply py-0.5;
+    min-height: 32px;
+  }
+
+  /* ステータスバーをコンパクトに */
+  .mochi-ultra-minimal-status {
+    @apply py-1;
+    padding-bottom: max(0.25rem, calc(env(safe-area-inset-bottom, 0px) + 4px));
+  }
+
+  .mochi-ultra-status-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  /* クイックアクションバーをコンパクトに */
+  .mochi-quick-actions {
+    @apply py-1.5;
+    padding-bottom: max(0.375rem, calc(env(safe-area-inset-bottom, 0px) + 6px));
+  }
+
+  .mochi-quick-action-btn {
+    @apply w-12 h-12;
+  }
+
+  .mochi-quick-action-btn svg {
+    @apply h-4 w-4;
+  }
+
+  .mochi-quick-action-btn span {
+    @apply text-[8px];
+  }
+
+  /* フォーカスモード終了ボタン */
+  .mochi-focus-exit-hint {
+    @apply px-3 py-1.5 text-[10px];
+  }
+
+  /* ミニインジケーター */
+  .mochi-mini-indicator {
+    @apply py-1 px-2 gap-2;
+  }
+
+  .mochi-mini-indicator-item {
+    @apply text-[9px];
+  }
+
+  /* 検索ダイアログ */
+  .mochi-search-modern {
+    max-height: 100vh;
+  }
+
+  /* コンテキストメニュー */
+  .mochi-context-menu {
+    @apply p-1;
+  }
+
+  .mochi-mobile-menu-item {
+    @apply py-2 px-2.5 text-xs;
+    min-height: 36px;
+  }
+}
+
+/* ランドスケープモードのセーフエリア（左右） */
+@media (orientation: landscape) {
+  .mochi-editor-container {
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+  }
+
+  .mochi-mobile-top-bar,
+  .mochi-ultra-minimal-status {
+    padding-left: max(0.75rem, env(safe-area-inset-left, 0.75rem));
+    padding-right: max(0.75rem, env(safe-area-inset-right, 0.75rem));
+  }
+
+  .mochi-quick-actions {
+    padding-left: max(1rem, env(safe-area-inset-left, 1rem));
+    padding-right: max(1rem, env(safe-area-inset-right, 1rem));
+  }
 }
 
 /* キーボード表示時のピル位置調整 */
@@ -1624,7 +1925,9 @@ button, a, [role="button"] {
   );
   opacity: 0;
   transform: scale(0);
-  transition: transform 0.4s ease, opacity 0.3s ease;
+  transition:
+    transform 0.4s ease,
+    opacity 0.3s ease;
 }
 
 .mochi-ripple:active::after {
@@ -1805,7 +2108,10 @@ button, a, [role="button"] {
 
 .mochi-ultra-status-btn {
   @apply flex items-center justify-center rounded-full;
-  @apply w-7 h-7;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   color: hsl(var(--muted-foreground));
   -webkit-tap-highlight-color: transparent;
   transition: all 0.15s ease;
@@ -1895,11 +2201,15 @@ button, a, [role="button"] {
 
 /* トランジション最適化: 高速プロパティのみ使用 */
 .mochi-transition-fast {
-  transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+  transition:
+    transform 0.1s ease-out,
+    opacity 0.1s ease-out;
 }
 
 .mochi-transition-normal {
-  transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+  transition:
+    transform 0.15s ease-out,
+    opacity 0.15s ease-out;
 }
 
 /* コンテンツ可視性最適化（大規模リスト用） */
@@ -1963,6 +2273,84 @@ button, a, [role="button"] {
     -webkit-backdrop-filter: none;
     background: hsl(var(--background));
     border: 2px solid hsl(var(--border));
+  }
+
+  /* すべてのボタンの境界線を強化 */
+  button,
+  [role='button'] {
+    border: 2px solid currentColor !important;
+  }
+
+  /* フォーカス表示を強化 */
+  *:focus-visible {
+    outline: 3px solid hsl(var(--foreground)) !important;
+    outline-offset: 2px;
+  }
+
+  /* テキストコントラスト強化 */
+  .mochi-ultra-status-text,
+  .mochi-mini-indicator-item {
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* タブのコントラスト強化 */
+  .mochi-ultra-minimal-tab {
+    color: hsl(var(--foreground) / 0.8) !important;
+    border: 1px solid hsl(var(--border));
+  }
+
+  .mochi-ultra-minimal-tab-active {
+    color: hsl(var(--foreground)) !important;
+    background: hsl(var(--muted)) !important;
+    border-color: hsl(var(--primary)) !important;
+  }
+}
+
+/* スクリーンリーダー専用コンテンツ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* フォーカス可視時のみ表示 */
+.sr-only-focusable:focus,
+.sr-only-focusable:focus-within {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* スキップリンク */
+.skip-link {
+  @apply fixed top-0 left-0 z-[200] px-4 py-2;
+  @apply bg-primary text-primary-foreground font-medium;
+  transform: translateY(-100%);
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* 減少動作設定対応（よりアグレッシブ） */
+@media (prefers-reduced-motion: reduce) {
+  .mochi-ultra-minimal-tab:active,
+  .mochi-mobile-icon-btn:active,
+  .mochi-ultra-status-btn:active,
+  .mochi-quick-action-btn:active {
+    transform: none !important;
   }
 }
 
@@ -2057,22 +2445,14 @@ button, a, [role="button"] {
 .indent-ruler {
   @apply relative w-full select-none;
   height: 18px;
-  background: linear-gradient(
-    180deg,
-    hsl(var(--muted) / 0.3) 0%,
-    hsl(var(--muted) / 0.5) 100%
-  );
+  background: linear-gradient(180deg, hsl(var(--muted) / 0.3) 0%, hsl(var(--muted) / 0.5) 100%);
   border-bottom: 1px solid hsl(var(--border) / 0.5);
   overflow: hidden;
   cursor: default;
 }
 
 .dark .indent-ruler {
-  background: linear-gradient(
-    180deg,
-    hsl(var(--muted) / 0.2) 0%,
-    hsl(var(--muted) / 0.3) 100%
-  );
+  background: linear-gradient(180deg, hsl(var(--muted) / 0.2) 0%, hsl(var(--muted) / 0.3) 100%);
 }
 
 .indent-ruler-dragging {
@@ -2128,7 +2508,9 @@ button, a, [role="button"] {
 .indent-handle {
   @apply absolute cursor-pointer z-10;
   color: hsl(var(--foreground) / 0.7);
-  transition: color 0.15s ease, transform 0.1s ease;
+  transition:
+    color 0.15s ease,
+    transform 0.1s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -2188,23 +2570,23 @@ button, a, [role="button"] {
 /* モバイル対応 */
 @media (max-width: 480px) {
   .indent-ruler {
-    height: 28px;
+    height: 44px;
   }
 
   .indent-handle {
-    min-width: 24px;
-    min-height: 24px;
+    min-width: 44px;
+    min-height: 44px;
     @apply flex items-center justify-center;
   }
 
   .indent-handle svg {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
   }
 
   .indent-ruler-tick-label {
-    font-size: 8px;
-    bottom: 12px;
+    font-size: 9px;
+    bottom: 20px;
   }
 }
 
@@ -2239,4 +2621,3 @@ button, a, [role="button"] {
     background: hsl(var(--foreground));
   }
 }
-
