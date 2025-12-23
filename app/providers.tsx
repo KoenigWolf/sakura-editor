@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { LanguageSync } from '@/components/LanguageSync';
 import { LiveAnnouncer } from '@/components/LiveAnnouncer';
 import { PWAProvider } from '@/components/pwa/PWAProvider';
+import { WebVitalsReporter } from '@/components/WebVitalsReporter';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -16,6 +17,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <PWAProvider>{children}</PWAProvider>
         <Toaster />
         <LiveAnnouncer />
+        <WebVitalsReporter />
       </TooltipProvider>
     </ThemeProvider>
   );
