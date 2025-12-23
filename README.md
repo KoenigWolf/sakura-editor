@@ -43,6 +43,14 @@
 - 日本語 / 英語 UI
 - i18next による国際化
 
+### アクセシビリティ
+
+- キーボードナビゲーション対応
+- フォーカストラップ（モーダルダイアログ）
+- aria-live によるスクリーンリーダー通知
+- セマンティック HTML ランドマーク
+- Monaco Editor のアクセシビリティサポート
+
 ### SEO・PWA
 
 - 構造化データ（JSON-LD）対応
@@ -50,18 +58,31 @@
 - PWA マニフェスト対応
 - サイトマップ自動生成
 
+### 品質・パフォーマンス
+
+- GitHub Actions による CI/CD
+- Vitest + React Testing Library によるテスト
+- Husky + lint-staged による pre-commit フック
+- Web Vitals モニタリング（CLS, INP, FCP, LCP, TTFB）
+- React Error Boundary によるエラーハンドリング
+- バンドル分析・最適化
+
 ## 技術スタック
 
-| カテゴリ          | 技術                   |
-| ----------------- | ---------------------- |
-| フレームワーク    | Next.js (App Router)   |
-| 言語              | TypeScript             |
-| スタイリング      | TailwindCSS            |
-| UI コンポーネント | shadcn/ui, Radix UI    |
-| エディタ          | Monaco Editor          |
-| 状態管理          | Zustand                |
-| 国際化            | i18next, react-i18next |
-| テーマ            | next-themes            |
+| カテゴリ          | 技術                       |
+| ----------------- | -------------------------- |
+| フレームワーク    | Next.js 15 (App Router)    |
+| 言語              | TypeScript 5.9 (Strict)    |
+| スタイリング      | TailwindCSS                |
+| UI コンポーネント | shadcn/ui, Radix UI        |
+| エディタ          | Monaco Editor              |
+| 状態管理          | Zustand                    |
+| 国際化            | i18next, react-i18next     |
+| テーマ            | next-themes                |
+| テスト            | Vitest, React Testing Lib  |
+| CI/CD             | GitHub Actions             |
+| コード品質        | ESLint, Prettier, Husky    |
+| モニタリング      | Web Vitals                 |
 
 ## セットアップ
 
@@ -93,6 +114,28 @@ npm run build
 npm start
 ```
 
+### テスト
+
+```bash
+npm run test         # テスト実行（watchモード）
+npm run test:run     # テスト実行（1回のみ）
+npm run test:coverage # カバレッジレポート
+```
+
+### コード品質
+
+```bash
+npm run lint         # ESLintチェック
+npm run format       # Prettierでフォーマット
+npm run typecheck    # TypeScriptチェック
+```
+
+### バンドル分析
+
+```bash
+ANALYZE=true npm run build  # バンドルサイズを可視化
+```
+
 ## プロジェクト構造
 
 ```
@@ -101,49 +144,47 @@ npm start
 │   ├── layout.tsx         # ルートレイアウト
 │   ├── page.tsx           # メインページ
 │   ├── providers.tsx      # クライアントプロバイダー
+│   ├── error.tsx          # エラーページ
 │   ├── metadata.ts        # SEOメタデータ
 │   └── sitemap.ts         # サイトマップ生成
 ├── components/
 │   ├── editor/            # エディタ関連
-│   │   ├── EditorContainer.tsx
-│   │   ├── EditorToolbar.tsx
-│   │   ├── MonacoEditor.tsx
-│   │   ├── SearchDialog.tsx
-│   │   └── FileTabs.tsx
 │   ├── settings/          # 設定ダイアログ
-│   │   ├── SettingsDialog.tsx
-│   │   └── tabs/         # 設定タブ
-│   │       ├── ThemeSettings.tsx
-│   │       ├── EditorSettings.tsx
-│   │       ├── FileSettings.tsx
-│   │       └── GeneralSettings.tsx
-│   └── ui/                # 共通UIコンポーネント
+│   ├── pwa/               # PWA関連
+│   ├── ui/                # 共通UIコンポーネント
+│   ├── ErrorBoundary.tsx  # エラー境界
+│   └── LiveAnnouncer.tsx  # スクリーンリーダー通知
+├── hooks/                 # カスタムフック
+│   ├── use-focus-trap.ts  # フォーカストラップ
+│   └── use-web-vitals.ts  # Web Vitals計測
 ├── lib/
-│   ├── i18n/             # 国際化
-│   │   └── translations/ # 翻訳ファイル
-│   ├── store/            # Zustand ストア
-│   ├── themes/           # カスタムテーマ定義
-│   └── types/            # 型定義
-├── public/               # 静的ファイル
-│   ├── manifest.json     # PWAマニフェスト
-│   └── robots.txt        # クローラー設定
+│   ├── i18n/              # 国際化
+│   ├── store/             # Zustand ストア
+│   ├── themes/            # カスタムテーマ定義
+│   └── types/             # 型定義
+├── __tests__/             # テストファイル
+├── .github/workflows/     # GitHub Actions CI/CD
+├── public/                # 静的ファイル
 └── docs/                  # ドキュメント
 ```
 
 ## キーボードショートカット
 
-| ショートカット | 機能                      |
-| -------------- | ------------------------- |
-| Ctrl+F         | 検索ダイアログを開く      |
-| Ctrl+H         | 置換モード切り替え        |
-| Enter          | 次の検索結果              |
-| Shift+Enter    | 前の検索結果              |
-| Tab            | 検索 → 置換ボックスへ移動 |
-| Shift+Tab      | 置換 → 検索ボックスへ移動 |
-| Escape         | ダイアログを閉じる        |
-| Alt+C          | 大文字小文字区別 切り替え |
-| Alt+W          | 単語単位検索 切り替え     |
-| Alt+R          | 正規表現 切り替え         |
+| ショートカット     | 機能                      |
+| ------------------ | ------------------------- |
+| Ctrl+F             | 検索ダイアログを開く      |
+| Ctrl+H             | 置換モード切り替え        |
+| Ctrl+Shift+\       | 縦分割                    |
+| Ctrl+Shift+-       | 横分割                    |
+| Ctrl+P             | コマンドパレット          |
+| Enter              | 次の検索結果              |
+| Shift+Enter        | 前の検索結果              |
+| Tab                | 検索 → 置換ボックスへ移動 |
+| Shift+Tab          | 置換 → 検索ボックスへ移動 |
+| Escape             | ダイアログを閉じる        |
+| Alt+C              | 大文字小文字区別 切り替え |
+| Alt+W              | 単語単位検索 切り替え     |
+| Alt+R              | 正規表現 切り替え         |
 
 ## AI エージェント向け
 
@@ -162,9 +203,13 @@ npm start
 
 1. フォーク
 2. ブランチ作成 (`git checkout -b feature/amazing-feature`)
-3. コミット (`git commit -m 'Add amazing feature'`)
-4. プッシュ (`git push origin feature/amazing-feature`)
-5. プルリクエスト作成
+3. 変更を実装
+4. テスト実行 (`npm run test:run`)
+5. コミット (`git commit -m 'Add amazing feature'`)
+   - pre-commit フックで ESLint/Prettier が自動実行されます
+6. プッシュ (`git push origin feature/amazing-feature`)
+7. プルリクエスト作成
+   - CI で lint、型チェック、テスト、ビルドが実行されます
 
 ## ライセンス
 
