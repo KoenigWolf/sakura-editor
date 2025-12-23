@@ -6,7 +6,12 @@ import { EditorToolbar } from '@/components/editor/EditorToolbar';
 import { IndentRuler } from '@/components/editor/IndentRuler';
 import { useFileStore } from '@/lib/store/file-store';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
-import { useSplitViewStore, useIsSplit, type PaneNode, type PaneSplit } from '@/lib/store/split-view-store';
+import {
+  useSplitViewStore,
+  useIsSplit,
+  type PaneNode,
+  type PaneSplit,
+} from '@/lib/store/split-view-store';
 import { useSplitWithFile } from '@/hooks/use-split-with-file';
 import { useSearchStore } from '@/lib/store/search-store';
 import { useIndentStore } from '@/lib/store/indent-store';
@@ -41,24 +46,26 @@ import {
 } from 'lucide-react';
 
 const MonacoEditor = dynamic(
-  () => import('@/components/editor/MonacoEditor').then(mod => ({ default: mod.MonacoEditor })),
+  () => import('@/components/editor/MonacoEditor').then((mod) => ({ default: mod.MonacoEditor })),
   {
     ssr: false,
     loading: () => (
       <div className="h-full w-full flex items-center justify-center bg-background">
         <div className="mochi-skeleton w-full h-full" />
       </div>
-    )
+    ),
   }
 );
 
 const CommandPalette = dynamic(
-  () => import('@/components/editor/CommandPalette').then(mod => ({ default: mod.CommandPalette })),
+  () =>
+    import('@/components/editor/CommandPalette').then((mod) => ({ default: mod.CommandPalette })),
   { ssr: false }
 );
 
 const SettingsDialog = dynamic(
-  () => import('@/components/settings/SettingsDialog').then(mod => ({ default: mod.SettingsDialog })),
+  () =>
+    import('@/components/settings/SettingsDialog').then((mod) => ({ default: mod.SettingsDialog })),
   { ssr: false }
 );
 
@@ -105,9 +112,10 @@ const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitPaneProp
       const rect = containerRef.current.getBoundingClientRect();
       const split = node as PaneSplit;
 
-      const ratio = split.direction === 'vertical'
-        ? (e.clientX - rect.left) / rect.width
-        : (e.clientY - rect.top) / rect.height;
+      const ratio =
+        split.direction === 'vertical'
+          ? (e.clientX - rect.left) / rect.width
+          : (e.clientY - rect.top) / rect.height;
 
       onRatioChange(dragSplitId, ratio);
     };
@@ -147,14 +155,18 @@ const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitPaneProp
             >
               {files.map((file) => (
                 <option key={file.id} value={file.id}>
-                  {file.name}{file.isDirty ? ' •' : ''}
+                  {file.name}
+                  {file.isDirty ? ' •' : ''}
                 </option>
               ))}
             </select>
             <div className="flex gap-0.5">
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); splitPaneWithNewFile(node.id, 'vertical'); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  splitPaneWithNewFile(node.id, 'vertical');
+                }}
                 className="p-0.5 rounded hover:bg-muted"
                 title="Split Vertical"
               >
@@ -162,7 +174,10 @@ const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitPaneProp
               </button>
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); splitPaneWithNewFile(node.id, 'horizontal'); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  splitPaneWithNewFile(node.id, 'horizontal');
+                }}
                 className="p-0.5 rounded hover:bg-muted"
                 title="Split Horizontal"
               >
@@ -170,7 +185,10 @@ const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitPaneProp
               </button>
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); closePane(node.id); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  closePane(node.id);
+                }}
                 className="p-0.5 rounded hover:bg-muted"
                 title="Close Pane"
               >
@@ -180,7 +198,7 @@ const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitPaneProp
           </div>
         )}
         <div className="flex-1 min-h-0">
-          <MonacoEditor fileId={fileId} paneId={node.id} />
+          <MonacoEditor fileId={fileId} />
         </div>
       </div>
     );
@@ -221,7 +239,7 @@ const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitPaneProp
 });
 
 export const EditorContainer = memo(function EditorContainer() {
-  const activeFile = useFileStore((state) => state.files.find(f => f.id === state.activeFileId));
+  const activeFile = useFileStore((state) => state.files.find((f) => f.id === state.activeFileId));
   const files = useFileStore((state) => state.files);
   const activeFileId = useFileStore((state) => state.activeFileId);
   const statusInfo = useEditorInstanceStore((state) => state.statusInfo);
@@ -271,7 +289,7 @@ export const EditorContainer = memo(function EditorContainer() {
   }, []);
 
   const toggleQuickActions = useCallback(() => {
-    setShowQuickActions(prev => !prev);
+    setShowQuickActions((prev) => !prev);
   }, []);
 
   const { handleNewFile, handleSave, handleOpen, handleGoToLine } = useKeyboardShortcuts({
@@ -280,109 +298,138 @@ export const EditorContainer = memo(function EditorContainer() {
   });
   const { handleUndo, handleRedo } = useEditorActions();
 
-  const commands: CommandItem[] = useMemo(() => [
-    {
-      id: 'new-file',
-      label: t('commandPalette.actions.newFile'),
-      shortcut: '⌘+N',
-      icon: Plus,
-      action: handleNewFile,
-      category: 'file',
-    },
-    {
-      id: 'open-file',
-      label: t('commandPalette.actions.openFile'),
-      shortcut: '⌘+O',
-      icon: FolderOpen,
-      action: handleOpen,
-      category: 'file',
-    },
-    {
-      id: 'save-file',
-      label: t('commandPalette.actions.saveFile'),
-      shortcut: '⌘+S',
-      icon: Download,
-      action: handleSave,
-      category: 'file',
-    },
-    {
-      id: 'undo',
-      label: t('commandPalette.actions.undo'),
-      shortcut: '⌘+Z',
-      icon: RotateCcw,
-      action: handleUndo,
-      category: 'edit',
-    },
-    {
-      id: 'redo',
-      label: t('commandPalette.actions.redo'),
-      shortcut: '⌘+Y',
-      icon: RotateCw,
-      action: handleRedo,
-      category: 'edit',
-    },
-    {
-      id: 'find',
-      label: t('commandPalette.actions.find'),
-      shortcut: '⌘+F',
-      icon: Search,
-      action: () => setSearchOpen(true),
-      category: 'search',
-    },
-    {
-      id: 'go-to-line',
-      label: t('commandPalette.actions.goToLine'),
-      shortcut: '⌘+G',
-      icon: Hash,
-      action: handleGoToLine,
-      category: 'search',
-    },
-    {
-      id: 'split-vertical',
-      label: t('commandPalette.actions.splitVertical'),
-      shortcut: '⌘+\\',
-      icon: Columns2,
-      action: () => splitActiveWithNewFile('vertical'),
-      category: 'view',
-    },
-    {
-      id: 'split-horizontal',
-      label: t('commandPalette.actions.splitHorizontal'),
-      shortcut: '⌘+\\',
-      icon: Rows2,
-      action: () => splitActiveWithNewFile('horizontal'),
-      category: 'view',
-    },
-    ...(isSplit ? [{
-      id: 'close-split',
-      label: t('commandPalette.actions.closeSplit'),
-      shortcut: '⇧⌘+\\',
-      icon: X,
-      action: reset,
-      category: 'view' as const,
-    }] : []),
-    {
-      id: 'toggle-theme',
-      label: t('commandPalette.actions.toggleTheme'),
-      icon: getThemeIcon(resolvedTheme),
-      action: () => setTheme(getNextTheme(resolvedTheme)),
-      category: 'view',
-    },
-    {
-      id: 'open-settings',
-      label: t('commandPalette.actions.openSettings'),
-      shortcut: '⌘+,',
-      icon: Settings,
-      action: () => setShowSettings(true),
-      category: 'settings',
-    },
-  ], [t, handleNewFile, handleOpen, handleSave, handleUndo, handleRedo, handleGoToLine, setSearchOpen, splitActiveWithNewFile, reset, isSplit, resolvedTheme, setTheme]);
+  const commands: CommandItem[] = useMemo(
+    () => [
+      {
+        id: 'new-file',
+        label: t('commandPalette.actions.newFile'),
+        shortcut: '⌘+N',
+        icon: Plus,
+        action: handleNewFile,
+        category: 'file',
+      },
+      {
+        id: 'open-file',
+        label: t('commandPalette.actions.openFile'),
+        shortcut: '⌘+O',
+        icon: FolderOpen,
+        action: handleOpen,
+        category: 'file',
+      },
+      {
+        id: 'save-file',
+        label: t('commandPalette.actions.saveFile'),
+        shortcut: '⌘+S',
+        icon: Download,
+        action: handleSave,
+        category: 'file',
+      },
+      {
+        id: 'undo',
+        label: t('commandPalette.actions.undo'),
+        shortcut: '⌘+Z',
+        icon: RotateCcw,
+        action: handleUndo,
+        category: 'edit',
+      },
+      {
+        id: 'redo',
+        label: t('commandPalette.actions.redo'),
+        shortcut: '⌘+Y',
+        icon: RotateCw,
+        action: handleRedo,
+        category: 'edit',
+      },
+      {
+        id: 'find',
+        label: t('commandPalette.actions.find'),
+        shortcut: '⌘+F',
+        icon: Search,
+        action: () => setSearchOpen(true),
+        category: 'search',
+      },
+      {
+        id: 'go-to-line',
+        label: t('commandPalette.actions.goToLine'),
+        shortcut: '⌘+G',
+        icon: Hash,
+        action: handleGoToLine,
+        category: 'search',
+      },
+      {
+        id: 'split-vertical',
+        label: t('commandPalette.actions.splitVertical'),
+        shortcut: '⌘+\\',
+        icon: Columns2,
+        action: () => splitActiveWithNewFile('vertical'),
+        category: 'view',
+      },
+      {
+        id: 'split-horizontal',
+        label: t('commandPalette.actions.splitHorizontal'),
+        shortcut: '⌘+\\',
+        icon: Rows2,
+        action: () => splitActiveWithNewFile('horizontal'),
+        category: 'view',
+      },
+      ...(isSplit
+        ? [
+            {
+              id: 'close-split',
+              label: t('commandPalette.actions.closeSplit'),
+              shortcut: '⇧⌘+\\',
+              icon: X,
+              action: reset,
+              category: 'view' as const,
+            },
+          ]
+        : []),
+      {
+        id: 'toggle-theme',
+        label: t('commandPalette.actions.toggleTheme'),
+        icon: getThemeIcon(resolvedTheme),
+        action: () => setTheme(getNextTheme(resolvedTheme)),
+        category: 'view',
+      },
+      {
+        id: 'open-settings',
+        label: t('commandPalette.actions.openSettings'),
+        shortcut: '⌘+,',
+        icon: Settings,
+        action: () => setShowSettings(true),
+        category: 'settings',
+      },
+    ],
+    [
+      t,
+      handleNewFile,
+      handleOpen,
+      handleSave,
+      handleUndo,
+      handleRedo,
+      handleGoToLine,
+      setSearchOpen,
+      splitActiveWithNewFile,
+      reset,
+      isSplit,
+      resolvedTheme,
+      setTheme,
+    ]
+  );
 
   const showMobileUI = mounted && isMobile;
 
   return (
-    <div className={`mochi-editor-container flex flex-col h-full w-full max-w-full overflow-hidden ${showMobileUI && focusMode ? 'mochi-focus-mode' : ''}`}>
-      {!showMobileUI && <EditorToolbar onOpenSettings={() => setShowSettings(true)} />}
+    <div
+      className={`mochi-editor-container flex flex-col h-full w-full max-w-full overflow-hidden ${showMobileUI && focusMode ? 'mochi-focus-mode' : ''}`}
+      role="application"
+      aria-label={t('editor.title')}
+    >
+      {!showMobileUI && (
+        <header role="banner">
+          <EditorToolbar onOpenSettings={() => setShowSettings(true)} />
+        </header>
+      )}
 
       {showMobileUI && !focusMode && (
         <div className="mochi-mobile-top-bar">
@@ -400,9 +447,7 @@ export const EditorContainer = memo(function EditorContainer() {
             onClick={() => setShowCommandPalette(true)}
             className="mochi-mobile-title"
           >
-            {activeFile?.isDirty && (
-              <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-            )}
+            {activeFile?.isDirty && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
             <span className="truncate max-w-[150px]">
               {getDisplayFileName(activeFile?.name, t('status.untitled'))}
             </span>
@@ -459,19 +504,11 @@ export const EditorContainer = memo(function EditorContainer() {
 
       {showMobileUI && (
         <div className={`mochi-quick-actions ${showQuickActions ? 'visible' : ''}`}>
-          <button
-            type="button"
-            onClick={handleNewFile}
-            className="mochi-quick-action-btn"
-          >
+          <button type="button" onClick={handleNewFile} className="mochi-quick-action-btn">
             <Plus strokeWidth={1.5} />
             <span>{t('toolbar.newFile')}</span>
           </button>
-          <button
-            type="button"
-            onClick={handleOpen}
-            className="mochi-quick-action-btn"
-          >
+          <button type="button" onClick={handleOpen} className="mochi-quick-action-btn">
             <FolderOpen strokeWidth={1.5} />
             <span>{t('toolbar.load')}</span>
           </button>
@@ -491,11 +528,7 @@ export const EditorContainer = memo(function EditorContainer() {
             <Search strokeWidth={1.5} />
             <span>{t('toolbar.search')}</span>
           </button>
-          <button
-            type="button"
-            onClick={handleUndo}
-            className="mochi-quick-action-btn"
-          >
+          <button type="button" onClick={handleUndo} className="mochi-quick-action-btn">
             <RotateCcw strokeWidth={1.5} />
             <span>{t('toolbar.undo')}</span>
           </button>
@@ -511,19 +544,22 @@ export const EditorContainer = memo(function EditorContainer() {
             <span className="mochi-ultra-status-text">{statusInfo.language}</span>
           </div>
           <div className="mochi-ultra-minimal-status-right">
-            <button
-              type="button"
-              onClick={toggleQuickActions}
-              className="mochi-ultra-status-btn"
-            >
-              <ChevronUp className={`h-4 w-4 transition-transform ${showQuickActions ? 'rotate-180' : ''}`} />
+            <button type="button" onClick={toggleQuickActions} className="mochi-ultra-status-btn">
+              <ChevronUp
+                className={`h-4 w-4 transition-transform ${showQuickActions ? 'rotate-180' : ''}`}
+              />
             </button>
             <button
               type="button"
               onClick={() => setTheme(getNextTheme(resolvedTheme))}
               className="mochi-ultra-status-btn"
             >
-              {mounted && (resolvedTheme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />)}
+              {mounted &&
+                (resolvedTheme === 'dark' ? (
+                  <Moon className="h-4 w-4" />
+                ) : (
+                  <Sun className="h-4 w-4" />
+                ))}
             </button>
           </div>
         </div>
@@ -605,7 +641,6 @@ export const EditorContainer = memo(function EditorContainer() {
           </button>
         </div>
       </div>
-
 
       <CommandPalette
         open={showCommandPalette}
