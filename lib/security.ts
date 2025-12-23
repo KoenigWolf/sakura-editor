@@ -1,19 +1,59 @@
+export const SECURITY_HEADERS = {
+  CSP: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'",
+  HSTS: 'max-age=31536000; includeSubDomains',
+  X_CONTENT_TYPE_OPTIONS: 'nosniff',
+  X_FRAME_OPTIONS: 'DENY',
+  REFERRER_POLICY: 'strict-origin-when-cross-origin',
+  PERMISSIONS_POLICY: 'camera=(), microphone=(), geolocation=()',
+} as const;
+
 export const FILE_SECURITY = {
   MAX_FILE_SIZE: 10 * 1024 * 1024,
-  ALLOWED_EXTENSIONS: ['.txt', '.md', '.js', '.ts', '.jsx', '.tsx', '.json', '.html', '.css', '.xml', '.yaml', '.yml', '.toml', '.ini', '.conf', '.sh', '.bash', '.zsh', '.py', '.rb', '.go', '.rs', '.java', '.c', '.cpp', '.h', '.hpp', '.sql', '.graphql', '.vue', '.svelte'],
+  ALLOWED_EXTENSIONS: [
+    '.txt',
+    '.md',
+    '.js',
+    '.ts',
+    '.jsx',
+    '.tsx',
+    '.json',
+    '.html',
+    '.css',
+    '.xml',
+    '.yaml',
+    '.yml',
+    '.toml',
+    '.ini',
+    '.conf',
+    '.sh',
+    '.bash',
+    '.zsh',
+    '.py',
+    '.rb',
+    '.go',
+    '.rs',
+    '.java',
+    '.c',
+    '.cpp',
+    '.h',
+    '.hpp',
+    '.sql',
+    '.graphql',
+    '.vue',
+    '.svelte',
+  ],
   FORBIDDEN_FILENAME_CHARS: /[<>:"/\\|?*\x00-\x1f]/g,
 } as const;
 
 export const SEARCH_SECURITY = {
   MAX_QUERY_LENGTH: 1000,
   MAX_REGEX_LENGTH: 500,
-  DANGEROUS_REGEX_PATTERNS: [
-    /(\w)\1{10,}/,
-    /\(\?:[^)]+\)\{[2-9]\d*,\}/,
-  ],
+  DANGEROUS_REGEX_PATTERNS: [/(\w)\1{10,}/, /\(\?:[^)]+\)\{[2-9]\d*,\}/],
 } as const;
 
-export const validateFile = (file: File): { valid: boolean; error?: string; sanitizedName: string } => {
+export const validateFile = (
+  file: File
+): { valid: boolean; error?: string; sanitizedName: string } => {
   if (file.size > FILE_SECURITY.MAX_FILE_SIZE) {
     const maxMB = FILE_SECURITY.MAX_FILE_SIZE / 1024 / 1024;
     return {
@@ -54,7 +94,10 @@ export const validateFile = (file: File): { valid: boolean; error?: string; sani
   };
 };
 
-export const validateSearchQuery = (query: string, isRegex: boolean): { valid: boolean; error?: string } => {
+export const validateSearchQuery = (
+  query: string,
+  isRegex: boolean
+): { valid: boolean; error?: string } => {
   const maxLength = isRegex ? SEARCH_SECURITY.MAX_REGEX_LENGTH : SEARCH_SECURITY.MAX_QUERY_LENGTH;
   if (query.length > maxLength) {
     return {
@@ -99,4 +142,22 @@ export const validateSearchQuery = (query: string, isRegex: boolean): { valid: b
 
 export const escapeRegExp = (string: string): string => {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+export const sanitizeText = (text: string): string => {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+};
+
+export const isValidUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url);
+    return ['http:', 'https:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
 };

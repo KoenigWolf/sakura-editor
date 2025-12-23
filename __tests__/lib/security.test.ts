@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { FILE_SECURITY, SEARCH_SECURITY, validateSearchQuery, escapeRegExp } from '@/lib/security';
+import {
+  FILE_SECURITY,
+  SEARCH_SECURITY,
+  SECURITY_HEADERS,
+  validateSearchQuery,
+  escapeRegExp,
+  sanitizeText,
+  isValidUrl,
+} from '@/lib/security';
 
 describe('FILE_SECURITY', () => {
   it('should have correct max file size (10MB)', () => {
@@ -84,5 +92,67 @@ describe('escapeRegExp', () => {
   it('should escape mixed content', () => {
     expect(escapeRegExp('file.txt')).toBe('file\\.txt');
     expect(escapeRegExp('(test)')).toBe('\\(test\\)');
+  });
+});
+
+describe('SECURITY_HEADERS', () => {
+  it('should have CSP header defined', () => {
+    expect(SECURITY_HEADERS.CSP).toContain("default-src 'self'");
+    expect(SECURITY_HEADERS.CSP).toContain('frame-ancestors');
+  });
+
+  it('should have HSTS header defined', () => {
+    expect(SECURITY_HEADERS.HSTS).toContain('max-age=');
+    expect(SECURITY_HEADERS.HSTS).toContain('includeSubDomains');
+  });
+
+  it('should have all required security headers', () => {
+    expect(SECURITY_HEADERS.X_CONTENT_TYPE_OPTIONS).toBe('nosniff');
+    expect(SECURITY_HEADERS.X_FRAME_OPTIONS).toBe('DENY');
+    expect(SECURITY_HEADERS.REFERRER_POLICY).toBe('strict-origin-when-cross-origin');
+  });
+});
+
+describe('sanitizeText', () => {
+  it('should escape HTML special characters', () => {
+    expect(sanitizeText('<script>')).toBe('&lt;script&gt;');
+    expect(sanitizeText('&')).toBe('&amp;');
+    expect(sanitizeText('"')).toBe('&quot;');
+    expect(sanitizeText("'")).toBe('&#x27;');
+  });
+
+  it('should handle complex XSS payloads', () => {
+    const xss = '<script>alert("xss")</script>';
+    const sanitized = sanitizeText(xss);
+    expect(sanitized).not.toContain('<');
+    expect(sanitized).not.toContain('>');
+    expect(sanitized).toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+  });
+
+  it('should preserve normal text', () => {
+    expect(sanitizeText('Hello World')).toBe('Hello World');
+  });
+
+  it('should handle empty strings', () => {
+    expect(sanitizeText('')).toBe('');
+  });
+});
+
+describe('isValidUrl', () => {
+  it('should accept valid HTTP URLs', () => {
+    expect(isValidUrl('http://example.com')).toBe(true);
+    expect(isValidUrl('https://example.com')).toBe(true);
+    expect(isValidUrl('https://example.com/path?query=value')).toBe(true);
+  });
+
+  it('should reject invalid URLs', () => {
+    expect(isValidUrl('not-a-url')).toBe(false);
+    expect(isValidUrl('')).toBe(false);
+  });
+
+  it('should reject dangerous protocols', () => {
+    expect(isValidUrl('javascript:alert(1)')).toBe(false);
+    expect(isValidUrl('data:text/html,<script>alert(1)</script>')).toBe(false);
+    expect(isValidUrl('file:///etc/passwd')).toBe(false);
   });
 });
