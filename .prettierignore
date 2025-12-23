@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+dist/
+
+# Cache
+.cache/
+*.tsbuildinfo
+
+# Generated
+*.min.js
+*.min.css
+
+# Config
+package-lock.json
+pnpm-lock.yaml
+
+# Documentation
+*.md
