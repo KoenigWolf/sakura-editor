@@ -1,0 +1,88 @@
+import { describe, it, expect } from 'vitest';
+import { FILE_SECURITY, SEARCH_SECURITY, validateSearchQuery, escapeRegExp } from '@/lib/security';
+
+describe('FILE_SECURITY', () => {
+  it('should have correct max file size (10MB)', () => {
+    expect(FILE_SECURITY.MAX_FILE_SIZE).toBe(10 * 1024 * 1024);
+  });
+
+  it('should include common text file extensions', () => {
+    const extensions = FILE_SECURITY.ALLOWED_EXTENSIONS;
+    expect(extensions).toContain('.txt');
+    expect(extensions).toContain('.md');
+    expect(extensions).toContain('.ts');
+    expect(extensions).toContain('.tsx');
+    expect(extensions).toContain('.json');
+  });
+});
+
+describe('validateSearchQuery', () => {
+  describe('plain text search', () => {
+    it('should accept valid short queries', () => {
+      const result = validateSearchQuery('hello', false);
+      expect(result.valid).toBe(true);
+    });
+
+    it('should reject queries exceeding max length', () => {
+      const longQuery = 'a'.repeat(SEARCH_SECURITY.MAX_QUERY_LENGTH + 1);
+      const result = validateSearchQuery(longQuery, false);
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('長すぎます');
+    });
+
+    it('should accept empty query', () => {
+      const result = validateSearchQuery('', false);
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  describe('regex search', () => {
+    it('should accept valid regex patterns', () => {
+      const result = validateSearchQuery('[a-z]+', true);
+      expect(result.valid).toBe(true);
+    });
+
+    it('should reject invalid regex syntax', () => {
+      const result = validateSearchQuery('[invalid(', true);
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('無効な正規表現');
+    });
+
+    it('should reject patterns with consecutive quantifiers in string', () => {
+      // Patterns like a** are caught as invalid regex first
+      const result = validateSearchQuery('a**', true);
+      expect(result.valid).toBe(false);
+      expect(result.error).toBeDefined();
+    });
+
+    it('should reject large repetition counts', () => {
+      const result = validateSearchQuery('a{101}', true);
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('繰り返し回数');
+    });
+
+    it('should accept reasonable repetition counts', () => {
+      const result = validateSearchQuery('a{1,50}', true);
+      expect(result.valid).toBe(true);
+    });
+  });
+});
+
+describe('escapeRegExp', () => {
+  it('should escape special regex characters', () => {
+    expect(escapeRegExp('.*+?^${}()|[]\\')).toBe('\\.\\*\\+\\?\\^\\$\\{\\}\\(\\)\\|\\[\\]\\\\');
+  });
+
+  it('should not modify regular strings', () => {
+    expect(escapeRegExp('hello world')).toBe('hello world');
+  });
+
+  it('should handle empty strings', () => {
+    expect(escapeRegExp('')).toBe('');
+  });
+
+  it('should escape mixed content', () => {
+    expect(escapeRegExp('file.txt')).toBe('file\\.txt');
+    expect(escapeRegExp('(test)')).toBe('\\(test\\)');
+  });
+});
