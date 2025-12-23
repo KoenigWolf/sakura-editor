@@ -1,0 +1,997 @@
+/* ============================================
+   UI コンポーネントスタイル
+   ============================================ */
+
+/* モダンツールバー */
+.mochi-toolbar-modern {
+  @apply relative;
+  background: hsl(var(--background) / 0.8);
+  border-bottom: 1px solid hsl(var(--border) / 0.3);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  z-index: 60;
+}
+
+.dark .mochi-toolbar-modern {
+  background: hsl(var(--background) / 0.6);
+  border-bottom-color: hsl(var(--border) / 0.2);
+}
+
+/* ツールバーボタングループ */
+.mochi-toolbar-group {
+  @apply flex items-center gap-0.5 px-1 py-0.5 rounded-lg;
+  background: hsl(var(--muted) / 0.4);
+  border: 1px solid hsl(var(--border) / 0.15);
+  box-shadow: 0 1px 2px hsl(var(--foreground) / 0.03);
+}
+
+.dark .mochi-toolbar-group {
+  background: hsl(var(--muted) / 0.3);
+}
+
+/* モダンツールバーボタン */
+.mochi-toolbar-btn {
+  @apply relative flex items-center justify-center rounded-md transition-all duration-200 ease-out;
+  @apply h-6 w-6 text-muted-foreground;
+}
+
+.mochi-toolbar-btn:hover {
+  @apply text-foreground;
+  background: hsl(var(--foreground) / 0.08);
+}
+
+.mochi-toolbar-btn:active {
+  transform: scale(0.92);
+}
+
+.mochi-toolbar-btn-active {
+  @apply text-primary;
+  background: hsl(var(--primary) / 0.12);
+}
+
+.mochi-toolbar-btn-active:hover {
+  background: hsl(var(--primary) / 0.18);
+}
+
+/* ツールバーセパレーター */
+.mochi-toolbar-separator {
+  @apply w-px h-4 mx-1;
+  background: hsl(var(--border) / 0.5);
+}
+
+/* モダンツールチップ */
+.mochi-tooltip {
+  @apply flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium;
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border) / 0.5);
+  border-radius: 8px;
+  box-shadow:
+    0 4px 12px hsl(var(--foreground) / 0.08),
+    0 0 0 1px hsl(var(--border) / 0.05);
+}
+
+.mochi-kbd {
+  @apply px-1.5 py-0.5 text-[10px] font-mono rounded;
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border) / 0.5);
+}
+
+/* モダンドロップダウン */
+.mochi-dropdown {
+  @apply min-w-[200px] p-1.5;
+  background: hsl(var(--popover) / 0.95);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid hsl(var(--border) / 0.3);
+  border-radius: 12px;
+  box-shadow:
+    0 8px 32px hsl(var(--foreground) / 0.12),
+    0 0 0 1px hsl(var(--border) / 0.05);
+}
+
+.mochi-dropdown-item {
+  @apply flex items-center gap-3 px-2 py-2 rounded-lg cursor-pointer transition-colors duration-150;
+}
+
+.mochi-dropdown-item:hover {
+  background: hsl(var(--muted) / 0.5);
+}
+
+.mochi-dropdown-icon {
+  @apply flex items-center justify-center w-7 h-7 rounded-md;
+  background: hsl(var(--muted) / 0.8);
+}
+
+/* モダンファイルタブ */
+.mochi-tabs-container {
+  @apply relative;
+  background: hsl(var(--muted) / 0.2);
+  border-bottom: 1px solid hsl(var(--border) / 0.3);
+}
+
+.mochi-tab {
+  @apply relative flex items-center gap-1.5 px-2.5 py-1 text-[11px] rounded-md transition-all duration-200 ease-out;
+  @apply text-muted-foreground;
+  margin: 2px;
+}
+
+.mochi-tab:hover {
+  @apply text-foreground;
+  background: hsl(var(--muted) / 0.5);
+}
+
+.mochi-tab-active {
+  @apply bg-background text-foreground;
+  box-shadow: 0 1px 3px hsl(var(--foreground) / 0.06);
+}
+
+.mochi-tab-active::after {
+  content: '';
+  @apply absolute bottom-0 left-2 right-2 h-0.5 rounded-full;
+  background: hsl(var(--primary));
+}
+
+.mochi-tab-dirty::before {
+  content: '';
+  @apply absolute top-1 right-1 w-1.5 h-1.5 rounded-full;
+  background: hsl(var(--primary));
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* タブクローズボタン */
+.mochi-tab-close {
+  @apply flex items-center justify-center w-4 h-4 rounded-full;
+  @apply opacity-0 hover:opacity-100 hover:bg-destructive/20 hover:text-destructive;
+  @apply transition-all duration-150;
+}
+
+.mochi-tab:hover .mochi-tab-close {
+  @apply opacity-70;
+}
+
+/* ファイルタブ: ファイル種類バッジ */
+.mochi-tab-badge {
+  @apply px-1 py-0.5 rounded text-[9px] font-medium uppercase tracking-wide;
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+}
+
+/* モダンステータスバー */
+.mochi-statusbar-modern {
+  @apply relative flex items-center justify-between px-2 py-1;
+  background: hsl(var(--muted) / 0.2);
+  border-top: 1px solid hsl(var(--border) / 0.2);
+}
+
+.dark .mochi-statusbar-modern {
+  background: hsl(var(--muted) / 0.15);
+}
+
+.mochi-statusbar-item {
+  @apply flex items-center px-1.5 py-0.5 rounded-md;
+  @apply text-muted-foreground transition-all duration-150 cursor-default;
+  font-size: 10px;
+}
+
+.mochi-statusbar-item-clickable {
+  @apply cursor-pointer;
+}
+
+.mochi-statusbar-item-clickable:hover {
+  @apply text-foreground;
+  background: hsl(var(--muted) / 0.5);
+}
+
+.mochi-statusbar-item-clickable:active {
+  background-color: hsl(var(--primary) / 0.1);
+  @apply text-primary;
+}
+
+.mochi-statusbar-badge {
+  @apply inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[9px] font-medium;
+  @apply text-foreground;
+  background: hsl(var(--muted) / 0.6);
+}
+
+/* ステータスバープログレス */
+.mochi-statusbar-progress {
+  @apply h-1 rounded-full overflow-hidden;
+  background: hsl(var(--muted));
+}
+
+.mochi-statusbar-progress-bar {
+  @apply h-full rounded-full transition-all duration-300;
+  background: linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--chart-2)) 100%);
+}
+
+/* 検索ダイアログモダン */
+.mochi-search-modern {
+  @apply fixed z-50 bg-background border rounded-xl shadow-2xl overflow-hidden;
+  min-width: 380px;
+  max-width: 90vw;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px hsl(var(--border) / 0.5);
+}
+
+.mochi-search-header {
+  @apply flex items-center justify-between px-4 py-3 border-b;
+  background: hsl(var(--muted) / 0.3);
+}
+
+.mochi-search-input-group {
+  @apply flex items-center gap-2 px-3 py-2 rounded-lg border;
+  @apply bg-background focus-within:border-primary;
+  transition: all 0.2s ease;
+}
+
+.mochi-search-input-group:focus-within {
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+}
+
+.mochi-search-input {
+  @apply flex-1 bg-transparent outline-none text-sm;
+  @apply placeholder:text-muted-foreground;
+}
+
+.mochi-search-results {
+  @apply px-4 py-2 text-xs font-medium;
+  background: hsl(var(--muted) / 0.2);
+}
+
+.mochi-search-results-count {
+  @apply inline-flex items-center gap-1.5 px-2 py-1 rounded-full;
+  @apply text-primary;
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+.mochi-search-results-empty {
+  @apply text-muted-foreground;
+}
+
+/* 検索オプションボタン */
+.mochi-search-option {
+  @apply flex items-center justify-center w-7 h-7 rounded;
+  @apply text-muted-foreground hover:text-foreground hover:bg-muted;
+  @apply transition-all duration-150;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.mochi-search-option-active {
+  @apply text-primary;
+  background-color: hsl(var(--primary) / 0.15);
+}
+
+/* アクションボタン */
+.mochi-action-btn {
+  @apply flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium;
+  @apply transition-all duration-200;
+}
+
+.mochi-action-btn-primary {
+  @apply bg-primary text-primary-foreground shadow-sm hover:shadow;
+}
+
+.mochi-action-btn-primary:hover {
+  background-color: hsl(var(--primary) / 0.9);
+}
+
+.mochi-action-btn-secondary {
+  @apply bg-muted text-muted-foreground hover:text-foreground;
+}
+.mochi-action-btn-secondary:hover {
+  background-color: hsl(var(--muted) / 0.8);
+}
+.mochi-action-btn-ghost {
+  @apply text-muted-foreground hover:text-foreground hover:bg-muted;
+}
+
+/* グラスモーフィズム効果 */
+.glass {
+  background: hsl(var(--background) / 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-subtle {
+  background: hsl(var(--background) / 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* シャドウユーティリティ */
+.shadow-glow {
+  box-shadow:
+    0 0 20px hsl(var(--primary) / 0.1),
+    0 0 40px hsl(var(--primary) / 0.05);
+}
+
+.shadow-soft {
+  box-shadow:
+    0 2px 8px -2px hsl(var(--foreground) / 0.1),
+    0 4px 16px -4px hsl(var(--foreground) / 0.1);
+}
+
+/* ホバーカードエフェクト */
+.hover-lift {
+  @apply transition-all duration-200;
+}
+
+.hover-lift:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 12px -2px hsl(var(--foreground) / 0.1),
+    0 8px 24px -4px hsl(var(--foreground) / 0.1);
+}
+
+/* スケルトンローディング */
+.skeleton {
+  @apply rounded;
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--muted) / 0.5) 50%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* スピナー */
+.spinner {
+  @apply w-4 h-4 border-2 rounded-full;
+  border-color: hsl(var(--muted));
+  border-top-color: hsl(var(--primary));
+  animation: spin 0.6s linear infinite;
+}
+
+/* リップルエフェクト */
+.ripple {
+  @apply relative overflow-hidden;
+}
+
+.ripple::after {
+  content: '';
+  @apply absolute inset-0 pointer-events-none;
+  background: radial-gradient(circle, hsl(var(--foreground) / 0.1) 0%, transparent 70%);
+  transform: scale(0);
+  opacity: 0;
+  transition:
+    transform 0.5s,
+    opacity 0.3s;
+}
+
+.ripple:active::after {
+  transform: scale(2);
+  opacity: 1;
+  transition:
+    transform 0s,
+    opacity 0s;
+}
+
+/* フォーカスリング改善 */
+.focus-ring {
+  @apply outline-none;
+}
+
+.focus-ring:focus-visible {
+  @apply ring-offset-2 ring-offset-background;
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.5);
+}
+
+/* コマンドパレット */
+.mochi-command-item {
+  @apply flex items-center gap-3 px-3 py-2.5 rounded-lg;
+  @apply text-left transition-all duration-150;
+  @apply hover:bg-accent focus:bg-accent focus:outline-none;
+}
+
+.mochi-command-item-selected {
+  @apply bg-accent;
+}
+.mochi-command-item-selected .mochi-command-icon {
+  @apply bg-primary text-primary-foreground;
+}
+
+.mochi-command-icon {
+  @apply flex items-center justify-center w-9 h-9 rounded-lg shrink-0;
+  @apply bg-muted text-muted-foreground transition-all duration-150;
+}
+
+.mochi-command-kbd {
+  @apply h-5 min-w-[22px] inline-flex items-center justify-center;
+  @apply rounded border bg-muted px-1.5 font-mono text-[10px] text-muted-foreground;
+}
+
+/* スクロールバー改善 */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  @apply rounded-full;
+  background: hsl(var(--muted-foreground) / 0.2);
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.4);
+}
+
+/* スプリッター */
+.mochi-splitter {
+  @apply relative flex-shrink-0;
+  background: hsl(var(--border) / 0.5);
+}
+
+.mochi-splitter-vertical {
+  @apply w-[2px] cursor-col-resize;
+}
+.mochi-splitter-horizontal {
+  @apply h-[2px] cursor-row-resize;
+}
+
+.mochi-splitter::before {
+  content: '';
+  @apply absolute z-10;
+}
+
+.mochi-splitter-vertical::before {
+  @apply top-0 bottom-0 -left-[7px] -right-[7px];
+}
+.mochi-splitter-horizontal::before {
+  @apply left-0 right-0 -top-[7px] -bottom-[7px];
+}
+
+.mochi-splitter:hover,
+.mochi-splitter-active {
+  background: hsl(var(--primary) / 0.6);
+}
+.mochi-splitter-active {
+  background: hsl(var(--primary) / 0.8);
+}
+
+/* テキストグラデーション */
+.text-gradient {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--chart-2)) 100%);
+}
+
+/* ボーダーグラデーション */
+.border-gradient {
+  @apply relative;
+}
+
+.border-gradient::before {
+  content: '';
+  @apply absolute inset-0 rounded-[inherit] p-[1px];
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.5) 0%, hsl(var(--chart-2) / 0.5) 100%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* フローティングアクションピル */
+.mochi-floating-pill {
+  @apply fixed left-1/2 -translate-x-1/2;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  z-index: 50;
+  pointer-events: none;
+  animation: pill-appear 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+.mochi-pill-inner {
+  @apply flex items-center gap-1 px-2 py-1.5 rounded-full;
+  background: hsl(var(--background) / 0.95);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  box-shadow:
+    0 4px 24px -4px hsl(var(--foreground) / 0.15),
+    0 0 0 1px hsl(var(--border) / 0.5),
+    inset 0 1px 0 hsl(var(--background) / 0.5);
+  pointer-events: auto;
+}
+
+.dark .mochi-pill-inner {
+  box-shadow:
+    0 4px 24px -4px hsl(0 0% 0% / 0.4),
+    0 0 0 1px hsl(var(--border) / 0.3),
+    inset 0 1px 0 hsl(var(--foreground) / 0.05);
+  background: hsl(var(--background) / 0.95);
+  border: 1px solid hsl(var(--border) / 0.4);
+}
+
+.mochi-pill-btn {
+  @apply flex items-center justify-center rounded-full;
+  width: 44px;
+  height: 44px;
+  color: hsl(var(--muted-foreground));
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mochi-pill-btn:hover {
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted) / 0.5);
+}
+
+.mochi-pill-btn:active {
+  transform: scale(0.88);
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+
+.mochi-pill-btn-primary {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.mochi-pill-btn-primary:hover {
+  background: hsl(var(--primary) / 0.9);
+  color: hsl(var(--primary-foreground));
+}
+
+.mochi-pill-btn-primary:active {
+  background: hsl(var(--primary) / 0.8);
+  color: hsl(var(--primary-foreground));
+}
+
+.mochi-pill-btn-active {
+  background: hsl(var(--primary) / 0.15);
+  color: hsl(var(--primary));
+}
+
+.mochi-pill-divider {
+  width: 1px;
+  height: 24px;
+  background: hsl(var(--border) / 0.5);
+  margin: 0 2px;
+}
+
+/* モバイルタッチボタン */
+.mochi-touch-btn {
+  @apply flex items-center justify-center rounded-xl;
+  min-width: 44px;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mochi-touch-btn:active {
+  transform: scale(0.9);
+  background-color: hsl(var(--primary) / 0.15);
+}
+
+/* モバイルメニュー */
+.mochi-mobile-menu {
+  @apply rounded-2xl border-0 shadow-2xl p-2;
+  min-width: 200px;
+}
+
+/* タッチターゲット最小サイズ保証 */
+.mochi-touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  @apply flex items-center justify-center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (min-width: 640px) {
+  .mochi-touch-target {
+    min-width: auto;
+    min-height: auto;
+  }
+}
+
+/* スワイプインジケーター */
+.mochi-swipe-indicator {
+  @apply absolute bottom-1 left-1/2 -translate-x-1/2;
+  width: 36px;
+  height: 4px;
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 2px;
+}
+
+/* スケルトンローディング (mochi) */
+.mochi-skeleton {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted) / 0.3) 0%,
+    hsl(var(--muted) / 0.5) 50%,
+    hsl(var(--muted) / 0.3) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+/* スプラッシュ効果（タップ時） */
+.mochi-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.mochi-ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--ripple-x, 50%) var(--ripple-y, 50%),
+    hsl(var(--primary) / 0.3) 0%,
+    transparent 60%
+  );
+  opacity: 0;
+  transform: scale(0);
+  transition:
+    transform 0.4s ease,
+    opacity 0.3s ease;
+}
+
+.mochi-ripple:active::after {
+  opacity: 1;
+  transform: scale(2);
+}
+
+/* スワイプアップヒント */
+.mochi-swipe-hint {
+  @apply fixed bottom-0 left-0 right-0;
+  @apply flex flex-col items-center justify-center py-3;
+  background: linear-gradient(0deg, hsl(var(--background) / 0.9) 0%, transparent 100%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 30;
+}
+
+.mochi-swipe-hint.visible {
+  opacity: 1;
+}
+
+.mochi-swipe-hint-bar {
+  @apply w-10 h-1 rounded-full mb-1;
+  background: hsl(var(--muted-foreground) / 0.3);
+}
+
+.mochi-swipe-hint-text {
+  @apply text-[10px];
+  color: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* パフォーマンス最適化 */
+.mochi-toolbar-btn,
+.mochi-tab,
+.mochi-pill-btn,
+.mochi-mobile-icon-btn,
+.mochi-statusbar-item {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+.mochi-transition-fast {
+  transition:
+    transform 0.1s ease-out,
+    opacity 0.1s ease-out;
+}
+
+.mochi-transition-normal {
+  transition:
+    transform 0.15s ease-out,
+    opacity 0.15s ease-out;
+}
+
+.mochi-virtual-scroll-item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 40px;
+}
+
+.mochi-stable-layout {
+  contain: layout style;
+}
+.mochi-paint-optimized {
+  contain: paint;
+}
+.mochi-isolated {
+  contain: strict;
+}
+.mochi-fast-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto;
+  overscroll-behavior: contain;
+}
+
+/* フローティングピルをデスクトップで非表示 */
+@media (min-width: 640px) {
+  .mochi-floating-pill {
+    display: none;
+  }
+}
+
+/* キーボード表示時のピル位置調整 */
+@supports (padding-bottom: env(keyboard-inset-height)) {
+  .mochi-floating-pill {
+    bottom: calc(env(keyboard-inset-height, 0px) + env(safe-area-inset-bottom, 0px) + 16px);
+  }
+}
+
+/* iPhone モバイル最適化 */
+@media (max-width: 480px) {
+  .mochi-toolbar-modern {
+    @apply px-2 py-1.5 gap-0.5;
+    padding-top: max(0.375rem, env(safe-area-inset-top, 0.375rem));
+  }
+
+  .mochi-toolbar-group {
+    @apply gap-0 px-0.5 py-0.5;
+  }
+
+  .mochi-toolbar-btn {
+    @apply h-10 w-10;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .mochi-toolbar-btn svg {
+    @apply h-5 w-5;
+  }
+  .mochi-toolbar-separator {
+    @apply mx-1 h-5;
+  }
+
+  .mochi-tabs-container {
+    @apply px-1 pt-0.5;
+  }
+
+  .mochi-tab {
+    @apply px-3 py-2 gap-1.5;
+    min-height: 44px;
+    flex-shrink: 0;
+  }
+
+  .mochi-tab span.truncate {
+    max-width: 80px;
+    font-size: 12px;
+  }
+
+  .mochi-tab-close {
+    @apply opacity-100 flex items-center justify-center;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .mochi-tab-close svg {
+    @apply h-4 w-4;
+  }
+
+  .mochi-statusbar-modern {
+    @apply px-2 py-2;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0.5rem));
+    min-height: 48px;
+  }
+
+  .mochi-statusbar-item {
+    @apply px-2 py-2 text-xs;
+    min-height: 44px;
+  }
+
+  .mochi-statusbar-badge {
+    @apply px-2 py-1.5 text-xs;
+  }
+
+  .mochi-toolbar-btn:active,
+  .mochi-tab:active,
+  .mochi-action-btn:active {
+    transform: scale(0.88);
+    transition: transform 0.06s cubic-bezier(0.2, 0, 0.2, 1);
+  }
+
+  .mochi-tabs-container {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  .mochi-tab {
+    scroll-snap-align: start;
+  }
+
+  .mochi-search-modern {
+    @apply fixed inset-0 rounded-none;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    height: 100%;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .mochi-search-header {
+    @apply px-4 py-4;
+    min-height: 60px;
+  }
+  .mochi-search-input-group {
+    @apply py-3 px-4;
+    min-height: 48px;
+  }
+  .mochi-search-input {
+    @apply text-base;
+    font-size: 16px !important;
+  }
+  .mochi-search-option {
+    @apply w-10 h-10;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .mochi-command-item {
+    @apply py-3.5 px-4;
+    min-height: 56px;
+  }
+  .mochi-command-icon {
+    @apply w-11 h-11;
+  }
+  .mochi-command-icon svg {
+    @apply h-5 w-5;
+  }
+
+  [role='dialog'] {
+    @apply fixed inset-0 rounded-none m-0;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+  }
+
+  .bottom-sheet {
+    @apply fixed bottom-0 left-0 right-0 rounded-t-3xl;
+    max-height: 90vh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .bottom-sheet-handle {
+    @apply w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mt-3 mb-2;
+  }
+
+  .mochi-statusbar-modern {
+    @apply flex-wrap gap-y-1;
+  }
+  .mochi-statusbar-modern > div:first-child {
+    @apply flex-1;
+  }
+  .mochi-statusbar-modern > div:last-child {
+    @apply flex-none;
+  }
+
+  .mochi-tabs-container > div {
+    @apply flex-nowrap pb-1;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mochi-statusbar-modern {
+    @apply px-3 py-1.5;
+    padding-bottom: max(0.375rem, calc(env(safe-area-inset-bottom, 0px) + 70px));
+    font-size: 11px;
+  }
+
+  .mochi-statusbar-item {
+    @apply px-1.5 py-0.5 text-[10px];
+    min-height: 24px;
+  }
+
+  .mochi-tabs-container {
+    @apply px-0;
+    background: hsl(var(--background));
+  }
+
+  .mochi-tabs-container > div {
+    @apply flex-nowrap gap-0 px-2 py-1;
+    scroll-padding: 8px;
+  }
+
+  .mochi-tab {
+    @apply px-3 py-2 rounded-lg;
+    min-height: 44px;
+    background: transparent;
+    border: none;
+    margin: 0;
+  }
+
+  .mochi-tab-active {
+    background: hsl(var(--muted) / 0.6);
+    box-shadow: none;
+  }
+
+  .mochi-tab-active::after {
+    display: none;
+  }
+  .mochi-tab span.truncate {
+    max-width: 100px;
+    font-size: 13px;
+  }
+
+  .mochi-search-modern {
+    @apply rounded-t-3xl rounded-b-none;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    max-height: 85vh;
+    animation: slide-up 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .mochi-search-modern::before {
+    content: '';
+    @apply absolute top-3 left-1/2 -translate-x-1/2;
+    width: 36px;
+    height: 4px;
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 2px;
+  }
+
+  .mochi-mobile-menu {
+    @apply rounded-2xl p-1.5;
+    min-width: 180px;
+    background: hsl(var(--background) / 0.98);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    box-shadow:
+      0 8px 32px -8px hsl(var(--foreground) / 0.2),
+      0 0 0 1px hsl(var(--border) / 0.4);
+  }
+
+  .mochi-mobile-menu-item {
+    @apply flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm;
+    min-height: 44px;
+    transition: background 0.15s ease;
+  }
+
+  .mochi-mobile-menu-item:active {
+    background: hsl(var(--muted) / 0.6);
+  }
+
+  .mochi-pill-btn:active,
+  .mochi-mobile-icon-btn:active {
+    transition: transform 0.08s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  *:focus-visible {
+    outline: 3px solid hsl(var(--primary) / 0.6);
+    outline-offset: 2px;
+  }
+
+  [role='menu'] {
+    @apply fixed bottom-0 left-0 right-0 rounded-t-2xl;
+    max-height: 70vh;
+    padding-bottom: env(safe-area-inset-bottom);
+    animation: slide-in-from-bottom 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  [role='menuitem'] {
+    @apply py-4 px-5;
+    min-height: 52px;
+  }
+
+  .dark .mochi-toolbar-modern {
+    background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted) / 0.2) 100%);
+  }
+
+  .dark .mochi-statusbar-modern {
+    background: linear-gradient(0deg, hsl(var(--background)) 0%, hsl(var(--muted) / 0.2) 100%);
+  }
+}
+
+@media (max-width: 480px) and (prefers-reduced-motion: no-preference) {
+  .mochi-toolbar-btn,
+  .mochi-tab,
+  .mochi-action-btn {
+    transition-duration: 0.1s;
+  }
+}

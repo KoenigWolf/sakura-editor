@@ -1,0 +1,156 @@
+/* ============================================
+   アクセシビリティ
+   ============================================ */
+
+/* スクリーンリーダー専用コンテンツ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only-focusable:focus,
+.sr-only-focusable:focus-within {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* スキップリンク */
+.skip-link {
+  @apply fixed top-0 left-0 z-[200] px-4 py-2;
+  @apply bg-primary text-primary-foreground font-medium;
+  transform: translateY(-100%);
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* フォーカス可視性 */
+.mochi-focus-visible:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* 減少動作設定対応 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .mochi-floating-pill {
+    animation: none;
+  }
+  .mochi-skeleton {
+    animation: none;
+    background: hsl(var(--muted) / 0.5);
+  }
+  .mochi-dirty-indicator {
+    animation: none;
+  }
+  .pulse-glow {
+    animation: none;
+  }
+
+  .mochi-ultra-minimal-tab:active,
+  .mochi-mobile-icon-btn:active,
+  .mochi-ultra-status-btn:active,
+  .mochi-quick-action-btn:active {
+    transform: none !important;
+  }
+}
+
+/* 低電力モード対応 */
+@media (prefers-reduced-motion: reduce), (update: slow) {
+  .mochi-skeleton {
+    animation: none;
+    background: hsl(var(--muted) / 0.5);
+  }
+}
+
+/* 高コントラストモード対応 */
+@media (prefers-contrast: high) {
+  .mochi-pill-inner,
+  .mochi-mobile-top-bar {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: hsl(var(--background));
+    border: 2px solid hsl(var(--border));
+  }
+
+  button,
+  [role='button'] {
+    border: 2px solid currentColor !important;
+  }
+
+  *:focus-visible {
+    outline: 3px solid hsl(var(--foreground)) !important;
+    outline-offset: 2px;
+  }
+
+  .mochi-ultra-status-text,
+  .mochi-mini-indicator-item {
+    color: hsl(var(--foreground)) !important;
+  }
+
+  .mochi-ultra-minimal-tab {
+    color: hsl(var(--foreground) / 0.8) !important;
+    border: 1px solid hsl(var(--border));
+  }
+
+  .mochi-ultra-minimal-tab-active {
+    color: hsl(var(--foreground)) !important;
+    background: hsl(var(--muted)) !important;
+    border-color: hsl(var(--primary)) !important;
+  }
+
+  .indent-ruler {
+    background: hsl(var(--background));
+    border-bottom: 2px solid hsl(var(--border));
+  }
+
+  .indent-handle {
+    color: hsl(var(--foreground));
+  }
+  .indent-ruler-tick {
+    background: hsl(var(--foreground) / 0.6);
+  }
+  .indent-ruler-tick-major {
+    background: hsl(var(--foreground));
+  }
+}
+
+/* 印刷用スタイル */
+@media print {
+  .mochi-toolbar-modern,
+  .mochi-statusbar-modern,
+  .mochi-mobile-statusbar,
+  .mochi-floating-pill,
+  .mochi-mobile-top-bar,
+  .mochi-tabs-container {
+    display: none !important;
+  }
+
+  .monaco-editor {
+    height: auto !important;
+    overflow: visible !important;
+  }
+}

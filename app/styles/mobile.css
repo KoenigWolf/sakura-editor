@@ -1,0 +1,501 @@
+/* ============================================
+   モバイル専用スタイル
+   ============================================ */
+
+/* セーフエリア対応 */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-area-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  .safe-area-right {
+    padding-right: env(safe-area-inset-right);
+  }
+  .safe-area-inset {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+      env(safe-area-inset-left);
+  }
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.h-safe-area-inset-bottom {
+  height: env(safe-area-inset-bottom, 0px);
+}
+.safe-area-bottom {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0.5rem));
+}
+.safe-area-top {
+  padding-top: max(0.375rem, env(safe-area-inset-top, 0.375rem));
+}
+
+/* モバイルトップバー */
+.mochi-mobile-top-bar {
+  @apply flex items-center justify-between px-3 py-2;
+  padding-top: max(0.5rem, env(safe-area-inset-top, 0.5rem));
+  background: hsl(var(--background) / 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid hsl(var(--border) / 0.3);
+  position: relative;
+  z-index: 60;
+}
+
+.mochi-mobile-icon-btn {
+  @apply flex items-center justify-center rounded-full;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted) / 0.5);
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mochi-mobile-icon-btn:active {
+  transform: scale(0.92);
+  background: hsl(var(--muted));
+}
+
+.mochi-mobile-title {
+  @apply flex items-center gap-1.5 text-sm font-semibold;
+  color: hsl(var(--foreground));
+}
+
+/* モバイルツールバー */
+.mochi-mobile-toolbar {
+  background: hsl(var(--background) / 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ウルトラミニマルタブ */
+.mochi-ultra-minimal-tabs {
+  @apply flex items-center gap-1 px-2 py-1 overflow-x-auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  background: hsl(var(--background));
+}
+
+.mochi-ultra-minimal-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.mochi-ultra-minimal-tab {
+  @apply flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium whitespace-nowrap;
+  color: hsl(var(--muted-foreground));
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mochi-ultra-minimal-tab:active {
+  transform: scale(0.95);
+}
+.mochi-ultra-minimal-tab-active {
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted) / 0.5);
+}
+
+.mochi-ultra-minimal-tab-dirty {
+  position: relative;
+}
+.mochi-ultra-minimal-tab-dirty::after {
+  content: '';
+  @apply absolute top-1 right-0 w-1 h-1 rounded-full;
+  background: hsl(var(--primary));
+}
+
+/* ウルトラミニマルステータス */
+.mochi-ultra-minimal-status {
+  @apply fixed bottom-0 left-0 right-0 flex items-center justify-between px-3 py-2;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+  background: hsl(var(--background));
+  border-top: 1px solid hsl(var(--border) / 0.2);
+  z-index: 35;
+}
+
+.mochi-ultra-minimal-status-left,
+.mochi-ultra-minimal-status-right {
+  @apply flex items-center gap-2;
+}
+
+.mochi-ultra-status-text {
+  @apply text-[10px] font-mono;
+  color: hsl(var(--muted-foreground));
+}
+
+.mochi-ultra-status-btn {
+  @apply flex items-center justify-center rounded-full;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  color: hsl(var(--muted-foreground));
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+}
+
+.mochi-ultra-status-btn:active {
+  transform: scale(0.9);
+  background: hsl(var(--muted) / 0.5);
+}
+
+/* クイックアクションバー */
+.mochi-quick-actions {
+  @apply fixed bottom-0 left-0 right-0 flex items-center justify-center gap-2 px-4 py-3;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  background: hsl(var(--background) / 0.98);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  box-shadow: 0 -4px 24px hsl(var(--foreground) / 0.1);
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  z-index: 50;
+}
+
+.mochi-quick-actions.visible {
+  transform: translateY(0);
+}
+
+.mochi-quick-action-btn {
+  @apply flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-2xl;
+  color: hsl(var(--foreground));
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s ease;
+}
+
+.mochi-quick-action-btn:active {
+  transform: scale(0.9);
+  background: hsl(var(--muted) / 0.5);
+}
+
+.mochi-quick-action-btn svg {
+  @apply h-5 w-5;
+}
+.mochi-quick-action-btn span {
+  @apply text-[9px] font-medium;
+  color: hsl(var(--muted-foreground));
+}
+
+.mochi-quick-action-primary {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+.mochi-quick-action-primary span {
+  color: hsl(var(--primary-foreground) / 0.8);
+}
+
+/* フォーカスモード */
+.mochi-focus-mode .mochi-mobile-top-bar,
+.mochi-focus-mode .mochi-tabs-container,
+.mochi-focus-mode .mochi-floating-pill,
+.mochi-focus-mode .mochi-mobile-statusbar {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-out;
+}
+
+.mochi-focus-mode .mochi-mobile-top-bar {
+  transform: translateY(-100%);
+}
+.mochi-focus-mode .mochi-floating-pill {
+  transform: translateX(-50%) translateY(100%);
+}
+.mochi-focus-mode .mochi-mobile-statusbar {
+  transform: translateY(100%);
+}
+
+.mochi-focus-exit-hint {
+  @apply fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+  @apply flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium;
+  background: hsl(var(--background) / 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 24px hsl(var(--foreground) / 0.1);
+  color: hsl(var(--muted-foreground));
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.9);
+  transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  pointer-events: none;
+  z-index: 100;
+}
+
+.mochi-focus-exit-hint.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+/* ミニインジケーター */
+.mochi-mini-indicator {
+  @apply fixed bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3 px-3 py-1.5 rounded-full;
+  background: hsl(var(--background) / 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 2px 12px hsl(var(--foreground) / 0.08);
+  z-index: 40;
+  pointer-events: none;
+}
+
+.mochi-mini-indicator-item {
+  @apply flex items-center gap-1 text-[10px] font-medium;
+  color: hsl(var(--foreground) / 0.7);
+}
+
+.mochi-mini-indicator-dot {
+  @apply w-1.5 h-1.5 rounded-full;
+  background: hsl(var(--primary));
+}
+
+/* コンテキストメニュー */
+.mochi-context-menu {
+  @apply fixed rounded-2xl p-1.5;
+  background: hsl(var(--background) / 0.98);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  box-shadow:
+    0 12px 40px -12px hsl(var(--foreground) / 0.25),
+    0 0 0 1px hsl(var(--border) / 0.4);
+  z-index: 60;
+  animation: context-appear 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.mochi-mobile-menu-item {
+  @apply flex items-center gap-3 px-4 py-3.5 rounded-xl;
+  min-height: 52px;
+}
+
+.mochi-mobile-menu-item:active {
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+/* オフラインインジケーター */
+.mochi-offline-indicator {
+  @apply fixed top-0 left-0 right-0 flex items-center justify-center gap-2 py-2 text-xs font-medium;
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+  z-index: 100;
+  animation: slide-down 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.mochi-offline-indicator-online {
+  background: hsl(142 76% 36%);
+  color: white;
+}
+
+/* モバイルメディアクエリ */
+@media (max-width: 480px) {
+  .mochi-offline-indicator {
+    padding-top: max(0.5rem, env(safe-area-inset-top, 0.5rem));
+  }
+
+  button,
+  [role='button'],
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .mochi-action-btn {
+    @apply px-4 py-3 text-sm;
+    min-height: 48px;
+  }
+
+  .mochi-toolbar-btn:active,
+  .mochi-tab:active,
+  .mochi-action-btn:active,
+  .mochi-mobile-icon-btn:active,
+  .mochi-ultra-status-btn:active,
+  .mochi-pill-btn:active {
+    transform: scale(0.88);
+    transition: transform 0.06s cubic-bezier(0.2, 0, 0.2, 1);
+  }
+
+  .mochi-quick-action-btn:active {
+    transform: scale(0.9);
+    background: hsl(var(--muted) / 0.6);
+  }
+
+  .mochi-ultra-minimal-tab:active {
+    transform: scale(0.94);
+    background: hsl(var(--muted) / 0.4);
+  }
+
+  .mochi-editor-container {
+    height: 100%;
+    height: 100dvh;
+    overscroll-behavior: none;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+  * {
+    scrollbar-width: none;
+  }
+
+  .mochi-editor-fullscreen {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 20;
+  }
+}
+
+/* ランドスケープ対応 */
+@media (max-width: 896px) and (orientation: landscape) {
+  .mochi-mobile-top-bar {
+    @apply py-1;
+    padding-top: max(0.25rem, env(safe-area-inset-top, 0.25rem));
+  }
+
+  .mochi-mobile-icon-btn,
+  .mochi-ultra-status-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .mochi-mobile-title {
+    @apply text-xs;
+  }
+  .mochi-ultra-minimal-tabs {
+    @apply py-0.5;
+  }
+  .mochi-ultra-minimal-tab {
+    @apply py-0.5;
+    min-height: 32px;
+  }
+  .mochi-ultra-minimal-status {
+    @apply py-1;
+    padding-bottom: max(0.25rem, calc(env(safe-area-inset-bottom, 0px) + 4px));
+  }
+
+  .mochi-quick-actions {
+    @apply py-1.5;
+    padding-bottom: max(0.375rem, calc(env(safe-area-inset-bottom, 0px) + 6px));
+  }
+
+  .mochi-quick-action-btn {
+    @apply w-12 h-12;
+  }
+  .mochi-quick-action-btn svg {
+    @apply h-4 w-4;
+  }
+  .mochi-quick-action-btn span {
+    @apply text-[8px];
+  }
+  .mochi-focus-exit-hint {
+    @apply px-3 py-1.5 text-[10px];
+  }
+  .mochi-mini-indicator {
+    @apply py-1 px-2 gap-2;
+  }
+  .mochi-mini-indicator-item {
+    @apply text-[9px];
+  }
+  .mochi-context-menu {
+    @apply p-1;
+  }
+  .mochi-mobile-menu-item {
+    @apply py-2 px-2.5 text-xs;
+    min-height: 36px;
+  }
+}
+
+@media (orientation: landscape) {
+  .mochi-editor-container {
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+  }
+
+  .mochi-mobile-top-bar,
+  .mochi-ultra-minimal-status {
+    padding-left: max(0.75rem, env(safe-area-inset-left, 0.75rem));
+    padding-right: max(0.75rem, env(safe-area-inset-right, 0.75rem));
+  }
+
+  .mochi-quick-actions {
+    padding-left: max(1rem, env(safe-area-inset-left, 1rem));
+    padding-right: max(1rem, env(safe-area-inset-right, 1rem));
+  }
+}
+
+/* ダークモード最適化 */
+.dark .mochi-mobile-top-bar {
+  background: hsl(var(--background) / 0.95);
+  border-bottom-color: hsl(var(--border) / 0.4);
+}
+
+.dark .mochi-mobile-icon-btn {
+  background: hsl(var(--muted) / 0.5);
+  color: hsl(var(--foreground) / 0.95);
+}
+
+.dark .mochi-ultra-minimal-status {
+  background: hsl(var(--background));
+  border-top-color: hsl(var(--border) / 0.4);
+}
+
+.dark .mochi-ultra-status-text {
+  color: hsl(var(--foreground) / 0.8);
+}
+.dark .mochi-ultra-status-btn {
+  color: hsl(var(--foreground) / 0.85);
+}
+.dark .mochi-ultra-minimal-tab {
+  color: hsl(var(--foreground) / 0.65);
+}
+.dark .mochi-ultra-minimal-tab-active {
+  color: hsl(var(--foreground));
+  background: hsl(var(--muted) / 0.6);
+}
+
+.dark .mochi-quick-actions {
+  background: hsl(var(--background) / 0.98);
+  border-top: 1px solid hsl(var(--border) / 0.3);
+}
+
+.dark .mochi-quick-action-btn {
+  color: hsl(var(--foreground) / 0.95);
+}
+.dark .mochi-quick-action-btn span {
+  color: hsl(var(--foreground) / 0.7);
+}
+
+.dark .mochi-context-menu {
+  background: hsl(var(--background) / 0.98);
+  border: 1px solid hsl(var(--border) / 0.4);
+}
+
+.dark .mochi-mini-indicator {
+  background: hsl(var(--background) / 0.92);
+  border: 1px solid hsl(var(--border) / 0.3);
+}
+
+.dark .mochi-mini-indicator-item {
+  color: hsl(var(--foreground) / 0.8);
+}
+
+/* デスクトップでモバイルUI非表示 */
+@media (min-width: 640px) {
+  .mochi-floating-pill,
+  .mochi-mobile-top-bar {
+    display: none;
+  }
+}

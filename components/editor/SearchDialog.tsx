@@ -1,18 +1,14 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, useMemo, memo } from 'react';
+import { useCallback, useEffect, useRef, useState, memo } from 'react';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
-import type { editor } from 'monaco-editor';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
-import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useSearchStore, type SearchMatch } from '@/lib/store/search-store';
 import { cn } from '@/lib/utils';
-import { validateSearchQuery, escapeRegExp } from '@/lib/security';
-import { useAnnouncerStore } from '@/lib/store/announcer-store';
 import { useFocusTrap } from '@/hooks/use-focus-trap';
+import { useSearchLogic, type SearchOptions } from '@/hooks/use-search-logic';
 import {
   X,
   ChevronDown,
@@ -23,12 +19,6 @@ import {
   Search,
   ChevronRight,
 } from 'lucide-react';
-
-interface SearchOptions {
-  caseSensitive: boolean;
-  useRegex: boolean;
-  wholeWord: boolean;
-}
 
 interface SearchDialogProps {
   open: boolean;
@@ -98,29 +88,29 @@ OptionButton.displayName = 'OptionButton';
 export const SearchDialog = memo(
   ({ open, onOpenChange, onSearch, onReplace }: SearchDialogProps) => {
     const { t } = useTranslation();
-    const { toast } = useToast();
-    const { getEditorInstance } = useEditorInstanceStore();
+    const { searchTerm } = useSearchStore();
+
     const {
       matches,
       currentMatchIndex,
-      setMatches,
-      setCurrentMatchIndex,
-      searchTerm,
-      setSearchTerm,
       isRegex,
       isCaseSensitive,
       isWholeWord,
       setIsRegex,
       setIsCaseSensitive,
       setIsWholeWord,
-    } = useSearchStore();
-    const announce = useAnnouncerStore((state) => state.announce);
+      performSearch,
+      handleNextMatch,
+      handlePreviousMatch,
+      handleReplace,
+      handleReplaceAll,
+      goToMatch,
+      cleanup,
+      resetState,
+    } = useSearchLogic(onSearch, onReplace);
 
     const searchInputRef = useRef<HTMLInputElement>(null);
     const replaceInputRef = useRef<HTMLInputElement>(null);
-    const decorationsCollectionRef = useRef<editor.IEditorDecorationsCollection | null>(null);
-    const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
     const focusTrapRef = useFocusTrap<HTMLDivElement>({
       enabled: open,
       initialFocusRef: searchInputRef as React.RefObject<HTMLElement>,
@@ -136,15 +126,6 @@ export const SearchDialog = memo(
     const [isVisible, setIsVisible] = useState(false);
     const { isMobile } = useMobileDetection();
 
-    const options = useMemo(
-      () => ({
-        caseSensitive: isCaseSensitive,
-        useRegex: isRegex,
-        wholeWord: isWholeWord,
-      }),
-      [isCaseSensitive, isRegex, isWholeWord]
-    );
-
     useEffect(() => {
       if (open) {
         if (isMobile) {
@@ -153,9 +134,7 @@ export const SearchDialog = memo(
           const x = window.innerWidth - 420;
           setPosition({ x: Math.max(10, x), y: 60 });
         }
-
         requestAnimationFrame(() => setIsVisible(true));
-
         setTimeout(() => {
           searchInputRef.current?.focus();
           searchInputRef.current?.select();
@@ -169,171 +148,8 @@ export const SearchDialog = memo(
       if (open && searchTerm && searchTerm !== query) {
         setQuery(searchTerm);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps -- queryを依存配列に入れると無限ループになる
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, searchTerm]);
-
-    const applyHighlights = useCallback(
-      (matchList: SearchMatch[], activeIndex: number) => {
-        const editorInstance = getEditorInstance();
-        if (!editorInstance) return;
-
-        const decorations = matchList.map((match, index) => ({
-          range: {
-            startLineNumber: match.lineNumber,
-            startColumn: match.startIndex,
-            endLineNumber: match.lineNumber,
-            endColumn: match.endIndex,
-          },
-          options: {
-            inlineClassName:
-              index === activeIndex ? 'search-match-active' : 'search-match-highlight',
-          },
-        }));
-
-        if (!decorationsCollectionRef.current) {
-          decorationsCollectionRef.current =
-            editorInstance.createDecorationsCollection(decorations);
-        } else {
-          decorationsCollectionRef.current.set(decorations);
-        }
-      },
-      [getEditorInstance]
-    );
-
-    const clearHighlights = useCallback(() => {
-      if (decorationsCollectionRef.current) {
-        decorationsCollectionRef.current.clear();
-      }
-    }, []);
-
-    const goToMatch = useCallback(
-      (index: number, targetMatches?: SearchMatch[]) => {
-        const editor = getEditorInstance();
-        if (!editor) return;
-
-        const list = targetMatches || matches;
-        if (list.length === 0) return;
-
-        const safeIndex = ((index % list.length) + list.length) % list.length;
-        const match = list[safeIndex];
-
-        editor.setSelection({
-          startLineNumber: match.lineNumber,
-          startColumn: match.startIndex,
-          endLineNumber: match.lineNumber,
-          endColumn: match.endIndex,
-        });
-        editor.revealLineInCenter(match.lineNumber);
-        setCurrentMatchIndex(safeIndex);
-        applyHighlights(list, safeIndex);
-      },
-      [applyHighlights, getEditorInstance, matches, setCurrentMatchIndex]
-    );
-
-    const performSearch = useCallback(
-      (searchQuery: string, immediate = false) => {
-        if (searchTimeoutRef.current) {
-          clearTimeout(searchTimeoutRef.current);
-        }
-
-        const doSearch = () => {
-          if (!searchQuery) {
-            setMatches([]);
-            setCurrentMatchIndex(-1);
-            clearHighlights();
-            return;
-          }
-
-          // セキュリティバリデーション
-          const validation = validateSearchQuery(searchQuery, isRegex);
-          if (!validation.valid) {
-            toast({
-              title: t('error.fileError'),
-              description: validation.error,
-              variant: 'destructive',
-            });
-            setMatches([]);
-            setCurrentMatchIndex(-1);
-            clearHighlights();
-            return;
-          }
-
-          const editor = getEditorInstance();
-          if (!editor) return;
-
-          const model = editor.getModel();
-          if (!model) return;
-
-          try {
-            const isRegexMode = isRegex || isWholeWord;
-
-            let searchString: string;
-            if (isRegex) {
-              searchString = searchQuery;
-            } else if (isWholeWord) {
-              searchString = `\\b${escapeRegExp(searchQuery)}\\b`;
-            } else {
-              searchString = searchQuery;
-            }
-
-            const foundMatches = model.findMatches(
-              searchString,
-              false,
-              isRegexMode,
-              isCaseSensitive,
-              null,
-              false
-            );
-
-            const parsedMatches = foundMatches.map((match) => ({
-              lineNumber: match.range.startLineNumber,
-              startIndex: match.range.startColumn,
-              endIndex: match.range.endColumn,
-              text: match.matches?.[0] || model.getValueInRange(match.range),
-            }));
-
-            setMatches(parsedMatches);
-            setSearchTerm(searchQuery);
-
-            if (parsedMatches.length > 0) {
-              goToMatch(0, parsedMatches);
-              announce(t('search.found', { count: parsedMatches.length }));
-            } else {
-              setCurrentMatchIndex(-1);
-              applyHighlights([], -1);
-              announce(t('search.noResults'));
-            }
-
-            onSearch(searchQuery, options);
-          } catch {
-            // Invalid regex - ignore
-          }
-        };
-
-        if (immediate) {
-          doSearch();
-        } else {
-          searchTimeoutRef.current = setTimeout(doSearch, 100);
-        }
-      },
-      [
-        getEditorInstance,
-        isRegex,
-        isWholeWord,
-        isCaseSensitive,
-        setMatches,
-        setSearchTerm,
-        setCurrentMatchIndex,
-        goToMatch,
-        applyHighlights,
-        clearHighlights,
-        onSearch,
-        options,
-        toast,
-        t,
-        announce,
-      ]
-    );
 
     const handleQueryChange = useCallback(
       (value: string) => {
@@ -343,106 +159,19 @@ export const SearchDialog = memo(
       [performSearch]
     );
 
-    const handleNextMatch = useCallback(() => {
-      if (matches.length === 0) {
-        performSearch(query, true);
-        return;
-      }
-      goToMatch((currentMatchIndex + 1) % matches.length);
-    }, [currentMatchIndex, goToMatch, matches.length, performSearch, query]);
-
-    const handlePreviousMatch = useCallback(() => {
-      if (matches.length === 0) {
-        performSearch(query, true);
-        return;
-      }
-      goToMatch(currentMatchIndex <= 0 ? matches.length - 1 : currentMatchIndex - 1);
-    }, [currentMatchIndex, goToMatch, matches.length, performSearch, query]);
-
-    const handleReplace = useCallback(() => {
-      if (!query) return;
-
-      const editor = getEditorInstance();
-      if (!editor) return;
-
-      const model = editor.getModel();
-      if (!model) return;
-
-      const selection = editor.getSelection();
-      if (!selection || selection.isEmpty()) {
-        handleNextMatch();
-        return;
-      }
-
-      editor.executeEdits('replace', [{ range: selection, text: replacement }]);
-
-      if (onReplace) {
-        onReplace(query, replacement, options);
-      }
-
-      performSearch(query, true);
-    }, [query, replacement, getEditorInstance, onReplace, options, performSearch, handleNextMatch]);
-
-    const handleReplaceAll = useCallback(() => {
-      if (!query) return;
-
-      const editor = getEditorInstance();
-      if (!editor) return;
-
-      const model = editor.getModel();
-      if (!model) return;
-
-      let searchString: string;
-      if (isRegex) {
-        searchString = query;
-      } else if (isWholeWord) {
-        searchString = `\\b${escapeRegExp(query)}\\b`;
-      } else {
-        searchString = escapeRegExp(query);
-      }
-
-      const foundMatches = model.findMatches(
-        searchString,
-        false,
-        true,
-        isCaseSensitive,
-        null,
-        false
-      );
-
-      if (foundMatches.length === 0) return;
-
-      const count = foundMatches.length;
-      const edits = foundMatches.map((match) => ({
-        range: match.range,
-        text: replacement,
-      }));
-
-      editor.executeEdits('replaceAll', edits);
-
-      if (onReplace) {
-        onReplace(query, replacement, options);
-      }
-
-      toast({
-        title: t('search.replaced', { count }),
-        duration: 2000,
-      });
-
-      performSearch(query, true);
-    }, [
-      query,
-      replacement,
-      isRegex,
-      isWholeWord,
-      isCaseSensitive,
-      getEditorInstance,
-      onReplace,
-      options,
-      performSearch,
-      toast,
-      t,
-    ]);
+    const onNextMatch = useCallback(() => handleNextMatch(query), [handleNextMatch, query]);
+    const onPreviousMatch = useCallback(
+      () => handlePreviousMatch(query),
+      [handlePreviousMatch, query]
+    );
+    const onReplaceClick = useCallback(
+      () => handleReplace(query, replacement),
+      [handleReplace, query, replacement]
+    );
+    const onReplaceAllClick = useCallback(
+      () => handleReplaceAll(query, replacement),
+      [handleReplaceAll, query, replacement]
+    );
 
     useEffect(() => {
       if (!open) return;
@@ -456,11 +185,8 @@ export const SearchDialog = memo(
 
         if (e.key === 'Enter') {
           e.preventDefault();
-          if (e.shiftKey) {
-            handlePreviousMatch();
-          } else {
-            handleNextMatch();
-          }
+          if (e.shiftKey) onPreviousMatch();
+          else onNextMatch();
           return;
         }
 
@@ -472,11 +198,8 @@ export const SearchDialog = memo(
 
         if (e.key === 'F3') {
           e.preventDefault();
-          if (e.shiftKey) {
-            handlePreviousMatch();
-          } else {
-            handleNextMatch();
-          }
+          if (e.shiftKey) onPreviousMatch();
+          else onNextMatch();
           return;
         }
 
@@ -507,8 +230,8 @@ export const SearchDialog = memo(
     }, [
       open,
       onOpenChange,
-      handleNextMatch,
-      handlePreviousMatch,
+      onNextMatch,
+      onPreviousMatch,
       isCaseSensitive,
       isRegex,
       isWholeWord,
@@ -550,27 +273,18 @@ export const SearchDialog = memo(
     }, [isDragging, dragOffset]);
 
     useEffect(() => {
-      if (!open) {
-        clearHighlights();
-        setMatches([]);
-        setCurrentMatchIndex(-1);
-      }
-    }, [open, clearHighlights, setMatches, setCurrentMatchIndex]);
+      if (!open) resetState();
+    }, [open, resetState]);
 
     useEffect(() => {
-      return () => {
-        clearHighlights();
-        if (searchTimeoutRef.current) {
-          clearTimeout(searchTimeoutRef.current);
-        }
-      };
-    }, [clearHighlights]);
+      return () => cleanup();
+    }, [cleanup]);
 
     useEffect(() => {
       if (open && query) {
         performSearch(query, true);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps -- オプション変更時のみ発火させる
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isCaseSensitive, isRegex, isWholeWord]);
 
     if (!open) return null;
@@ -586,16 +300,10 @@ export const SearchDialog = memo(
           maxWidth: '100%',
           maxHeight: '85vh',
         }
-      : {
-          position: 'fixed' as const,
-          left: position.x,
-          top: position.y,
-          width: 420,
-        };
+      : { position: 'fixed' as const, left: position.x, top: position.y, width: 420 };
 
     return (
       <>
-        {/* Backdrop (mobile only) */}
         {isMobile && (
           <div className="fixed inset-0 z-40 bg-black/30" onClick={() => onOpenChange(false)} />
         )}
@@ -639,7 +347,7 @@ export const SearchDialog = memo(
             <div className="flex items-center gap-0.5">
               <button
                 type="button"
-                onClick={handlePreviousMatch}
+                onClick={onPreviousMatch}
                 disabled={matches.length === 0}
                 className="h-7 w-7 rounded hover:bg-muted disabled:opacity-40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                 aria-label={`${t('search.actions.previous')} (Shift+Enter)`}
@@ -648,7 +356,7 @@ export const SearchDialog = memo(
               </button>
               <button
                 type="button"
-                onClick={handleNextMatch}
+                onClick={onNextMatch}
                 disabled={matches.length === 0}
                 className="h-7 w-7 rounded hover:bg-muted disabled:opacity-40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                 aria-label={`${t('search.actions.next')} (Enter)`}
@@ -668,7 +376,6 @@ export const SearchDialog = memo(
 
           {/* Search Content */}
           <div className="p-3 space-y-2">
-            {/* Search Input */}
             <div className="relative">
               <Input
                 ref={searchInputRef}
@@ -726,7 +433,6 @@ export const SearchDialog = memo(
               </div>
             </div>
 
-            {/* Replace Toggle & Section */}
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -745,7 +451,6 @@ export const SearchDialog = memo(
               )}
             </div>
 
-            {/* Replace Section */}
             {showReplace && (
               <div className="space-y-2 pt-2 border-t">
                 <Input
@@ -767,12 +472,12 @@ export const SearchDialog = memo(
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={handleReplace}
+                    onClick={onReplaceClick}
                     className="h-8 flex-1 text-xs"
                   >
                     {t('search.actions.replace')}
                   </Button>
-                  <Button size="sm" onClick={handleReplaceAll} className="h-8 flex-1 text-xs">
+                  <Button size="sm" onClick={onReplaceAllClick} className="h-8 flex-1 text-xs">
                     {t('search.actions.replaceAll')}
                   </Button>
                 </div>
@@ -817,7 +522,6 @@ export const SearchDialog = memo(
             </div>
           )}
 
-          {/* Safe Area for Mobile */}
           {isMobile && <div className="h-safe-area-inset-bottom" />}
         </div>
       </>

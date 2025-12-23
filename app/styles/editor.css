@@ -1,0 +1,390 @@
+/* ============================================
+   Monaco Editor カスタマイズ
+   ============================================ */
+
+/* エディタコンテナ */
+.mochi-editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  background-color: hsl(var(--background));
+  overflow: hidden;
+}
+
+/* Monaco Editorのコンテナサイズを確実に制御 */
+.monaco-editor {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.monaco-editor .overflow-guard {
+  width: 100% !important;
+}
+
+/* エディタテーマ - テキスト色 */
+.dark-editor .monaco-editor .view-line span {
+  color: hsl(var(--editor-text-dark)) !important;
+}
+.light-editor .monaco-editor .view-line span {
+  color: hsl(var(--editor-text-light)) !important;
+}
+
+/* エディタテーマ - カーソル色 */
+.dark-editor .monaco-editor .cursors-layer .cursor {
+  background-color: hsl(var(--editor-cursor-dark)) !important;
+  border-color: hsl(var(--editor-cursor-dark)) !important;
+}
+
+.light-editor .monaco-editor .cursors-layer .cursor {
+  background-color: hsl(var(--editor-cursor-light)) !important;
+  border-color: hsl(var(--editor-cursor-light)) !important;
+}
+
+/* 検索ハイライト */
+.monaco-editor .search-match-highlight {
+  background-color: rgba(255, 182, 193, 0.35);
+  border-radius: 2px;
+}
+
+.monaco-editor .search-match-active {
+  background-color: rgba(255, 140, 0, 0.35);
+  outline: 1px solid hsla(var(--primary), 0.6);
+  border-radius: 2px;
+}
+
+/* 空白文字の色 */
+.dark-editor .monaco-editor .vs-whitespace,
+.light-editor .monaco-editor .vs-whitespace {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* mochi シンタックステーマ */
+.monaco-editor .mochi-bracket {
+  color: hsl(var(--mochi-blue)) !important;
+}
+
+.monaco-editor .mochi-keyword {
+  color: hsl(var(--mochi-blue)) !important;
+  font-weight: bold;
+}
+
+.monaco-editor .mochi-string {
+  color: hsl(var(--mochi-green)) !important;
+}
+
+.monaco-editor .mochi-comment {
+  color: hsl(var(--mochi-pink)) !important;
+  font-style: italic;
+}
+
+.monaco-editor .mochi-function {
+  color: hsl(var(--mochi-yellow)) !important;
+}
+
+/* 全角スペースのハイライト */
+.monaco-editor .full-width-space-highlight {
+  background-color: rgba(180, 180, 180, 0.15);
+  border-left: 1px solid rgba(150, 150, 150, 0.4);
+  border-right: 1px solid rgba(150, 150, 150, 0.4);
+  min-width: 1em;
+}
+
+.dark .monaco-editor .full-width-space-highlight,
+.dark-editor .full-width-space-highlight {
+  background-color: rgba(200, 200, 200, 0.12);
+  border-left-color: rgba(180, 180, 180, 0.3);
+  border-right-color: rgba(180, 180, 180, 0.3);
+}
+
+/* 行番号エリア */
+.monaco-editor .margin {
+  background: transparent !important;
+}
+
+.monaco-editor .line-numbers {
+  padding-right: 4px !important;
+  color: hsl(var(--muted-foreground) / 0.5) !important;
+  font-feature-settings: 'tnum' 1;
+}
+
+.monaco-editor .current-line ~ .line-numbers {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* 行番号とコンテンツの間のセパレーター */
+.monaco-editor .margin-view-overlays {
+  border-right: 1px solid hsl(var(--border) / 0.3);
+}
+
+/* エディタコンテンツエリア */
+.monaco-editor .view-lines {
+  padding-left: 2px;
+}
+
+/* カーソル行のハイライト */
+.monaco-editor .view-overlays .current-line {
+  background: hsl(var(--muted) / 0.15) !important;
+  border: none !important;
+}
+
+/* 選択範囲 */
+.monaco-editor .selected-text {
+  background: hsl(var(--primary) / 0.2) !important;
+}
+
+/* スクロールバー */
+.monaco-editor .scrollbar {
+  background: transparent !important;
+}
+
+.monaco-editor .scrollbar > .slider {
+  background: hsl(var(--muted-foreground) / 0.2) !important;
+  border-radius: 4px !important;
+}
+
+.monaco-editor .scrollbar > .slider:hover {
+  background: hsl(var(--muted-foreground) / 0.4) !important;
+}
+
+/* タッチデバイス対応 */
+.monaco-editor {
+  touch-action: pan-x pan-y !important;
+}
+.monaco-editor .overflow-guard {
+  touch-action: pan-x pan-y !important;
+}
+.monaco-editor .monaco-scrollable-element {
+  touch-action: pan-x pan-y !important;
+}
+.monaco-editor .lines-content {
+  touch-action: pan-x pan-y !important;
+}
+.monaco-editor .view-lines {
+  touch-action: pan-x pan-y !important;
+}
+
+/* モバイル行番号 */
+@media (max-width: 640px) {
+  .monaco-editor .margin {
+    min-width: 40px !important;
+  }
+  .monaco-editor .inputarea {
+    font-size: 16px !important;
+  }
+  .monaco-editor .lines-content {
+    min-width: 100% !important;
+  }
+  .monaco-editor .monaco-scrollable-element {
+    overflow-x: auto !important;
+  }
+
+  .monaco-editor {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  .monaco-editor .selected-text {
+    background-color: hsl(var(--primary) / 0.3) !important;
+  }
+}
+
+/* iOS/Android自動ズーム防止 */
+@supports (-webkit-touch-callout: none) {
+  .monaco-editor .inputarea {
+    font-size: 16px !important;
+  }
+}
+
+/* フルスクリーン時のエディタ拡張 */
+@media (max-width: 480px) {
+  .mochi-editor-fullscreen {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 20;
+  }
+
+  .mochi-editor-fullscreen .monaco-editor {
+    padding-top: env(safe-area-inset-top) !important;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 40px) !important;
+  }
+
+  .mochi-editor-container {
+    height: 100%;
+    height: 100dvh;
+    overscroll-behavior: none;
+  }
+}
+
+/* ============================================
+   インデントルーラー - Microsoft Word風
+   ============================================ */
+
+.indent-ruler {
+  @apply relative w-full select-none;
+  height: 18px;
+  background: linear-gradient(180deg, hsl(var(--muted) / 0.3) 0%, hsl(var(--muted) / 0.5) 100%);
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+  overflow: hidden;
+  cursor: default;
+}
+
+.dark .indent-ruler {
+  background: linear-gradient(180deg, hsl(var(--muted) / 0.2) 0%, hsl(var(--muted) / 0.3) 100%);
+}
+
+.indent-ruler-dragging {
+  cursor: ew-resize;
+}
+
+.indent-ruler-margin-area {
+  @apply absolute left-0 top-0 h-full;
+  background: hsl(var(--muted) / 0.5);
+  border-right: 1px solid hsl(var(--border) / 0.3);
+}
+
+.indent-ruler-content {
+  @apply relative h-full;
+}
+
+.indent-ruler-text-area {
+  @apply absolute top-0 h-full;
+  background: hsl(var(--background) / 0.3);
+  pointer-events: none;
+}
+
+/* ルーラー目盛り */
+.indent-ruler-tick {
+  @apply absolute bottom-0;
+  width: 1px;
+  background: hsl(var(--muted-foreground) / 0.4);
+}
+
+.indent-ruler-tick-major {
+  height: 8px;
+  background: hsl(var(--muted-foreground) / 0.6);
+}
+
+.indent-ruler-tick-half {
+  height: 5px;
+}
+.indent-ruler-tick-minor {
+  height: 3px;
+}
+
+.indent-ruler-tick-label {
+  @apply absolute text-[8px] font-medium;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+}
+
+/* インデントハンドル */
+.indent-handle {
+  @apply absolute cursor-pointer z-10;
+  color: hsl(var(--foreground) / 0.7);
+  transition:
+    color 0.15s ease,
+    transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.indent-handle:hover {
+  color: hsl(var(--primary));
+  transform: scale(1.1);
+}
+
+.indent-handle:active {
+  color: hsl(var(--primary));
+  transform: scale(0.95);
+}
+
+.indent-handle:focus-visible {
+  outline: 2px solid hsl(var(--primary) / 0.5);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
+.indent-handle-first-line {
+  top: 0;
+}
+.indent-handle-hanging {
+  bottom: 6px;
+}
+.indent-handle-left-margin {
+  bottom: 0;
+}
+.indent-handle-right-margin {
+  bottom: 6px;
+}
+
+.indent-handle-tab-stop {
+  bottom: 2px;
+  color: hsl(var(--muted-foreground) / 0.8);
+}
+
+.indent-handle-tab-stop:hover {
+  color: hsl(var(--destructive));
+}
+
+/* ドラッグガイドライン */
+.indent-ruler-drag-guide {
+  @apply absolute top-0 bottom-0 w-px pointer-events-none;
+  background: hsl(var(--primary) / 0.6);
+  box-shadow: 0 0 4px hsl(var(--primary) / 0.4);
+}
+
+/* モバイル対応 */
+@media (max-width: 480px) {
+  .indent-ruler {
+    height: 44px;
+  }
+
+  .indent-handle {
+    min-width: 44px;
+    min-height: 44px;
+    @apply flex items-center justify-center;
+  }
+
+  .indent-handle svg {
+    width: 16px;
+    height: 16px;
+  }
+  .indent-ruler-tick-label {
+    font-size: 9px;
+    bottom: 20px;
+  }
+}
+
+/* アクセシビリティ: 軽減動作 */
+@media (prefers-reduced-motion: reduce) {
+  .indent-handle {
+    transition: none;
+  }
+  .indent-handle:hover,
+  .indent-handle:active {
+    transform: none;
+  }
+}
+
+/* 高コントラストモード */
+@media (prefers-contrast: high) {
+  .indent-ruler {
+    background: hsl(var(--background));
+    border-bottom: 2px solid hsl(var(--border));
+  }
+
+  .indent-handle {
+    color: hsl(var(--foreground));
+  }
+  .indent-ruler-tick {
+    background: hsl(var(--foreground) / 0.6);
+  }
+  .indent-ruler-tick-major {
+    background: hsl(var(--foreground));
+  }
+}
