@@ -244,6 +244,13 @@ export const en = {
   fileTree: {
     title: 'Files',
   },
+  tabMenu: {
+    close: 'Close Tab',
+    closeOthers: 'Close Other Tabs',
+    closeAll: 'Close All',
+    duplicate: 'Duplicate',
+    rename: 'Rename',
+  },
   split: {
     vertical: 'Split side by side',
     horizontal: 'Split top and bottom',

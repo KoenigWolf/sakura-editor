@@ -241,6 +241,13 @@ export const ja = {
   fileTree: {
     title: 'ファイル',
   },
+  tabMenu: {
+    close: 'タブを閉じる',
+    closeOthers: '他のタブを閉じる',
+    closeAll: 'すべて閉じる',
+    duplicate: '複製',
+    rename: '名前を変更',
+  },
   split: {
     vertical: '横に並べて表示',
     horizontal: '縦に並べて表示',
