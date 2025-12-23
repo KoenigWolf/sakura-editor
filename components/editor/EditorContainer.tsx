@@ -21,6 +21,11 @@ import { useTranslation } from 'react-i18next';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import { useEditorActions } from '@/hooks/use-editor-actions';
+import { useLongPress } from '@/hooks/use-long-press';
+import { useSwipeGesture } from '@/hooks/use-swipe-gesture';
+import { useVirtualKeyboard } from '@/hooks/use-virtual-keyboard';
+import { TabContextMenu } from '@/components/editor/TabContextMenu';
+import { OfflineIndicator } from '@/components/editor/OfflineIndicator';
 import type { CommandItem } from '@/components/editor/CommandPalette';
 import {
   Plus,
@@ -83,6 +88,38 @@ const getDisplayFileName = (fileName: string | undefined, fallback: string): str
   if (fileName) return fileName;
   return fallback;
 };
+
+interface MobileTabButtonProps {
+  file: { id: string; name: string; isDirty?: boolean };
+  isActive: boolean;
+  onPress: () => void;
+  onLongPress: (event: React.TouchEvent | React.MouseEvent) => void;
+}
+
+const MobileTabButton = memo(function MobileTabButton({
+  file,
+  isActive,
+  onPress,
+  onLongPress,
+}: MobileTabButtonProps) {
+  const longPressHandlers = useLongPress({
+    threshold: 500,
+    onLongPress,
+    onPress,
+  });
+
+  return (
+    <button
+      type="button"
+      className={`mochi-ultra-minimal-tab ${
+        isActive ? 'mochi-ultra-minimal-tab-active' : ''
+      } ${file.isDirty ? 'mochi-ultra-minimal-tab-dirty' : ''}`}
+      {...longPressHandlers}
+    >
+      {file.name.length > 12 ? `${file.name.slice(0, 10)}...` : file.name}
+    </button>
+  );
+});
 
 interface SplitPaneProps {
   node: PaneNode;
@@ -257,8 +294,112 @@ export const EditorContainer = memo(function EditorContainer() {
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{
+    isOpen: boolean;
+    position: { x: number; y: number };
+    fileId: string;
+    fileName: string;
+  }>({ isOpen: false, position: { x: 0, y: 0 }, fileId: '', fileName: '' });
   const focusTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { isMobile, mounted } = useMobileDetection();
+  const { isKeyboardVisible } = useVirtualKeyboard();
+
+  // タブ長押しメニューハンドラー
+  const handleTabLongPress = useCallback(
+    (fileId: string, fileName: string, event: React.TouchEvent | React.MouseEvent) => {
+      let x: number;
+      let y: number;
+
+      if ('touches' in event) {
+        const touch = event.touches[0] || event.changedTouches[0];
+        x = touch.clientX;
+        y = touch.clientY;
+      } else {
+        x = event.clientX;
+        y = event.clientY;
+      }
+
+      setContextMenu({
+        isOpen: true,
+        position: { x, y },
+        fileId,
+        fileName,
+      });
+    },
+    []
+  );
+
+  const closeContextMenu = useCallback(() => {
+    setContextMenu((prev) => ({ ...prev, isOpen: false }));
+  }, []);
+
+  const handleCloseTab = useCallback(() => {
+    if (contextMenu.fileId) {
+      useFileStore.getState().removeFile(contextMenu.fileId);
+    }
+  }, [contextMenu.fileId]);
+
+  const handleCloseOtherTabs = useCallback(() => {
+    const allFiles = useFileStore.getState().files;
+    allFiles.forEach((file) => {
+      if (file.id !== contextMenu.fileId) {
+        useFileStore.getState().removeFile(file.id);
+      }
+    });
+  }, [contextMenu.fileId]);
+
+  const handleCloseAllTabs = useCallback(() => {
+    const allFiles = useFileStore.getState().files;
+    allFiles.forEach((file) => {
+      useFileStore.getState().removeFile(file.id);
+    });
+  }, []);
+
+  const handleDuplicateTab = useCallback(() => {
+    if (contextMenu.fileId) {
+      const file = useFileStore.getState().files.find((f) => f.id === contextMenu.fileId);
+      if (file) {
+        useFileStore.getState().addFile({
+          name: `${file.name} (copy)`,
+          content: file.content,
+          path: '',
+          lastModified: Date.now(),
+        });
+      }
+    }
+  }, [contextMenu.fileId]);
+
+  const handleRenameTab = useCallback(() => {
+    if (contextMenu.fileId) {
+      const newName = prompt(t('tabMenu.rename'), contextMenu.fileName);
+      if (newName && newName.trim()) {
+        useFileStore.getState().renameFile(contextMenu.fileId, newName.trim());
+      }
+    }
+  }, [contextMenu.fileId, contextMenu.fileName, t]);
+
+  // ファイル切り替えハンドラー
+  const switchToNextFile = useCallback(() => {
+    const currentIndex = files.findIndex((f) => f.id === activeFileId);
+    if (currentIndex < files.length - 1) {
+      useFileStore.getState().setActiveFileId(files[currentIndex + 1].id);
+    }
+  }, [files, activeFileId]);
+
+  const switchToPrevFile = useCallback(() => {
+    const currentIndex = files.findIndex((f) => f.id === activeFileId);
+    if (currentIndex > 0) {
+      useFileStore.getState().setActiveFileId(files[currentIndex - 1].id);
+    }
+  }, [files, activeFileId]);
+
+  // スワイプジェスチャー（モバイルのみ）
+  const swipeHandlers = useSwipeGesture({
+    threshold: 80,
+    preventVertical: true,
+    onSwipeLeft: switchToNextFile,
+    onSwipeRight: switchToPrevFile,
+  });
 
   useEffect(() => {
     if (root.type === 'leaf' && root.fileId === null && activeFileId) {
@@ -427,6 +568,10 @@ export const EditorContainer = memo(function EditorContainer() {
       role="application"
       aria-label={t('editor.title')}
     >
+      {/* スキップリンク（アクセシビリティ） */}
+      <a href="#main-editor" className="skip-link sr-only-focusable">
+        {t('accessibility.skipToContent')}
+      </a>
       {!showMobileUI && (
         <header role="banner">
           <EditorToolbar onOpenSettings={() => setShowSettings(true)} />
@@ -469,16 +614,13 @@ export const EditorContainer = memo(function EditorContainer() {
       {showMobileUI && !focusMode && files.length > 1 && (
         <div className="mochi-ultra-minimal-tabs">
           {files.map((file) => (
-            <button
+            <MobileTabButton
               key={file.id}
-              type="button"
-              onClick={() => useFileStore.getState().setActiveFileId(file.id)}
-              className={`mochi-ultra-minimal-tab ${
-                file.id === activeFile?.id ? 'mochi-ultra-minimal-tab-active' : ''
-              } ${file.isDirty ? 'mochi-ultra-minimal-tab-dirty' : ''}`}
-            >
-              {file.name.length > 12 ? `${file.name.slice(0, 10)}...` : file.name}
-            </button>
+              file={file}
+              isActive={file.id === activeFile?.id}
+              onPress={() => useFileStore.getState().setActiveFileId(file.id)}
+              onLongPress={(e) => handleTabLongPress(file.id, file.name, e)}
+            />
           ))}
         </div>
       )}
@@ -487,12 +629,16 @@ export const EditorContainer = memo(function EditorContainer() {
 
       {!showMobileUI && rulerVisible && <IndentRuler />}
 
-      <div
+      <main
+        id="main-editor"
         className={`flex-1 overflow-hidden relative min-h-0 min-w-0 ${showMobileUI && focusMode ? 'mochi-editor-fullscreen' : ''}`}
         onClick={handleEditorAreaClick}
+        role="region"
+        aria-label={t('accessibility.mainEditor')}
+        {...(showMobileUI && files.length > 1 ? swipeHandlers : {})}
       >
         <SplitPane node={root} onRatioChange={setRatio} />
-      </div>
+      </main>
 
       {showMobileUI && focusMode && (
         <div className="mochi-mini-indicator">
@@ -504,7 +650,7 @@ export const EditorContainer = memo(function EditorContainer() {
         </div>
       )}
 
-      {showMobileUI && (
+      {showMobileUI && !isKeyboardVisible && (
         <div className={`mochi-quick-actions ${showQuickActions ? 'visible' : ''}`}>
           <button type="button" onClick={handleNewFile} className="mochi-quick-action-btn">
             <Plus strokeWidth={1.5} />
@@ -537,7 +683,7 @@ export const EditorContainer = memo(function EditorContainer() {
         </div>
       )}
 
-      {showMobileUI && !focusMode && (
+      {showMobileUI && !focusMode && !isKeyboardVisible && (
         <div className="mochi-ultra-minimal-status">
           <div className="mochi-ultra-minimal-status-left">
             <span className="mochi-ultra-status-text">
@@ -575,7 +721,7 @@ export const EditorContainer = memo(function EditorContainer() {
         </div>
       )}
 
-      {showMobileUI && focusMode && (
+      {showMobileUI && focusMode && !isKeyboardVisible && (
         <button
           type="button"
           onClick={() => setFocusMode(false)}
@@ -663,6 +809,21 @@ export const EditorContainer = memo(function EditorContainer() {
       />
 
       <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
+
+      <TabContextMenu
+        isOpen={contextMenu.isOpen}
+        position={contextMenu.position}
+        fileId={contextMenu.fileId}
+        fileName={contextMenu.fileName}
+        onClose={closeContextMenu}
+        onCloseTab={handleCloseTab}
+        onCloseOtherTabs={handleCloseOtherTabs}
+        onCloseAllTabs={handleCloseAllTabs}
+        onDuplicate={handleDuplicateTab}
+        onRename={handleRenameTab}
+      />
+
+      <OfflineIndicator />
     </div>
   );
 });
