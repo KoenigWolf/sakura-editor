@@ -155,6 +155,13 @@ export const en = {
           ja: { label: '日本語', flag: '🇯🇵' },
         },
       },
+      pwa: {
+        title: 'App',
+        description: 'Install as desktop app',
+        installed: 'Installed',
+        installButton: 'Install',
+        showInstructions: 'Show instructions',
+      },
     },
   },
   search: {
