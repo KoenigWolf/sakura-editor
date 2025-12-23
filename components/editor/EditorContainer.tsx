@@ -97,6 +97,7 @@ const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitPaneProp
   const { splitPaneWithNewFile } = useSplitWithFile();
   const files = useFileStore((state) => state.files);
   const hasMultiplePanes = root.type === 'split';
+  const { t } = useTranslation();
 
   const handleMouseDown = useCallback((e: React.MouseEvent, splitId: string) => {
     e.preventDefault();
@@ -168,7 +169,7 @@ const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitPaneProp
                   splitPaneWithNewFile(node.id, 'vertical');
                 }}
                 className="p-0.5 rounded hover:bg-muted"
-                title="Split Vertical"
+                title={t('split.splitVertical')}
               >
                 <Columns2 className="h-3 w-3 text-muted-foreground" />
               </button>
@@ -179,7 +180,7 @@ const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitPaneProp
                   splitPaneWithNewFile(node.id, 'horizontal');
                 }}
                 className="p-0.5 rounded hover:bg-muted"
-                title="Split Horizontal"
+                title={t('split.splitHorizontal')}
               >
                 <Rows2 className="h-3 w-3 text-muted-foreground" />
               </button>
@@ -190,7 +191,7 @@ const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitPaneProp
                   closePane(node.id);
                 }}
                 className="p-0.5 rounded hover:bg-muted"
-                title="Close Pane"
+                title={t('split.closePane')}
               >
                 <X className="h-3 w-3 text-muted-foreground" />
               </button>

@@ -1,6 +1,16 @@
 export const ja = {
   common: {
     close: '閉じる',
+    tryAgain: '再試行',
+    refresh: '更新',
+    home: 'ホーム',
+  },
+  errorBoundary: {
+    title: 'エラーが発生しました',
+    unexpectedError: '予期しないエラーが発生しました',
+    criticalError: '重大なエラー',
+    criticalDescription: '重大なエラーが発生しました。ページを更新してください。',
+    pageError: '予期しないエラーが発生しました。再試行するか、ホームページに戻ってください。',
   },
   commandPalette: {
     placeholder: 'コマンドを入力...',
@@ -234,6 +244,9 @@ export const ja = {
   split: {
     vertical: '横に並べて表示',
     horizontal: '縦に並べて表示',
+    splitVertical: '縦分割',
+    splitHorizontal: '横分割',
+    closePane: 'ペインを閉じる',
   },
   pwa: {
     install: {

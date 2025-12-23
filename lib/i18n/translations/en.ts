@@ -1,6 +1,16 @@
 export const en = {
   common: {
     close: 'Close',
+    tryAgain: 'Try again',
+    refresh: 'Refresh',
+    home: 'Home',
+  },
+  errorBoundary: {
+    title: 'Something went wrong',
+    unexpectedError: 'An unexpected error occurred',
+    criticalError: 'Critical Error',
+    criticalDescription: 'A critical error occurred. Please refresh the page.',
+    pageError: 'An unexpected error occurred. Please try again or return to the home page.',
   },
   commandPalette: {
     placeholder: 'Type a command...',
@@ -159,8 +169,10 @@ export const en = {
     hideReplace: 'Hide replace',
     previousHistory: 'Previous search history',
     nextHistory: 'Next search history',
-    replaced: 'Replaced {{count}} occurrences',
-    found: '{{count}} results found',
+    replaced: 'Replaced {{count}} occurrence',
+    replaced_other: 'Replaced {{count}} occurrences',
+    found: '{{count}} result found',
+    found_other: '{{count}} results found',
     noResults: 'No results found',
     moreResults: 'more',
     options: {
@@ -171,6 +183,7 @@ export const en = {
     results: {
       empty: 'No results',
       found: '{{count}} found',
+      found_other: '{{count}} found',
     },
     actions: {
       search: 'Search',
@@ -234,6 +247,9 @@ export const en = {
   split: {
     vertical: 'Split side by side',
     horizontal: 'Split top and bottom',
+    splitVertical: 'Split Vertical',
+    splitHorizontal: 'Split Horizontal',
+    closePane: 'Close Pane',
   },
   pwa: {
     install: {
