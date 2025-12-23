@@ -43,6 +43,7 @@ export const ja = {
     complexRegex: '複雑すぎる正規表現パターンです',
   },
   editor: {
+    title: 'テキストエディタ',
     loading: 'エディタを読み込み中...',
     fullWidthSpace: '全角スペース (U+3000)',
   },
@@ -159,6 +160,8 @@ export const ja = {
     previousHistory: '前の検索履歴',
     nextHistory: '次の検索履歴',
     replaced: '{{count}}件を置換しました',
+    found: '{{count}}件見つかりました',
+    noResults: '結果が見つかりませんでした',
     moreResults: '件以上',
     options: {
       caseSensitive: '大文字小文字を区別',
@@ -316,12 +319,14 @@ export const ja = {
   seo: {
     hero: {
       title: 'Zen Editor — 最高クラスの無料オンラインテキストエディタ',
-      description: 'ブラウザで即起動。日本語完全対応、全角スペース表示、Monaco Editor ベースの高速体験。',
+      description:
+        'ブラウザで即起動。日本語完全対応、全角スペース表示、Monaco Editor ベースの高速体験。',
       cta: 'インストールもログインも不要。開くだけですぐに書き始められます。',
     },
     features: {
       title: '最新の編集体験を叶える主な特徴',
-      summary: 'メモから Markdown、コードまで快適に扱えるよう、軽快さと開発者向け機能を両立しています。',
+      summary:
+        'メモから Markdown、コードまで快適に扱えるよう、軽快さと開発者向け機能を両立しています。',
       items: [
         {
           title: 'ブラウザですぐ開始',
@@ -333,11 +338,13 @@ export const ja = {
         },
         {
           title: '開発者向け機能',
-          description: 'Monaco ベースのシンタックスハイライト、コマンドパレット、行移動などで効率的に編集。',
+          description:
+            'Monaco ベースのシンタックスハイライト、コマンドパレット、行移動などで効率的に編集。',
         },
         {
           title: '快適な読みやすさ',
-          description: 'ライト/ダークテーマやルーラー、フォーカスモードで環境に合わせた読書・執筆が可能。',
+          description:
+            'ライト/ダークテーマやルーラー、フォーカスモードで環境に合わせた読書・執筆が可能。',
         },
         {
           title: '強力な検索・置換',
@@ -345,7 +352,8 @@ export const ja = {
         },
         {
           title: 'PWA とオフライン',
-          description: 'デスクトップやモバイルにインストールして、オフラインでも編集を続けられます。',
+          description:
+            'デスクトップやモバイルにインストールして、オフラインでも編集を続けられます。',
         },
       ],
     },
@@ -363,7 +371,8 @@ export const ja = {
         },
         {
           title: 'アクセシビリティ対応',
-          description: 'キーボードショートカットや読みやすいデフォルト、スクリーンリーダー配慮で誰でも使いやすく。',
+          description:
+            'キーボードショートカットや読みやすいデフォルト、スクリーンリーダー配慮で誰でも使いやすく。',
         },
       ],
     },
@@ -372,11 +381,13 @@ export const ja = {
       items: [
         {
           question: 'Zen Editor は無料で使えますか？',
-          answer: 'はい。アカウント登録や有料プランなしで、すべてのエディタ機能を無料で利用できます。',
+          answer:
+            'はい。アカウント登録や有料プランなしで、すべてのエディタ機能を無料で利用できます。',
         },
         {
           question: 'プログラミング用途にも使えますか？',
-          answer: 'Monaco ベースのシンタックスハイライトやテーマ、空白表示でコードも読みやすく編集できます。',
+          answer:
+            'Monaco ベースのシンタックスハイライトやテーマ、空白表示でコードも読みやすく編集できます。',
         },
         {
           question: 'オフラインでも使えますか？',
