@@ -50,8 +50,10 @@ Zustand を使用したストア構成。
 | ------------------- | ------------------------------------ | ---------------------------------- | ------ |
 | EditorStore         | `lib/store.ts`                       | エディタ設定（フォント、テーマ等） | ○      |
 | FileStore           | `lib/store/file-store.ts`            | ファイル管理                       | ○      |
+| SplitViewStore      | `lib/store/split-view-store.ts`      | 分割ビュー（ツリー構造）           | ×      |
 | SearchStore         | `lib/store/search-store.ts`          | 検索状態                           | ×      |
 | EditorInstanceStore | `lib/store/editor-instance-store.ts` | Monaco インスタンス                | ×      |
+| AnnouncerStore      | `lib/store/announcer-store.ts`       | aria-live アナウンス               | ×      |
 
 ### 3. ドメイン層
 
@@ -264,7 +266,43 @@ const cspHeader = `
 `;
 ```
 
+## アクセシビリティ
+
+### 実装パターン
+
+| 機能                | コンポーネント/フック         | 説明                             |
+| ------------------- | ----------------------------- | -------------------------------- |
+| フォーカストラップ  | `hooks/use-focus-trap.ts`     | モーダルダイアログ内でフォーカス循環 |
+| aria-live アナウンス | `components/LiveAnnouncer.tsx` | スクリーンリーダーへの通知       |
+| セマンティックHTML  | EditorContainer               | role="application", role="banner" |
+| キーボード操作      | SearchDialog                  | Tab, Escape, Enter 対応          |
+
+### アナウンサーの使用
+
+```typescript
+import { useAnnouncerStore } from '@/lib/store/announcer-store';
+
+const announce = useAnnouncerStore((state) => state.announce);
+
+// 検索結果を通知
+announce(t('search.found', { count }));
+```
+
+## エラーハンドリング
+
+### Error Boundary
+
+- `components/ErrorBoundary.tsx` - 再利用可能なエラー境界
+- `app/error.tsx` - ルートレベルのエラーページ
+- `app/global-error.tsx` - クリティカルエラーページ
+
 ## テスト戦略
+
+### テストツール
+
+- **Vitest** - テストランナー
+- **React Testing Library** - コンポーネントテスト
+- **jsdom** - ブラウザ環境シミュレーション
 
 ### テスト対象
 
@@ -293,3 +331,24 @@ describe("FileStore", () => {
   });
 });
 ```
+
+## CI/CD
+
+GitHub Actions で以下が自動実行されます：
+
+1. **lint** - ESLint チェック
+2. **typecheck** - TypeScript 型チェック
+3. **test** - Vitest テスト実行
+4. **build** - プロダクションビルド
+
+## モニタリング
+
+### Web Vitals
+
+`hooks/use-web-vitals.ts` で以下を計測：
+
+- **CLS** (Cumulative Layout Shift)
+- **INP** (Interaction to Next Paint)
+- **FCP** (First Contentful Paint)
+- **LCP** (Largest Contentful Paint)
+- **TTFB** (Time to First Byte)

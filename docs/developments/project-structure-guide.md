@@ -21,47 +21,38 @@
 ├── app/                      # Next.js App Router
 │   ├── globals.css           # グローバルスタイル
 │   ├── layout.tsx            # ルートレイアウト
+│   ├── error.tsx             # エラーページ
+│   ├── global-error.tsx      # グローバルエラーページ
 │   ├── metadata.ts           # メタデータ設定
 │   └── page.tsx              # メインページ
 ├── components/               # Reactコンポーネント
 │   ├── editor/               # エディター関連コンポーネント
-│   │   ├── EditorContainer.tsx
-│   │   ├── EditorToolbar.tsx
-│   │   ├── FileTabs.tsx
-│   │   ├── FileTree.tsx
-│   │   ├── MonacoEditor.tsx
-│   │   └── SearchDialog.tsx
 │   ├── settings/             # 設定関連コンポーネント
-│   │   ├── SettingsDialog.tsx
-│   │   └── tabs/
-│   │       ├── AppearanceSettings.tsx
-│   │       ├── FileSettings.tsx
-│   │       └── GeneralSettings.tsx
+│   ├── pwa/                  # PWA関連コンポーネント
 │   ├── ui/                   # 汎用UIコンポーネント（shadcn/ui）
+│   ├── ErrorBoundary.tsx     # エラー境界
+│   ├── LiveAnnouncer.tsx     # スクリーンリーダー通知
 │   └── ThemeProvider.tsx
-├── docs/                     # ドキュメント
-│   ├── README.md             # ドキュメント目次
-│   ├── architecture/         # アーキテクチャ設計
-│   ├── components/           # コンポーネント設計
-│   ├── developments/         # 開発ガイド
-│   └── i18n/                 # 国際化ガイド
 ├── hooks/                    # カスタムフック
+│   ├── use-focus-trap.ts     # フォーカストラップ
+│   ├── use-web-vitals.ts     # Web Vitals計測
+│   └── ...
 ├── lib/                      # ユーティリティ・状態管理
 │   ├── i18n/                 # 国際化設定
-│   │   ├── index.ts
-│   │   └── translations/
-│   │       ├── en.ts
-│   │       └── ja.ts
 │   ├── store/                # Zustand状態管理
-│   │   ├── editor-instance-store.ts
-│   │   ├── file-store.ts
-│   │   └── search-store.ts
-│   ├── types/
-│   │   └── editor.ts
-│   ├── store.ts
+│   ├── themes/               # カスタムテーマ定義
+│   ├── types/                # 型定義
 │   └── utils.ts
+├── __tests__/                # テストファイル
+│   └── lib/                  # libのテスト
+├── .github/
+│   └── workflows/            # GitHub Actions CI/CD
+│       └── ci.yml
+├── docs/                     # ドキュメント
 ├── public/                   # 静的ファイル
 ├── .eslintrc.json
+├── .prettierrc               # Prettier設定
+├── vitest.config.ts          # Vitest設定
 ├── next.config.js
 ├── package.json
 ├── tailwind.config.ts
@@ -75,21 +66,26 @@
 | `app/`                 | Next.js App Router のルート・ページ         |
 | `components/editor/`   | エディター固有のコンポーネント              |
 | `components/settings/` | 設定画面のコンポーネント                    |
+| `components/pwa/`      | PWA 関連コンポーネント                      |
 | `components/ui/`       | 再利用可能な UI コンポーネント（shadcn/ui） |
-| `docs/`                | 開発ドキュメント                            |
 | `hooks/`               | カスタム React フック                       |
 | `lib/store/`           | Zustand による状態管理                      |
 | `lib/types/`           | TypeScript 型定義                           |
 | `lib/i18n/`            | 国際化・翻訳ファイル                        |
+| `__tests__/`           | テストファイル                              |
+| `.github/workflows/`   | GitHub Actions CI/CD                        |
+| `docs/`                | 開発ドキュメント                            |
 
 ### ストア構成
 
 | ストア                               | 役割                                 | 永続化 |
 | ------------------------------------ | ------------------------------------ | ------ |
 | `lib/store.ts`                       | エディター設定（フォント、テーマ等） | ○      |
-| `lib/store/file-store.ts`            | ファイル管理（開いているファイル）   | ×      |
+| `lib/store/file-store.ts`            | ファイル管理（開いているファイル）   | ○      |
+| `lib/store/split-view-store.ts`      | 分割ビュー（ツリー構造）             | ×      |
 | `lib/store/search-store.ts`          | 検索機能（検索条件、マッチ結果）     | ×      |
 | `lib/store/editor-instance-store.ts` | Monaco Editor インスタンス           | ×      |
+| `lib/store/announcer-store.ts`       | aria-live アナウンス                 | ×      |
 
 ---
 
@@ -102,15 +98,18 @@
 
 ### 技術スタック
 
-| カテゴリ       | 技術                    |
-| -------------- | ----------------------- |
-| フレームワーク | Next.js（App Router）   |
-| 言語           | TypeScript 5.2          |
-| 状態管理       | Zustand                 |
-| UI ライブラリ  | shadcn/ui + Radix UI    |
-| エディター     | Monaco Editor           |
-| スタイリング   | Tailwind CSS            |
-| 国際化         | i18next + react-i18next |
+| カテゴリ       | 技術                           |
+| -------------- | ------------------------------ |
+| フレームワーク | Next.js 15（App Router）       |
+| 言語           | TypeScript 5.9 (Strict)        |
+| 状態管理       | Zustand                        |
+| UI ライブラリ  | shadcn/ui + Radix UI           |
+| エディター     | Monaco Editor                  |
+| スタイリング   | Tailwind CSS                   |
+| 国際化         | i18next + react-i18next        |
+| テスト         | Vitest + React Testing Library |
+| CI/CD          | GitHub Actions                 |
+| コード品質     | ESLint, Prettier, Husky        |
 
 ### 初期セットアップ
 
@@ -124,10 +123,15 @@ npm run dev
 ### 利用可能なスクリプト
 
 ```bash
-npm run dev      # 開発サーバー起動
-npm run build    # プロダクションビルド
-npm run start    # プロダクションサーバー起動
-npm run lint     # ESLintによるコードチェック
+npm run dev           # 開発サーバー起動
+npm run build         # プロダクションビルド
+npm run start         # プロダクションサーバー起動
+npm run lint          # ESLint チェック
+npm run format        # Prettier フォーマット
+npm run test          # テスト実行（watch）
+npm run test:run      # テスト実行（1回）
+npm run test:coverage # カバレッジレポート
+npm run typecheck     # 型チェック
 ```
 
 ---
@@ -206,6 +210,12 @@ npm run lint     # ESLintによるコードチェック
 
 ## テスト規約
 
+### テストツール
+
+- **Vitest** - テストランナー
+- **React Testing Library** - コンポーネントテスト
+- **jsdom** - ブラウザ環境シミュレーション
+
 ### 基本方針
 
 | 対象               | テスト | 理由                     |
@@ -214,11 +224,28 @@ npm run lint     # ESLintによるコードチェック
 | ストアロジック     | ○      | ビジネスロジック集約     |
 | UI コンポーネント  | △      | 複雑なロジックのみ       |
 
+### テストファイルの配置
+
+```
+__tests__/
+└── lib/
+    ├── security.test.ts    # セキュリティ関連テスト
+    └── utils.test.ts       # ユーティリティテスト
+```
+
 ### テスト記述の原則
 
 - **AAA パターン**: Arrange（準備）→ Act（実行）→ Assert（検証）
 - **テスト名**: 何をテストしているか日本語で明確に記述
 - **独立性**: 各テストは他のテストに依存しない
+
+### テストコマンド
+
+```bash
+npm run test          # watch モードで実行
+npm run test:run      # 1回だけ実行
+npm run test:coverage # カバレッジ付きで実行
+```
 
 ---
 
@@ -240,8 +267,27 @@ npm run lint     # ESLintによるコードチェック
 
 ### コミット前の確認
 
-- `npm run lint` と `npm run build` を実行
-- 型エラーがないことを確認
+コミット時に Husky + lint-staged で自動的に以下が実行されます：
+
+- ESLint によるコードチェック・自動修正
+- Prettier によるフォーマット
+
+手動で確認する場合：
+
+```bash
+npm run test:run      # テスト実行
+npm run typecheck     # 型チェック
+npm run build         # ビルド確認
+```
+
+### CI/CD パイプライン
+
+GitHub Actions で以下が自動実行されます：
+
+1. **lint** - ESLint チェック
+2. **typecheck** - TypeScript 型チェック
+3. **test** - Vitest テスト実行
+4. **build** - プロダクションビルド
 
 ---
 

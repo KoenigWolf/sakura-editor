@@ -54,21 +54,28 @@ docs/
 
 ## 技術スタック
 
-| カテゴリ       | 技術                    |
-| -------------- | ----------------------- |
-| フレームワーク | Next.js (App Router)    |
-| 言語           | TypeScript 5.2          |
-| 状態管理       | Zustand                 |
-| UI ライブラリ  | shadcn/ui + Radix UI    |
-| エディタ       | Monaco Editor           |
-| スタイリング   | Tailwind CSS            |
-| 国際化         | i18next + react-i18next |
+| カテゴリ       | 技術                           |
+| -------------- | ------------------------------ |
+| フレームワーク | Next.js 15 (App Router)        |
+| 言語           | TypeScript 5.9 (Strict)        |
+| 状態管理       | Zustand                        |
+| UI ライブラリ  | shadcn/ui + Radix UI           |
+| エディタ       | Monaco Editor                  |
+| スタイリング   | Tailwind CSS                   |
+| 国際化         | i18next + react-i18next        |
+| テスト         | Vitest + React Testing Library |
+| CI/CD          | GitHub Actions                 |
+| コード品質     | ESLint, Prettier, Husky        |
 
 ## 開発コマンド
 
 ```bash
-npm run dev      # 開発サーバー起動
-npm run build    # プロダクションビルド
-npm run lint     # コードチェック
-npm start        # プロダクションサーバー
+npm run dev           # 開発サーバー起動
+npm run build         # プロダクションビルド
+npm run lint          # ESLint チェック
+npm run format        # Prettier フォーマット
+npm run test          # テスト実行（watch）
+npm run test:run      # テスト実行（1回）
+npm run test:coverage # カバレッジレポート
+npm run typecheck     # 型チェック
 ```
