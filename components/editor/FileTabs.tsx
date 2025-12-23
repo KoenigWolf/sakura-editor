@@ -78,6 +78,8 @@ const FileTabItem = memo(function FileTabItem({
   return (
     <button
       type="button"
+      role="tab"
+      aria-selected={isActive}
       draggable
       onDragStart={onDragStart}
       onDragOver={onDragOver}
@@ -93,10 +95,10 @@ const FileTabItem = memo(function FileTabItem({
         isDragOver && 'border-primary border-dashed bg-primary/10'
       )}
     >
-      <FileIcon className={cn('h-3 w-3 flex-shrink-0', isActive ? fileColor : 'text-muted-foreground')} />
-      <span className="truncate max-w-[150px] text-left text-xs font-medium">
-        {file.name}
-      </span>
+      <FileIcon
+        className={cn('h-3 w-3 flex-shrink-0', isActive ? fileColor : 'text-muted-foreground')}
+      />
+      <span className="truncate max-w-[150px] text-left text-xs font-medium">{file.name}</span>
       {file.isDirty && isActive && (
         <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
       )}
@@ -123,14 +125,20 @@ export const FileTabs = memo(function FileTabs() {
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
-  const handleSelect = useCallback((file: FileData) => {
-    setActiveFileId(file.id);
-  }, [setActiveFileId]);
+  const handleSelect = useCallback(
+    (file: FileData) => {
+      setActiveFileId(file.id);
+    },
+    [setActiveFileId]
+  );
 
-  const handleClose = useCallback((event: React.MouseEvent | React.KeyboardEvent, file: FileData) => {
-    event.stopPropagation();
-    removeFile(file.id);
-  }, [removeFile]);
+  const handleClose = useCallback(
+    (event: React.MouseEvent | React.KeyboardEvent, file: FileData) => {
+      event.stopPropagation();
+      removeFile(file.id);
+    },
+    [removeFile]
+  );
 
   const handleDragStart = useCallback((e: React.DragEvent, file: FileData) => {
     setDraggedId(file.id);
@@ -138,36 +146,42 @@ export const FileTabs = memo(function FileTabs() {
     e.dataTransfer.setData('text/plain', file.id);
   }, []);
 
-  const handleDragOver = useCallback((e: React.DragEvent, file: FileData) => {
-    e.preventDefault();
-    if (draggedId && draggedId !== file.id) {
-      setDragOverId(file.id);
-    }
-  }, [draggedId]);
+  const handleDragOver = useCallback(
+    (e: React.DragEvent, file: FileData) => {
+      e.preventDefault();
+      if (draggedId && draggedId !== file.id) {
+        setDragOverId(file.id);
+      }
+    },
+    [draggedId]
+  );
 
   const handleDragLeave = useCallback(() => {
     setDragOverId(null);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent, targetFile: FileData) => {
-    e.preventDefault();
-    setDragOverId(null);
-    setDraggedId(null);
+  const handleDrop = useCallback(
+    (e: React.DragEvent, targetFile: FileData) => {
+      e.preventDefault();
+      setDragOverId(null);
+      setDraggedId(null);
 
-    if (!draggedId || draggedId === targetFile.id) return;
+      if (!draggedId || draggedId === targetFile.id) return;
 
-    const { files: currentFiles } = useFileStore.getState();
-    const draggedIndex = currentFiles.findIndex(f => f.id === draggedId);
-    const targetIndex = currentFiles.findIndex(f => f.id === targetFile.id);
+      const { files: currentFiles } = useFileStore.getState();
+      const draggedIndex = currentFiles.findIndex((f) => f.id === draggedId);
+      const targetIndex = currentFiles.findIndex((f) => f.id === targetFile.id);
 
-    if (draggedIndex === -1 || targetIndex === -1) return;
+      if (draggedIndex === -1 || targetIndex === -1) return;
 
-    const newFiles = [...currentFiles];
-    const [removed] = newFiles.splice(draggedIndex, 1);
-    newFiles.splice(targetIndex, 0, removed);
+      const newFiles = [...currentFiles];
+      const [removed] = newFiles.splice(draggedIndex, 1);
+      newFiles.splice(targetIndex, 0, removed);
 
-    useFileStore.setState({ files: newFiles });
-  }, [draggedId]);
+      useFileStore.setState({ files: newFiles });
+    },
+    [draggedId]
+  );
 
   const handleDragEnd = useCallback(() => {
     setDraggedId(null);
@@ -182,7 +196,11 @@ export const FileTabs = memo(function FileTabs() {
 
   return (
     <div className="mochi-tabs-container w-full max-w-full overflow-hidden mochi-fast-scroll">
-      <div className="flex items-end gap-0.5 px-1.5 pt-1 overflow-x-auto scrollbar-thin">
+      <div
+        role="tablist"
+        aria-label={t('fileTree.title')}
+        className="flex items-end gap-0.5 px-1.5 pt-1 overflow-x-auto scrollbar-thin"
+      >
         {files.map((file) => (
           <FileTabItem
             key={file.id}

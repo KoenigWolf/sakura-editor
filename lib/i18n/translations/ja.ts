@@ -247,6 +247,16 @@ export const ja = {
     splitVertical: '縦分割',
     splitHorizontal: '横分割',
     closePane: 'ペインを閉じる',
+    selectFile: 'ペインのファイルを選択',
+  },
+  accessibility: {
+    toggleQuickActions: 'クイックアクションの切り替え',
+    toggleTheme: 'テーマの切り替え',
+    openCommandPalette: 'コマンドパレットを開く',
+    skipToContent: 'メインコンテンツへスキップ',
+    mainEditor: 'メインエディタ領域',
+    toolbar: 'エディタツールバー',
+    statusBar: 'ステータスバー',
   },
   pwa: {
     install: {

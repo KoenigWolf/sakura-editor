@@ -152,6 +152,7 @@ const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitPaneProp
                 setPaneFile(node.id, e.target.value || null);
               }}
               onClick={(e) => e.stopPropagation()}
+              aria-label={t('split.selectFile')}
               className="text-xs bg-transparent border-none outline-none cursor-pointer hover:bg-muted/50 rounded px-1 py-0.5 max-w-[150px] truncate"
             >
               {files.map((file) => (
@@ -545,21 +546,29 @@ export const EditorContainer = memo(function EditorContainer() {
             <span className="mochi-ultra-status-text">{statusInfo.language}</span>
           </div>
           <div className="mochi-ultra-minimal-status-right">
-            <button type="button" onClick={toggleQuickActions} className="mochi-ultra-status-btn">
+            <button
+              type="button"
+              onClick={toggleQuickActions}
+              className="mochi-ultra-status-btn"
+              aria-label={t('accessibility.toggleQuickActions')}
+              aria-expanded={showQuickActions}
+            >
               <ChevronUp
                 className={`h-4 w-4 transition-transform ${showQuickActions ? 'rotate-180' : ''}`}
+                aria-hidden="true"
               />
             </button>
             <button
               type="button"
               onClick={() => setTheme(getNextTheme(resolvedTheme))}
               className="mochi-ultra-status-btn"
+              aria-label={t('accessibility.toggleTheme')}
             >
               {mounted &&
                 (resolvedTheme === 'dark' ? (
-                  <Moon className="h-4 w-4" />
+                  <Moon className="h-4 w-4" aria-hidden="true" />
                 ) : (
-                  <Sun className="h-4 w-4" />
+                  <Sun className="h-4 w-4" aria-hidden="true" />
                 ))}
             </button>
           </div>
@@ -580,9 +589,11 @@ export const EditorContainer = memo(function EditorContainer() {
       <div className="mochi-statusbar-modern flex-shrink-0 overflow-x-auto overflow-y-hidden safe-area-bottom hidden sm:flex">
         <div className="flex items-center gap-1">
           <button
+            type="button"
             onClick={() => setShowCommandPalette(true)}
             className="mochi-statusbar-item mochi-statusbar-item-clickable gap-1.5"
             title={`${t('commandPalette.actions.openSettings')} (⌘P)`}
+            aria-label={t('accessibility.openCommandPalette')}
           >
             <Sparkles className="h-3 w-3" strokeWidth={1.5} />
             <span className="truncate max-w-[180px] flex items-center gap-1.5 text-[11px]">
@@ -627,15 +638,17 @@ export const EditorContainer = memo(function EditorContainer() {
           <div className="h-3 w-px bg-border/30 mx-1" />
 
           <button
+            type="button"
             onClick={() => setTheme(getNextTheme(resolvedTheme))}
             className="mochi-statusbar-item mochi-statusbar-item-clickable gap-1"
+            aria-label={t('accessibility.toggleTheme')}
           >
             {mounted && (
               <>
                 {resolvedTheme === 'dark' ? (
-                  <Moon className="h-3 w-3" strokeWidth={1.5} />
+                  <Moon className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
                 ) : (
-                  <Sun className="h-3 w-3" strokeWidth={1.5} />
+                  <Sun className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />
                 )}
               </>
             )}

@@ -250,6 +250,16 @@ export const en = {
     splitVertical: 'Split Vertical',
     splitHorizontal: 'Split Horizontal',
     closePane: 'Close Pane',
+    selectFile: 'Select file for pane',
+  },
+  accessibility: {
+    toggleQuickActions: 'Toggle quick actions',
+    toggleTheme: 'Toggle theme',
+    openCommandPalette: 'Open command palette',
+    skipToContent: 'Skip to main content',
+    mainEditor: 'Main editor area',
+    toolbar: 'Editor toolbar',
+    statusBar: 'Status bar',
   },
   pwa: {
     install: {

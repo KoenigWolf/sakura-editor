@@ -23,7 +23,7 @@ export default function Home() {
   }, [_hasHydrated, files.length, addFile]);
 
   return (
-    <main className="h-full w-full max-w-full flex flex-col overflow-hidden">
+    <main id="main-content" className="h-full w-full max-w-full flex flex-col overflow-hidden">
       <EditorContainer />
       <SeoContent />
     </main>
