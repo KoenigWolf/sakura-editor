@@ -21,7 +21,7 @@ export interface PaneSplit {
 
 export type PaneNode = PaneLeaf | PaneSplit;
 
-const GOLDEN_RATIO = 0.618;
+const DEFAULT_SPLIT_RATIO = 0.5;
 const MIN_RATIO = 0.2;
 const MAX_RATIO = 0.8;
 const INITIAL_PANE_ID = 'pane-initial';
@@ -40,7 +40,7 @@ const createSplit = (
   direction: SplitDirection,
   first: PaneNode,
   second: PaneNode,
-  ratio = GOLDEN_RATIO
+  ratio = DEFAULT_SPLIT_RATIO
 ): PaneSplit => ({
   type: 'split',
   id: generateId('split'),
@@ -103,7 +103,11 @@ interface SplitViewState {
   root: PaneNode;
   activePaneId: string;
 
-  splitPane: (paneId: string, direction: SplitDirection, newFileId?: string | null) => string | null;
+  splitPane: (
+    paneId: string,
+    direction: SplitDirection,
+    newFileId?: string | null
+  ) => string | null;
   closePane: (paneId: string) => void;
   setRatio: (splitId: string, ratio: number) => void;
   setPaneFile: (paneId: string, fileId: string | null) => void;
