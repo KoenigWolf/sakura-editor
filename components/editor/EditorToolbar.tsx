@@ -18,20 +18,14 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSearchStore } from '@/lib/store/search-store';
-import { useSplitViewStore } from '@/lib/store/split-view-store';
+import { useSplitViewStore, useIsSplit } from '@/lib/store/split-view-store';
+import { useSplitWithFile } from '@/hooks/use-split-with-file';
 import { useIndentStore } from '@/lib/store/indent-store';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import { useFileOperations } from '@/hooks/use-file-operations';
@@ -86,7 +80,9 @@ interface EditorToolbarProps {
 export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
   const { t } = useTranslation();
   const { setIsOpen: setSearchOpen, isOpen: searchOpen } = useSearchStore();
-  const { splitDirection, setSplitDirection, closeSplit } = useSplitViewStore();
+  const { reset } = useSplitViewStore();
+  const isSplit = useIsSplit();
+  const { splitActiveWithNewFile } = useSplitWithFile();
   const rulerVisible = useIndentStore((state) => state.rulerVisible);
   const setRulerVisible = useIndentStore((state) => state.setRulerVisible);
   const { isMobile, mounted } = useMobileDetection();
@@ -94,10 +90,6 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
   const { handleUndo, handleRedo, handleIndent, handleOutdent } = useEditorActions();
 
   const showMobileUI = mounted && isMobile;
-
-  const handleToggleRuler = () => {
-    setRulerVisible(!rulerVisible);
-  };
 
   if (showMobileUI) {
     return (
@@ -199,65 +191,31 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
         <ToolbarButton
           icon={Scaling}
           label={t('toolbar.ruler')}
-          onClick={handleToggleRuler}
+          onClick={() => setRulerVisible(!rulerVisible)}
           active={rulerVisible}
         />
       </div>
 
-      <DropdownMenu>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                aria-label={t('toolbar.split')}
-                className={cn(
-                  'mochi-toolbar-btn group',
-                  splitDirection && 'mochi-toolbar-btn-active'
-                )}
-              >
-                {splitDirection === 'horizontal' ? (
-                  <Rows2 className="h-[14px] w-[14px] transition-transform duration-150 group-hover:scale-110" strokeWidth={1.5} />
-                ) : (
-                  <Columns2 className="h-[14px] w-[14px] transition-transform duration-150 group-hover:scale-110" strokeWidth={1.5} />
-                )}
-              </button>
-            </DropdownMenuTrigger>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" className="mochi-tooltip">{t('toolbar.split')}</TooltipContent>
-        </Tooltip>
-        <DropdownMenuContent align="start" className="mochi-dropdown">
-          <DropdownMenuItem onClick={() => setSplitDirection('vertical')} className="mochi-dropdown-item">
-            <div className="mochi-dropdown-icon">
-              <Columns2 className="h-4 w-4" strokeWidth={1.5} />
-            </div>
-            <div>
-              <div className="font-medium text-sm">{t('toolbar.splitVertical')}</div>
-              <div className="text-[10px] text-muted-foreground">{t('split.vertical')}</div>
-            </div>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSplitDirection('horizontal')} className="mochi-dropdown-item">
-            <div className="mochi-dropdown-icon">
-              <Rows2 className="h-4 w-4" strokeWidth={1.5} />
-            </div>
-            <div>
-              <div className="font-medium text-sm">{t('toolbar.splitHorizontal')}</div>
-              <div className="text-[10px] text-muted-foreground">{t('split.horizontal')}</div>
-            </div>
-          </DropdownMenuItem>
-          {splitDirection && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={closeSplit} className="mochi-dropdown-item text-destructive focus:text-destructive">
-                <div className="mochi-dropdown-icon bg-destructive/10">
-                  <X className="h-4 w-4" strokeWidth={1.5} />
-                </div>
-                <div className="font-medium text-sm">{t('toolbar.closeSplit')}</div>
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="mochi-toolbar-group">
+        <ToolbarButton
+          icon={Columns2}
+          label={t('toolbar.splitVertical')}
+          shortcut="⌘\\"
+          onClick={() => splitActiveWithNewFile('vertical')}
+        />
+        <ToolbarButton
+          icon={Rows2}
+          label={t('toolbar.splitHorizontal')}
+          onClick={() => splitActiveWithNewFile('horizontal')}
+        />
+        {isSplit && (
+          <ToolbarButton
+            icon={X}
+            label={t('toolbar.closeSplit')}
+            onClick={reset}
+          />
+        )}
+      </div>
     </div>
 
     <SearchDialog

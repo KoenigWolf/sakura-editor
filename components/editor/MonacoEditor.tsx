@@ -105,9 +105,11 @@ const shouldHighlightFullWidthSpace = (
  * MonacoEditor Props
  */
 interface MonacoEditorProps {
-  /** 特定のファイルIDを指定（セカンダリエディタ用） */
+  /** 特定のファイルIDを指定 */
   fileId?: string | null;
-  /** セカンダリエディタかどうか */
+  /** ペインID */
+  paneId?: string;
+  /** セカンダリエディタかどうか（後方互換性） */
   isSecondary?: boolean;
 }
 
@@ -115,7 +117,7 @@ interface MonacoEditorProps {
  * Monaco Editorコンポーネント
  * エディタの初期化と状態管理を担当
  */
-export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps) {
+export function MonacoEditor({ fileId, paneId, isSecondary = false }: MonacoEditorProps) {
   const { t } = useTranslation();
   const files = useFileStore((state) => state.files);
   const activeFileId = useFileStore((state) => state.activeFileId);
