@@ -223,7 +223,7 @@ export const PWAInstallPrompt = () => {
         className={cn(
           "fixed inset-0 z-[100] flex items-end sm:items-center justify-center",
           "bg-black/60 backdrop-blur-sm",
-          "transition-opacity duration-300",
+          "transition-opacity duration-200",
           isAnimating ? 'opacity-100' : 'opacity-0'
         )}
         onClick={(e) => e.target === e.currentTarget && handleDismiss()}
@@ -232,8 +232,8 @@ export const PWAInstallPrompt = () => {
           className={cn(
             "bg-background w-full max-w-md mx-4 sm:mx-auto",
             "rounded-t-3xl sm:rounded-2xl shadow-2xl",
-            "transform transition-all duration-300 ease-out",
-            isAnimating ? 'translate-y-0 scale-100' : 'translate-y-8 scale-95'
+            "transition-opacity duration-200",
+            isAnimating ? 'opacity-100' : 'opacity-0'
           )}
         >
           {/* ヘッダー */}
@@ -286,7 +286,7 @@ export const PWAInstallPrompt = () => {
             {instructions[installStep] && (
               <div
                 key={installStep}
-                className="flex flex-col items-center text-center space-y-4 animate-in fade-in slide-in-from-right-4 duration-300"
+                className="flex flex-col items-center text-center space-y-4"
               >
                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
                   {(() => {
@@ -352,10 +352,8 @@ export const PWAInstallPrompt = () => {
         isDesktop
           ? "bottom-6 right-6 w-[380px]"
           : "bottom-0 left-0 right-0 pb-safe-area-inset-bottom",
-        "transition-all duration-500 ease-out",
-        isAnimating
-          ? 'opacity-100 translate-y-0'
-          : 'opacity-0 translate-y-4'
+        "transition-opacity duration-200",
+        isAnimating ? 'opacity-100' : 'opacity-0'
       )}
     >
       <div
@@ -377,12 +375,8 @@ export const PWAInstallPrompt = () => {
         <div className="p-5">
           {/* ヘッダー */}
           <div className="flex items-start gap-4 mb-4">
-            <div className="relative">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg shadow-pink-500/25">
-                <Sparkles className="h-7 w-7 text-white" />
-              </div>
-              {/* パルスアニメーション */}
-              <div className="absolute inset-0 rounded-2xl bg-pink-500/30 animate-ping" style={{ animationDuration: '2s' }} />
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg shadow-pink-500/25">
+              <Sparkles className="h-7 w-7 text-white" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-lg leading-tight">
