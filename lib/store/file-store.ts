@@ -16,7 +16,7 @@ interface FileStore {
   files: FileData[];
   activeFileId: string | null;
   _hasHydrated: boolean;
-  addFile: (file: Omit<FileData, 'id'>) => void;
+  addFile: (file: Omit<FileData, 'id'>) => string;
   updateFile: (id: string, content: string) => void;
   removeFile: (id: string) => void;
   setActiveFileId: (id: string | null) => void;
@@ -53,6 +53,7 @@ export const useFileStore = create<FileStore>()(
           files: [...state.files, newFile],
           activeFileId: newFile.id,
         }));
+        return newFile.id;
       },
 
       updateFile: (id, content) => {
