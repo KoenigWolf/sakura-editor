@@ -209,8 +209,7 @@ export const SearchDialog = memo(({
     }
 
     const doSearch = () => {
-      const normalizedQuery = searchQuery.trim();
-      if (!normalizedQuery) {
+      if (!searchQuery) {
         setMatches([]);
         setCurrentMatchIndex(-1);
         clearHighlights();
@@ -218,7 +217,7 @@ export const SearchDialog = memo(({
       }
 
       // セキュリティバリデーション
-      const validation = validateSearchQuery(normalizedQuery, isRegex);
+      const validation = validateSearchQuery(searchQuery, isRegex);
       if (!validation.valid) {
         toast({
           title: t('error.fileError'),
@@ -242,11 +241,11 @@ export const SearchDialog = memo(({
 
         let searchString: string;
         if (isRegex) {
-          searchString = normalizedQuery;
+          searchString = searchQuery;
         } else if (isWholeWord) {
-          searchString = `\\b${escapeRegExp(normalizedQuery)}\\b`;
+          searchString = `\\b${escapeRegExp(searchQuery)}\\b`;
         } else {
-          searchString = normalizedQuery;
+          searchString = searchQuery;
         }
 
         const foundMatches = model.findMatches(
@@ -266,7 +265,7 @@ export const SearchDialog = memo(({
         }));
 
         setMatches(parsedMatches);
-        setSearchTerm(normalizedQuery);
+        setSearchTerm(searchQuery);
 
         if (parsedMatches.length > 0) {
           goToMatch(0, parsedMatches);
@@ -275,7 +274,7 @@ export const SearchDialog = memo(({
           applyHighlights([], -1);
         }
 
-        onSearch(normalizedQuery, options);
+        onSearch(searchQuery, options);
       } catch {
         // Invalid regex - ignore
       }
@@ -310,8 +309,7 @@ export const SearchDialog = memo(({
   }, [currentMatchIndex, goToMatch, matches.length, performSearch, query]);
 
   const handleReplace = useCallback(() => {
-    const trimmedQuery = query.trim();
-    if (!trimmedQuery) return;
+    if (!query) return;
 
     const editor = getEditorInstance();
     if (!editor) return;
@@ -335,8 +333,7 @@ export const SearchDialog = memo(({
   }, [query, replacement, getEditorInstance, onReplace, options, performSearch, handleNextMatch]);
 
   const handleReplaceAll = useCallback(() => {
-    const trimmedQuery = query.trim();
-    if (!trimmedQuery) return;
+    if (!query) return;
 
     const editor = getEditorInstance();
     if (!editor) return;
