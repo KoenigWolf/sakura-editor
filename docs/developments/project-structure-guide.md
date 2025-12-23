@@ -145,42 +145,26 @@ npm run lint     # ESLintによるコードチェック
 
 #### 関数定義
 
-- アロー関数を使用: `const functionName = () => {}`
-- 関数名は意図を表現
-- 単一責任原則
-- 不要なコメントは書かない
-
-```typescript
-// 良い例
-const calculateTotalPrice = (items: Item[]): number => {
-  return items.reduce((sum, item) => sum + item.price, 0);
-};
-```
+- アロー関数を使用（`const fn = () => {}`）
+- 関数名は意図を明確に表現
+- 単一責任原則を守る
+- 不要なコメントは書かない（コードで意図を表現）
 
 #### null/undefined の扱い
 
-```typescript
-// 良い例（ガード節で明示的に分岐）
-const getValue = () => {
-  if (a && a.b && a.b.c) return a.b.c;
-  if (d) return d;
-  return [];
-};
-```
+- オプショナルチェーン（`?.`）より明示的なガード節を優先
+- 早期リターンで可読性を確保
 
 #### export 規則
 
-- `export *` は使用禁止
-- export は最小限に
-- 内部実装は隠蔽
+- `export *` は使用禁止（依存関係の追跡が困難になるため）
+- 公開 API は最小限に保つ
 
 ### コンポーネント設計
 
-- 使用場所の近くに配置
-- Props の責務分離
-- `ComponentProps<typeof Component>` で型定義
-- useMemo/useCallback を活用
-- Tailwind クラスを使用
+- 使用場所の近くに配置（コロケーション原則）
+- Props は単一責任で設計
+- パフォーマンス最適化には useMemo/useCallback を活用
 
 ---
 
@@ -198,12 +182,8 @@ const getValue = () => {
 
 ### インポートパス
 
-```typescript
-// @/* でプロジェクトルートからの絶対パスを使用
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { useEditorStore } from "@/lib/store";
-```
+- `@/` エイリアスでプロジェクトルートからの絶対パスを使用
+- 相対パス（`../`）は避ける
 
 ---
 
@@ -211,45 +191,16 @@ import { useEditorStore } from "@/lib/store";
 
 ### 状態管理（Zustand）
 
-```typescript
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-
-interface EditorSettingsState {
-  settings: EditorSettings;
-  updateSettings: (settings: Partial<EditorSettings>) => void;
-}
-
-export const useEditorStore = create<EditorSettingsState>()(
-  persist(
-    (set) => ({
-      settings: DEFAULT_EDITOR_SETTINGS,
-      updateSettings: (newSettings) =>
-        set((state) => ({
-          settings: { ...state.settings, ...newSettings },
-        })),
-    }),
-    { name: "zen-editor-settings" }
-  )
-);
-```
-
-### セレクタの使用
-
-```typescript
-// 良い例: 必要なデータのみ取得
-const fontSize = useEditorStore((state) => state.settings.fontSize);
-
-// 悪い例: ストア全体を取得
-const store = useEditorStore();
-```
+- **ストア設計**: 関心事ごとに分離（設定、ファイル、検索など）
+- **永続化**: `persist` ミドルウェアでローカルストレージに保存
+- **セレクタ**: 必要なデータのみ取得し、不要な再レンダリングを防止
+- 実装例: `lib/store.ts`, `lib/store/file-store.ts`
 
 ### UI コンポーネント（shadcn/ui）
 
-```typescript
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-```
+- Radix UI ベースのアクセシブルなコンポーネント
+- `components/ui/` に配置
+- Tailwind CSS でカスタマイズ可能
 
 ---
 
@@ -263,25 +214,11 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 | ストアロジック     | ○      | ビジネスロジック集約     |
 | UI コンポーネント  | △      | 複雑なロジックのみ       |
 
-### テスト記述
+### テスト記述の原則
 
-```typescript
-describe("calculateTotal", () => {
-  it("複数のアイテムの合計を正しく計算する", () => {
-    // Arrange
-    const items = [
-      { id: "1", price: 100 },
-      { id: "2", price: 200 },
-    ];
-
-    // Act
-    const result = calculateTotal(items);
-
-    // Assert
-    expect(result).toBe(300);
-  });
-});
-```
+- **AAA パターン**: Arrange（準備）→ Act（実行）→ Assert（検証）
+- **テスト名**: 何をテストしているか日本語で明確に記述
+- **独立性**: 各テストは他のテストに依存しない
 
 ---
 
@@ -298,36 +235,25 @@ describe("calculateTotal", () => {
 
 ### コミットメッセージ
 
-```
-feat: ユーザー一覧画面を追加
-
-- ユーザー検索機能を実装
-- ページネーション対応
-```
+- **プレフィックス**: `feat:`, `fix:`, `refactor:`, `docs:` など
+- **本文**: 変更内容を箇条書きで簡潔に
 
 ### コミット前の確認
 
-- 型エラーは必ず修正
-- `npm run lint` で確認
-- `npm run build` でビルドエラーがないこと
+- `npm run lint` と `npm run build` を実行
+- 型エラーがないことを確認
 
 ---
 
 ## トラブルシューティング
 
-### よくあるエラー
-
-1. **型エラー**: TypeScript の型定義を確認
-2. **`Cannot find module`**: `npm install`実行、パスエイリアス確認
-3. **ビルドエラー**: `.next`フォルダを削除して再ビルド
-4. **Monaco Editor エラー**: バージョン確認
-
-### キャッシュクリア
-
-```bash
-rm -rf .next
-rm -rf node_modules && npm install
-```
+| 問題                    | 対処法                                    |
+| ----------------------- | ----------------------------------------- |
+| 型エラー                | TypeScript の型定義を確認                 |
+| `Cannot find module`    | `npm install` 実行、パスエイリアス確認    |
+| ビルドエラー            | `.next` フォルダを削除して再ビルド        |
+| Monaco Editor エラー    | バージョン確認                            |
+| キャッシュ問題          | `node_modules` と `.next` を削除して再構築 |
 
 ---
 
