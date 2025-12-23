@@ -76,7 +76,12 @@ const shouldHighlightFullWidthSpace = (
   mode: string,
   startPos: { lineNumber: number; column: number },
   endPos: { lineNumber: number; column: number },
-  selection: { startLineNumber: number; startColumn: number; endLineNumber: number; endColumn: number } | null,
+  selection: {
+    startLineNumber: number;
+    startColumn: number;
+    endLineNumber: number;
+    endColumn: number;
+  } | null,
   lineContent: string,
   monaco: Monaco
 ): boolean => {
@@ -107,9 +112,7 @@ const shouldHighlightFullWidthSpace = (
 interface MonacoEditorProps {
   /** 特定のファイルIDを指定 */
   fileId?: string | null;
-  /** ペインID */
-  paneId?: string;
-  /** セカンダリエディタかどうか（後方互換性） */
+  /** セカンダリエディタかどうか */
   isSecondary?: boolean;
 }
 
@@ -117,14 +120,16 @@ interface MonacoEditorProps {
  * Monaco Editorコンポーネント
  * エディタの初期化と状態管理を担当
  */
-export function MonacoEditor({ fileId, paneId, isSecondary = false }: MonacoEditorProps) {
+export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps) {
   const { t } = useTranslation();
   const files = useFileStore((state) => state.files);
   const activeFileId = useFileStore((state) => state.activeFileId);
   const updateFile = useFileStore((state) => state.updateFile);
   const settings = useEditorStore((state) => state.settings);
   const setEditorInstance = useEditorInstanceStore((state) => state.setEditorInstance);
-  const setSecondaryEditorInstance = useEditorInstanceStore((state) => state.setSecondaryEditorInstance);
+  const setSecondaryEditorInstance = useEditorInstanceStore(
+    (state) => state.setSecondaryEditorInstance
+  );
   const updateStatusInfo = useEditorInstanceStore((state) => state.updateStatusInfo);
   const setSearchOpen = useSearchStore((state) => state.setIsOpen);
   const setSearchTerm = useSearchStore((state) => state.setSearchTerm);
@@ -135,13 +140,14 @@ export function MonacoEditor({ fileId, paneId, isSecondary = false }: MonacoEdit
   const currentFileIdRef = useRef<string | null>(null);
   const currentThemeRef = useRef<string | null>(null);
   const fullWidthSpaceDecorationsRef = useRef<editor.IEditorDecorationsCollection | null>(null);
+  const fullWidthSpaceDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   const targetFileId = fileId || activeFileId;
-  const activeFile = files.find(f => f.id === targetFileId);
+  const activeFile = files.find((f) => f.id === targetFileId);
 
   if (activeFile) {
     currentFileIdRef.current = activeFile.id;
@@ -149,12 +155,15 @@ export function MonacoEditor({ fileId, paneId, isSecondary = false }: MonacoEdit
     currentFileIdRef.current = null;
   }
 
-  const handleChange = useCallback((value: string | undefined) => {
-    const id = currentFileIdRef.current;
-    if (id && value !== undefined) {
-      updateFile(id, value);
-    }
-  }, [updateFile]);
+  const handleChange = useCallback(
+    (value: string | undefined) => {
+      const id = currentFileIdRef.current;
+      if (id && value !== undefined) {
+        updateFile(id, value);
+      }
+    },
+    [updateFile]
+  );
 
   /**
    * 言語モードを設定
@@ -164,18 +173,16 @@ export function MonacoEditor({ fileId, paneId, isSecondary = false }: MonacoEdit
   }, [activeFile]);
 
   /**
-   * 全角スペースをハイライト表示する
+   * 全角スペースをハイライト表示する（内部実装）
    */
-  const updateFullWidthSpaceDecorations = useCallback(() => {
+  const updateFullWidthSpaceDecorationsCore = useCallback(() => {
     const ed = editorRef.current;
     const monaco = monacoRef.current;
-    if (!ed) return;
-    if (!monaco) return;
+    if (!ed || !monaco) return;
 
     const model = ed.getModel();
     if (!model) return;
 
-    // ハイライト無効の場合はクリアして終了
     if (settings.showFullWidthSpace === 'none') {
       if (fullWidthSpaceDecorationsRef.current) {
         fullWidthSpaceDecorationsRef.current.clear();
@@ -224,7 +231,19 @@ export function MonacoEditor({ fileId, paneId, isSecondary = false }: MonacoEdit
     } else {
       fullWidthSpaceDecorationsRef.current.set(decorations);
     }
-  }, [settings.showFullWidthSpace]);
+  }, [settings.showFullWidthSpace, t]);
+
+  /**
+   * 全角スペースをハイライト表示する（デバウンス付き）
+   */
+  const updateFullWidthSpaceDecorations = useCallback(() => {
+    if (fullWidthSpaceDebounceRef.current) {
+      clearTimeout(fullWidthSpaceDebounceRef.current);
+    }
+    fullWidthSpaceDebounceRef.current = setTimeout(() => {
+      updateFullWidthSpaceDecorationsCore();
+    }, 150);
+  }, [updateFullWidthSpaceDecorationsCore]);
 
   /**
    * Monaco Editorがマウントされる前にすべてのカスタムテーマを定義
@@ -281,22 +300,25 @@ export function MonacoEditor({ fileId, paneId, isSecondary = false }: MonacoEdit
   /**
    * カスタムMonacoテーマを適用（テーマ変更時用）
    */
-  const applyEditorTheme = useCallback((monaco: Monaco, ed: editor.IStandaloneCodeEditor, themeId: string, darkMode: boolean) => {
-    const customTheme = getThemeById(themeId);
-    const monacoThemeName = customTheme
-      ? `custom-${customTheme.id}`
-      : `custom-default-${darkMode ? 'dark' : 'light'}`;
+  const applyEditorTheme = useCallback(
+    (monaco: Monaco, ed: editor.IStandaloneCodeEditor, themeId: string, darkMode: boolean) => {
+      const customTheme = getThemeById(themeId);
+      const monacoThemeName = customTheme
+        ? `custom-${customTheme.id}`
+        : `custom-default-${darkMode ? 'dark' : 'light'}`;
 
-    monaco.editor.setTheme(monacoThemeName);
-    currentThemeRef.current = themeId;
+      monaco.editor.setTheme(monacoThemeName);
+      currentThemeRef.current = themeId;
 
-    const actualIsDark = customTheme ? customTheme.type === 'dark' : darkMode;
-    const editorDom = ed.getDomNode();
-    if (editorDom) {
-      editorDom.classList.remove('dark-editor', 'light-editor');
-      editorDom.classList.add(actualIsDark ? 'dark-editor' : 'light-editor');
-    }
-  }, []);
+      const actualIsDark = customTheme ? customTheme.type === 'dark' : darkMode;
+      const editorDom = ed.getDomNode();
+      if (editorDom) {
+        editorDom.classList.remove('dark-editor', 'light-editor');
+        editorDom.classList.add(actualIsDark ? 'dark-editor' : 'light-editor');
+      }
+    },
+    []
+  );
 
   /**
    * エディタオプション（パフォーマンス最大化）
@@ -394,8 +416,8 @@ export function MonacoEditor({ fileId, paneId, isSecondary = false }: MonacoEdit
       // エディタ内パディング
       padding: { top: 4, bottom: 4 },
 
-      // アクセシビリティ（パフォーマンス向け調整）
-      accessibilitySupport: 'off',
+      // アクセシビリティ（スクリーンリーダー検出時に有効化）
+      accessibilitySupport: 'auto',
 
       // 大規模ファイル対応
       largeFileOptimizations: true,
@@ -407,70 +429,84 @@ export function MonacoEditor({ fileId, paneId, isSecondary = false }: MonacoEdit
   /**
    * エディタの初期化時に呼ばれるマウントハンドラ
    */
-  const handleEditorDidMount: OnMount = useCallback((editor, monaco) => {
-    editorRef.current = editor;
-    monacoRef.current = monaco as Monaco;
+  const handleEditorDidMount: OnMount = useCallback(
+    (editor, monaco) => {
+      editorRef.current = editor;
+      monacoRef.current = monaco as Monaco;
 
-    if (isSecondary) {
-      setSecondaryEditorInstance(editor);
-    } else {
-      setEditorInstance(editor);
-    }
+      if (isSecondary) {
+        setSecondaryEditorInstance(editor);
+      } else {
+        setEditorInstance(editor);
+      }
 
-    const customTheme = getThemeById(settings.theme);
-    const isDark = customTheme ? customTheme.type === 'dark' : resolvedTheme === 'dark';
-    applyEditorTheme(monaco as Monaco, editor, settings.theme, isDark);
+      const customTheme = getThemeById(settings.theme);
+      const isDark = customTheme ? customTheme.type === 'dark' : resolvedTheme === 'dark';
+      applyEditorTheme(monaco as Monaco, editor, settings.theme, isDark);
 
-    editor.onDidChangeCursorPosition(() => {
+      editor.onDidChangeCursorPosition(() => {
+        const position = editor.getPosition();
+        if (position) {
+          updateStatusInfo({
+            cursorLine: position.lineNumber,
+            cursorColumn: position.column,
+          });
+        }
+      });
+
+      editor.onDidChangeModelContent(() => {
+        const model = editor.getModel();
+        if (model) {
+          updateStatusInfo({
+            lineCount: model.getLineCount(),
+            charCount: model.getValueLength(),
+          });
+        }
+        updateFullWidthSpaceDecorations();
+      });
+
+      const model = editor.getModel();
       const position = editor.getPosition();
-      if (position) {
+      if (model && position) {
+        const eol = model.getEOL();
         updateStatusInfo({
           cursorLine: position.lineNumber,
           cursorColumn: position.column,
-        });
-      }
-    });
-
-    editor.onDidChangeModelContent(() => {
-      const model = editor.getModel();
-      if (model) {
-        updateStatusInfo({
           lineCount: model.getLineCount(),
           charCount: model.getValueLength(),
+          language: model.getLanguageId(),
+          eol: getEolLabel(eol),
         });
       }
-      updateFullWidthSpaceDecorations();
-    });
 
-    const model = editor.getModel();
-    const position = editor.getPosition();
-    if (model && position) {
-      const eol = model.getEOL();
-      updateStatusInfo({
-        cursorLine: position.lineNumber,
-        cursorColumn: position.column,
-        lineCount: model.getLineCount(),
-        charCount: model.getValueLength(),
-        language: model.getLanguageId(),
-        eol: getEolLabel(eol),
-      });
-    }
-
-    if (monaco.KeyMod && monaco.KeyCode) {
-      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
-        setSearchOpen(true);
-        const selection = editor.getSelection();
-        if (selection && !selection.isEmpty()) {
-          const selectedText = editor.getModel()?.getValueInRange(selection);
-          if (selectedText) {
-            setSearchTerm(selectedText);
+      if (monaco.KeyMod && monaco.KeyCode) {
+        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
+          setSearchOpen(true);
+          const selection = editor.getSelection();
+          if (selection && !selection.isEmpty()) {
+            const selectedText = editor.getModel()?.getValueInRange(selection);
+            if (selectedText) {
+              setSearchTerm(selectedText);
+            }
           }
-        }
-      });
-    }
+        });
+      }
 
-    updateFullWidthSpaceDecorations();
-  }, [resolvedTheme, settings.theme, updateStatusInfo, setEditorInstance, setSecondaryEditorInstance, isSecondary, setSearchOpen, setSearchTerm, updateFullWidthSpaceDecorations, applyEditorTheme]);
+      updateFullWidthSpaceDecorations();
+    },
+    [
+      resolvedTheme,
+      settings.theme,
+      updateStatusInfo,
+      setEditorInstance,
+      setSecondaryEditorInstance,
+      isSecondary,
+      setSearchOpen,
+      setSearchTerm,
+      updateFullWidthSpaceDecorations,
+      applyEditorTheme,
+    ]
+  );
 
   useEffect(() => {
     if (!editorRef.current || !monacoRef.current) return;
@@ -493,16 +529,23 @@ export function MonacoEditor({ fileId, paneId, isSecondary = false }: MonacoEdit
       });
       updateFullWidthSpaceDecorations();
     }
-  }, [settings.fontSize, settings.fontFamily, settings.lineHeight, settings.tabSize, settings.wordWrap, settings.showLineNumbers, settings.showWhitespace, settings.showFullWidthSpace, updateFullWidthSpaceDecorations]);
+  }, [
+    settings.fontSize,
+    settings.fontFamily,
+    settings.lineHeight,
+    settings.tabSize,
+    settings.wordWrap,
+    settings.showLineNumbers,
+    settings.showWhitespace,
+    settings.showFullWidthSpace,
+    updateFullWidthSpaceDecorations,
+  ]);
 
   useEffect(() => {
     if (editorRef.current && activeFile && monacoRef.current) {
       const model = editorRef.current.getModel();
       if (model && monacoRef.current.editor) {
-        monacoRef.current.editor.setModelLanguage(
-          model,
-          getLanguageFromFilename(activeFile.name)
-        );
+        monacoRef.current.editor.setModelLanguage(model, getLanguageFromFilename(activeFile.name));
       }
     }
   }, [activeFile]);
@@ -539,4 +582,4 @@ export function MonacoEditor({ fileId, paneId, isSecondary = false }: MonacoEdit
       />
     </div>
   );
-} 
+}
