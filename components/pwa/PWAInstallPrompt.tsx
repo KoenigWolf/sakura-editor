@@ -161,7 +161,7 @@ export const PWAInstallPrompt = () => {
 
             <div className="flex items-start justify-between mt-2 sm:mt-0">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg shadow-pink-500/25">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/25">
                   {isIOS ? (
                     <Apple className="h-6 w-6 text-white" />
                   ) : (
@@ -286,7 +286,7 @@ export const PWAInstallPrompt = () => {
         <div className="p-5">
           {/* ヘッダー */}
           <div className="flex items-start gap-4 mb-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg shadow-pink-500/25">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/25">
               <Sparkles className="h-7 w-7 text-white" />
             </div>
             <div className="flex-1 min-w-0">
