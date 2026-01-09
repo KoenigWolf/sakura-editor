@@ -32,7 +32,7 @@ describe('SafeStorage', () => {
   describe('getItem', () => {
     it('存在するアイテムを取得できる', async () => {
       const { createSafeStorage } = await import('@/lib/store/storage');
-      const storage = createSafeStorage();
+      const storage = createSafeStorage()!;
 
       const testData = JSON.stringify({ state: { test: 'value' }, version: 0 });
       mockStorage['test-key'] = testData;
@@ -43,7 +43,7 @@ describe('SafeStorage', () => {
 
     it('存在しないアイテムはnullを返す', async () => {
       const { createSafeStorage } = await import('@/lib/store/storage');
-      const storage = createSafeStorage();
+      const storage = createSafeStorage()!;
 
       const result = storage.getItem('non-existent');
       expect(result).toBeNull();
@@ -51,7 +51,7 @@ describe('SafeStorage', () => {
 
     it('不正なJSONは削除してnullを返す', async () => {
       const { createSafeStorage } = await import('@/lib/store/storage');
-      const storage = createSafeStorage();
+      const storage = createSafeStorage()!;
 
       mockStorage['corrupted-key'] = 'invalid json {{{';
 
@@ -64,9 +64,9 @@ describe('SafeStorage', () => {
   describe('setItem', () => {
     it('アイテムを保存できる', async () => {
       const { createSafeStorage } = await import('@/lib/store/storage');
-      const storage = createSafeStorage();
+      const storage = createSafeStorage()!;
 
-      const testData = { test: 'value' };
+      const testData = { state: { test: 'value' }, version: 0 };
       storage.setItem('test-key', testData);
 
       expect(localStorage.setItem).toHaveBeenCalled();
@@ -76,9 +76,9 @@ describe('SafeStorage', () => {
 
     it('5MBを超えるデータは保存しない', async () => {
       const { createSafeStorage } = await import('@/lib/store/storage');
-      const storage = createSafeStorage();
+      const storage = createSafeStorage()!;
 
-      const largeData = 'x'.repeat(6 * 1024 * 1024);
+      const largeData = { state: { data: 'x'.repeat(6 * 1024 * 1024) }, version: 0 };
       storage.setItem('large-key', largeData);
 
       expect(localStorage.setItem).not.toHaveBeenCalled();
@@ -88,7 +88,7 @@ describe('SafeStorage', () => {
   describe('removeItem', () => {
     it('アイテムを削除できる', async () => {
       const { createSafeStorage } = await import('@/lib/store/storage');
-      const storage = createSafeStorage();
+      const storage = createSafeStorage()!;
 
       storage.removeItem('test-key');
 
