@@ -29,7 +29,6 @@ import { useEditorActions } from '@/hooks/use-editor-actions';
 import { useSwipeGesture } from '@/hooks/use-swipe-gesture';
 import { useVirtualKeyboard } from '@/hooks/use-virtual-keyboard';
 import { TabContextMenu } from '@/components/editor/TabContextMenu';
-import { OfflineIndicator } from '@/components/editor/OfflineIndicator';
 import type { CommandItem } from '@/components/editor/CommandPalette';
 import {
   Plus,
@@ -442,8 +441,6 @@ export const EditorContainer = memo(function EditorContainer() {
         onDuplicate={handleDuplicateTab}
         onRename={handleRenameTab}
       />
-
-      <OfflineIndicator />
     </div>
   );
 });
