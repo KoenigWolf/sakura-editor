@@ -4,7 +4,6 @@ import { memo, useCallback, useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useFileStore } from '@/lib/store/file-store';
 import { useSplitViewStore, type PaneNode, type PaneSplit } from '@/lib/store/split-view-store';
-import { useSplitWithFile } from '@/hooks/use-split-with-file';
 import { useTranslation } from 'react-i18next';
 import { Columns2, Rows2, X } from 'lucide-react';
 
@@ -29,8 +28,8 @@ export const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitP
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragSplitId, setDragSplitId] = useState<string | null>(null);
-  const { setActivePane, activePaneId, closePane, setPaneFile, root } = useSplitViewStore();
-  const { splitPaneWithNewFile } = useSplitWithFile();
+  const { setActivePane, activePaneId, closePane, setPaneFile, root, splitPane } =
+    useSplitViewStore();
   const files = useFileStore((state) => state.files);
   const hasMultiplePanes = root.type === 'split';
   const { t } = useTranslation();
@@ -103,7 +102,7 @@ export const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitP
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  splitPaneWithNewFile(node.id, 'vertical');
+                  splitPane(node.id, 'vertical', fileId);
                 }}
                 className="p-0.5 rounded hover:bg-muted"
                 title={t('split.splitVertical')}
@@ -114,7 +113,7 @@ export const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitP
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  splitPaneWithNewFile(node.id, 'horizontal');
+                  splitPane(node.id, 'horizontal', fileId);
                 }}
                 className="p-0.5 rounded hover:bg-muted"
                 title={t('split.splitHorizontal')}

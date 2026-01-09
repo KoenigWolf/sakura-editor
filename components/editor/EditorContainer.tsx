@@ -17,7 +17,6 @@ import {
 import { useFileStore } from '@/lib/store/file-store';
 import { useEditorInstanceStore } from '@/lib/store/editor-instance-store';
 import { useSplitViewStore, useIsSplit } from '@/lib/store/split-view-store';
-import { useSplitWithFile } from '@/hooks/use-split-with-file';
 import { useSearchStore } from '@/lib/store/search-store';
 import { useIndentStore } from '@/lib/store/indent-store';
 import { useTheme } from 'next-themes';
@@ -68,8 +67,7 @@ export const EditorContainer = memo(function EditorContainer() {
   const files = useFileStore((state) => state.files);
   const activeFileId = useFileStore((state) => state.activeFileId);
   const statusInfo = useEditorInstanceStore((state) => state.statusInfo);
-  const { root, setRatio, setPaneFile, reset } = useSplitViewStore();
-  const { splitActiveWithNewFile } = useSplitWithFile();
+  const { root, setRatio, setPaneFile, reset, splitActive } = useSplitViewStore();
   const isSplit = useIsSplit();
   const { setIsOpen: setSearchOpen } = useSearchStore();
   const rulerVisible = useIndentStore((state) => state.rulerVisible);
@@ -216,13 +214,14 @@ export const EditorContainer = memo(function EditorContainer() {
   // 安定したコールバック（commands の依存を削減）
   const openSearch = useCallback(() => setSearchOpen(true), [setSearchOpen]);
   const openSettings = useCallback(() => setShowSettings(true), []);
+  // 分割時は新規ファイルを作らず、現在のファイルを新ペインに表示
   const splitVertical = useCallback(
-    () => splitActiveWithNewFile('vertical'),
-    [splitActiveWithNewFile]
+    () => splitActive('vertical', activeFileId),
+    [splitActive, activeFileId]
   );
   const splitHorizontal = useCallback(
-    () => splitActiveWithNewFile('horizontal'),
-    [splitActiveWithNewFile]
+    () => splitActive('horizontal', activeFileId),
+    [splitActive, activeFileId]
   );
 
   const { handleNewFile, handleSave, handleOpen, handleGoToLine } = useKeyboardShortcuts({

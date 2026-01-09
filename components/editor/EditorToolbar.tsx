@@ -19,20 +19,16 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useSearchStore } from '@/lib/store/search-store';
 import { useSplitViewStore, useIsSplit } from '@/lib/store/split-view-store';
-import { useSplitWithFile } from '@/hooks/use-split-with-file';
+import { useFileStore } from '@/lib/store/file-store';
 import { useIndentStore } from '@/lib/store/indent-store';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useMobileDetection } from '@/hooks/use-mobile-detection';
 import { useFileOperations } from '@/hooks/use-file-operations';
 import { useEditorActions } from '@/hooks/use-editor-actions';
 
 const SearchDialog = dynamic(
-  () => import('@/components/editor/SearchDialog').then(mod => ({ default: mod.SearchDialog })),
+  () => import('@/components/editor/SearchDialog').then((mod) => ({ default: mod.SearchDialog })),
   { ssr: false }
 );
 
@@ -45,7 +41,14 @@ interface ToolbarButtonProps {
   disabled?: boolean;
 }
 
-const ToolbarButton = ({ icon: Icon, label, shortcut, onClick, active, disabled }: ToolbarButtonProps) => {
+const ToolbarButton = ({
+  icon: Icon,
+  label,
+  shortcut,
+  onClick,
+  active,
+  disabled,
+}: ToolbarButtonProps) => {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -60,14 +63,15 @@ const ToolbarButton = ({ icon: Icon, label, shortcut, onClick, active, disabled 
             disabled && 'opacity-40 cursor-not-allowed pointer-events-none'
           )}
         >
-          <Icon className="h-[14px] w-[14px] transition-transform duration-150 group-hover:scale-110 group-active:scale-95" strokeWidth={1.5} />
+          <Icon
+            className="h-[14px] w-[14px] transition-transform duration-150 group-hover:scale-110 group-active:scale-95"
+            strokeWidth={1.5}
+          />
         </button>
       </TooltipTrigger>
       <TooltipContent side="bottom" className="mochi-tooltip">
         <span>{label}</span>
-        {shortcut && (
-          <kbd className="mochi-kbd">{shortcut}</kbd>
-        )}
+        {shortcut && <kbd className="mochi-kbd">{shortcut}</kbd>}
       </TooltipContent>
     </Tooltip>
   );
@@ -80,9 +84,9 @@ interface EditorToolbarProps {
 export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
   const { t } = useTranslation();
   const { setIsOpen: setSearchOpen, isOpen: searchOpen } = useSearchStore();
-  const { reset } = useSplitViewStore();
+  const { reset, splitActive } = useSplitViewStore();
   const isSplit = useIsSplit();
-  const { splitActiveWithNewFile } = useSplitWithFile();
+  const activeFileId = useFileStore((state) => state.activeFileId);
   const rulerVisible = useIndentStore((state) => state.rulerVisible);
   const setRulerVisible = useIndentStore((state) => state.setRulerVisible);
   const { isMobile, mounted } = useMobileDetection();
@@ -104,126 +108,123 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
 
   return (
     <>
-    <div className="mochi-toolbar-modern flex items-center gap-1.5 px-2 py-1 w-full overflow-hidden">
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            onClick={onOpenSettings}
-            aria-label={t('toolbar.settings')}
-            className="mochi-toolbar-btn group"
-          >
-            <Settings className="h-[14px] w-[14px] transition-all duration-200 group-hover:rotate-45" strokeWidth={1.5} />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="bottom" className="mochi-tooltip">
-          <span>{t('toolbar.settings')}</span>
-          <kbd className="mochi-kbd">⌘,</kbd>
-        </TooltipContent>
-      </Tooltip>
+      <div className="mochi-toolbar-modern flex items-center gap-1.5 px-2 py-1 w-full overflow-hidden">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={onOpenSettings}
+              aria-label={t('toolbar.settings')}
+              className="mochi-toolbar-btn group"
+            >
+              <Settings
+                className="h-[14px] w-[14px] transition-all duration-200 group-hover:rotate-45"
+                strokeWidth={1.5}
+              />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="mochi-tooltip">
+            <span>{t('toolbar.settings')}</span>
+            <kbd className="mochi-kbd">⌘,</kbd>
+          </TooltipContent>
+        </Tooltip>
 
-      <div className="mochi-toolbar-separator" />
+        <div className="mochi-toolbar-separator" />
 
-      <div className="mochi-toolbar-group">
-        <ToolbarButton
-          icon={Plus}
-          label={t('toolbar.newFile')}
-          shortcut="⌘N"
-          onClick={handleNewFile}
-        />
-        <ToolbarButton
-          icon={Download}
-          label={t('toolbar.save')}
-          shortcut="⌘S"
-          onClick={handleSave}
-        />
-        <ToolbarButton
-          icon={FolderOpen}
-          label={t('toolbar.load')}
-          shortcut="⌘O"
-          onClick={handleOpen}
-        />
-      </div>
-
-      <div className="mochi-toolbar-separator" />
-
-      <div className="mochi-toolbar-group">
-        <ToolbarButton
-          icon={RotateCcw}
-          label={t('toolbar.undo')}
-          shortcut="⌘Z"
-          onClick={handleUndo}
-        />
-        <ToolbarButton
-          icon={RotateCw}
-          label={t('toolbar.redo')}
-          shortcut="⌘Y"
-          onClick={handleRedo}
-        />
-      </div>
-
-      <div className="mochi-toolbar-separator" />
-
-      <div className="mochi-toolbar-group">
-        <ToolbarButton
-          icon={Search}
-          label={t('toolbar.search')}
-          shortcut="⌘F"
-          onClick={() => setSearchOpen(true)}
-        />
-      </div>
-
-      <div className="mochi-toolbar-separator" />
-
-      <div className="mochi-toolbar-group">
-        <ToolbarButton
-          icon={AlignLeft}
-          label={t('toolbar.outdent')}
-          shortcut="⇧Tab"
-          onClick={handleOutdent}
-        />
-        <ToolbarButton
-          icon={TextCursorInput}
-          label={t('toolbar.indent')}
-          shortcut="Tab"
-          onClick={handleIndent}
-        />
-        <ToolbarButton
-          icon={Scaling}
-          label={t('toolbar.ruler')}
-          onClick={() => setRulerVisible(!rulerVisible)}
-          active={rulerVisible}
-        />
-      </div>
-
-      <div className="mochi-toolbar-group">
-        <ToolbarButton
-          icon={Columns2}
-          label={t('toolbar.splitVertical')}
-          shortcut="⌘\\"
-          onClick={() => splitActiveWithNewFile('vertical')}
-        />
-        <ToolbarButton
-          icon={Rows2}
-          label={t('toolbar.splitHorizontal')}
-          onClick={() => splitActiveWithNewFile('horizontal')}
-        />
-        {isSplit && (
+        <div className="mochi-toolbar-group">
           <ToolbarButton
-            icon={X}
-            label={t('toolbar.closeSplit')}
-            onClick={reset}
+            icon={Plus}
+            label={t('toolbar.newFile')}
+            shortcut="⌘N"
+            onClick={handleNewFile}
           />
-        )}
-      </div>
-    </div>
+          <ToolbarButton
+            icon={Download}
+            label={t('toolbar.save')}
+            shortcut="⌘S"
+            onClick={handleSave}
+          />
+          <ToolbarButton
+            icon={FolderOpen}
+            label={t('toolbar.load')}
+            shortcut="⌘O"
+            onClick={handleOpen}
+          />
+        </div>
 
-    <SearchDialog
-      open={searchOpen}
-      onOpenChange={setSearchOpen}
-      onSearch={() => {}}
-      onReplace={() => {}}
-    />
+        <div className="mochi-toolbar-separator" />
+
+        <div className="mochi-toolbar-group">
+          <ToolbarButton
+            icon={RotateCcw}
+            label={t('toolbar.undo')}
+            shortcut="⌘Z"
+            onClick={handleUndo}
+          />
+          <ToolbarButton
+            icon={RotateCw}
+            label={t('toolbar.redo')}
+            shortcut="⌘Y"
+            onClick={handleRedo}
+          />
+        </div>
+
+        <div className="mochi-toolbar-separator" />
+
+        <div className="mochi-toolbar-group">
+          <ToolbarButton
+            icon={Search}
+            label={t('toolbar.search')}
+            shortcut="⌘F"
+            onClick={() => setSearchOpen(true)}
+          />
+        </div>
+
+        <div className="mochi-toolbar-separator" />
+
+        <div className="mochi-toolbar-group">
+          <ToolbarButton
+            icon={AlignLeft}
+            label={t('toolbar.outdent')}
+            shortcut="⇧Tab"
+            onClick={handleOutdent}
+          />
+          <ToolbarButton
+            icon={TextCursorInput}
+            label={t('toolbar.indent')}
+            shortcut="Tab"
+            onClick={handleIndent}
+          />
+          <ToolbarButton
+            icon={Scaling}
+            label={t('toolbar.ruler')}
+            onClick={() => setRulerVisible(!rulerVisible)}
+            active={rulerVisible}
+          />
+        </div>
+
+        <div className="mochi-toolbar-group">
+          <ToolbarButton
+            icon={Columns2}
+            label={t('toolbar.splitVertical')}
+            shortcut="⌘\\"
+            onClick={() => splitActive('vertical', activeFileId)}
+          />
+          <ToolbarButton
+            icon={Rows2}
+            label={t('toolbar.splitHorizontal')}
+            onClick={() => splitActive('horizontal', activeFileId)}
+          />
+          {isSplit && <ToolbarButton icon={X} label={t('toolbar.closeSplit')} onClick={reset} />}
+        </div>
+      </div>
+
+      <SearchDialog
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        onSearch={() => {}}
+        onReplace={() => {}}
+      />
     </>
   );
 }
