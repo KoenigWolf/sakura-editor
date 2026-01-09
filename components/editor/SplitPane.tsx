@@ -2,7 +2,6 @@
 
 import { memo, useCallback, useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { useFileStore } from '@/lib/store/file-store';
 import { useSplitViewStore, type PaneNode, type PaneSplit } from '@/lib/store/split-view-store';
 import { useTranslation } from 'react-i18next';
 import { Columns2, Rows2, X } from 'lucide-react';
@@ -28,9 +27,7 @@ export const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitP
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragSplitId, setDragSplitId] = useState<string | null>(null);
-  const { setActivePane, activePaneId, closePane, setPaneFile, root, splitPane } =
-    useSplitViewStore();
-  const files = useFileStore((state) => state.files);
+  const { setActivePane, activePaneId, closePane, root, splitPane } = useSplitViewStore();
   const hasMultiplePanes = root.type === 'split';
   const { t } = useTranslation();
 
@@ -79,24 +76,7 @@ export const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitP
         onClick={() => setActivePane(node.id)}
       >
         {hasMultiplePanes && (
-          <div className="flex items-center justify-between px-2 py-1 bg-muted/30 border-b border-border/50 flex-shrink-0">
-            <select
-              value={fileId || ''}
-              onChange={(e) => {
-                e.stopPropagation();
-                setPaneFile(node.id, e.target.value || null);
-              }}
-              onClick={(e) => e.stopPropagation()}
-              aria-label={t('split.selectFile')}
-              className="text-xs bg-transparent border-none outline-none cursor-pointer hover:bg-muted/50 rounded px-1 py-0.5 max-w-[150px] truncate"
-            >
-              {files.map((file) => (
-                <option key={file.id} value={file.id}>
-                  {file.name}
-                  {file.isDirty ? ' •' : ''}
-                </option>
-              ))}
-            </select>
+          <div className="flex items-center justify-end px-1 py-0.5 bg-muted/20 border-b border-border/30 flex-shrink-0">
             <div className="flex gap-0.5">
               <button
                 type="button"
@@ -104,7 +84,7 @@ export const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitP
                   e.stopPropagation();
                   splitPane(node.id, 'vertical', fileId);
                 }}
-                className="p-0.5 rounded hover:bg-muted"
+                className="p-0.5 rounded hover:bg-muted/50 opacity-60 hover:opacity-100"
                 title={t('split.splitVertical')}
               >
                 <Columns2 className="h-3 w-3 text-muted-foreground" />
@@ -115,7 +95,7 @@ export const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitP
                   e.stopPropagation();
                   splitPane(node.id, 'horizontal', fileId);
                 }}
-                className="p-0.5 rounded hover:bg-muted"
+                className="p-0.5 rounded hover:bg-muted/50 opacity-60 hover:opacity-100"
                 title={t('split.splitHorizontal')}
               >
                 <Rows2 className="h-3 w-3 text-muted-foreground" />
@@ -126,7 +106,7 @@ export const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitP
                   e.stopPropagation();
                   closePane(node.id);
                 }}
-                className="p-0.5 rounded hover:bg-muted"
+                className="p-0.5 rounded hover:bg-muted/50 opacity-60 hover:opacity-100"
                 title={t('split.closePane')}
               >
                 <X className="h-3 w-3 text-muted-foreground" />
