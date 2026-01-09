@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from 'next';
 
 const siteName = 'Zen Editor';
 const siteUrl = 'https://zen-editor.vercel.app';
-const description = '無料で使えるオンラインテキストエディタ。インストール不要でブラウザから即座に利用可能。日本語完全対応、全角スペース表示、ダークモード、検索・置換、Markdown プレビューやコマンドパレットなど開発者向け機能を網羅。プライバシーファースト設計でメモからコードまで安全に編集。';
+const description =
+  '無料で使えるオンラインテキストエディタ。インストール不要でブラウザから即座に利用可能。日本語完全対応、全角スペース表示、ダークモード、検索・置換、Markdown プレビューやコマンドパレットなど開発者向け機能を網羅。プライバシーファースト設計でメモからコードまで安全に編集。';
 const featureList = [
   'インストール不要・ログイン不要で即起動',
   '日本語完全対応と全角スペース表示',
@@ -19,7 +20,8 @@ const faqEntities = [
   },
   {
     question: 'インストールやログインは必要ですか？',
-    answer: '不要です。ブラウザがあればすぐに起動でき、PWA としてホーム画面に追加することも可能です。',
+    answer:
+      '不要です。ブラウザがあればすぐに起動でき、PWA としてホーム画面に追加することも可能です。',
   },
   {
     question: 'ファイルの内容はどこに保存されますか？',
@@ -27,7 +29,8 @@ const faqEntities = [
   },
   {
     question: 'プログラミング用途にも対応していますか？',
-    answer: 'Monaco Editor ベースのためシンタックスハイライトや複数テーマに対応し、Markdown やコードの編集も快適です。',
+    answer:
+      'Monaco Editor ベースのためシンタックスハイライトや複数テーマに対応し、Markdown やコードの編集も快適です。',
   },
 ];
 
@@ -106,9 +109,9 @@ export const metadata: Metadata = {
     description,
     images: [
       {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
+        url: '/screenshot-wide.svg',
+        width: 1280,
+        height: 720,
         alt: 'Zen Editor - 無料オンラインテキストエディタ',
       },
     ],
@@ -117,16 +120,11 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: `${siteName} - 無料オンラインテキストエディタ`,
     description,
-    images: ['/og-image.png'],
+    images: ['/screenshot-wide.svg'],
   },
   icons: {
-    icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
-    ],
-    apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180' },
-    ],
+    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+    apple: [{ url: '/icon-192.svg', sizes: '192x192', type: 'image/svg+xml' }],
   },
   manifest: '/manifest.json',
   category: 'technology',
@@ -150,7 +148,7 @@ export const jsonLd = {
         priceCurrency: 'JPY',
       },
       featureList,
-      screenshot: `${siteUrl}/screenshot.png`,
+      screenshot: `${siteUrl}/screenshot-wide.svg`,
       softwareVersion: '1.0.0',
       author: {
         '@type': 'Organization',
@@ -188,11 +186,4 @@ export const jsonLd = {
       ],
     },
   ],
-  screenshot: `${siteUrl}/screenshot.png`,
-  softwareVersion: '1.0.0',
-  author: {
-    '@type': 'Organization',
-    name: 'Zen Editor Team',
-  },
-  inLanguage: ['ja', 'en'],
 };
