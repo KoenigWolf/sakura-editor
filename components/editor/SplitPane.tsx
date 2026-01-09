@@ -3,9 +3,8 @@
 import { memo, useCallback, useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useSplitViewStore, type PaneNode, type PaneSplit } from '@/lib/store/split-view-store';
-import { useFileStore } from '@/lib/store/file-store';
 import { useTranslation } from 'react-i18next';
-import { Columns2, Rows2, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 const MonacoEditor = dynamic(
   () => import('@/components/editor/MonacoEditor').then((mod) => ({ default: mod.MonacoEditor })),
@@ -28,10 +27,8 @@ export const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitP
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragSplitId, setDragSplitId] = useState<string | null>(null);
-  const { setActivePane, activePaneId, closePane, root, splitPane } = useSplitViewStore();
-  const files = useFileStore((state) => state.files);
-  const addFile = useFileStore((state) => state.addFile);
-  const hasMultiplePanes = root.type === 'split';
+  const { setActivePane, activePaneId, closePane, root } = useSplitViewStore();
+  const isSplit = root.type === 'split';
   const { t } = useTranslation();
 
   const handleMouseDown = useCallback((e: React.MouseEvent, splitId: string) => {
@@ -72,61 +69,26 @@ export const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitP
   if (node.type === 'leaf') {
     const fileId = node.fileId;
     const isActive = node.id === activePaneId;
-    const currentFile = files.find((f) => f.id === fileId);
-
-    const handleSplit = (direction: 'vertical' | 'horizontal') => {
-      if (!currentFile) return;
-      const newFileId = addFile({
-        name: `${currentFile.name} (copy)`,
-        content: currentFile.content,
-        path: '',
-        lastModified: Date.now(),
-      });
-      splitPane(node.id, direction, newFileId);
-    };
 
     return (
       <div
         className={`h-full w-full flex flex-col ${isActive ? 'ring-1 ring-primary/30' : ''}`}
         onClick={() => setActivePane(node.id)}
       >
-        {hasMultiplePanes && (
+        {/* 分割中のみペインヘッダーを表示（クローズボタンのみ） */}
+        {isSplit && (
           <div className="flex items-center justify-end px-1 py-0.5 bg-muted/20 border-b border-border/30 flex-shrink-0">
-            <div className="flex gap-0.5">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSplit('vertical');
-                }}
-                className="p-0.5 rounded hover:bg-muted/50 opacity-60 hover:opacity-100"
-                title={t('split.splitVertical')}
-              >
-                <Columns2 className="h-3 w-3 text-muted-foreground" />
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSplit('horizontal');
-                }}
-                className="p-0.5 rounded hover:bg-muted/50 opacity-60 hover:opacity-100"
-                title={t('split.splitHorizontal')}
-              >
-                <Rows2 className="h-3 w-3 text-muted-foreground" />
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  closePane(node.id);
-                }}
-                className="p-0.5 rounded hover:bg-muted/50 opacity-60 hover:opacity-100"
-                title={t('split.closePane')}
-              >
-                <X className="h-3 w-3 text-muted-foreground" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                closePane(node.id);
+              }}
+              className="p-0.5 rounded hover:bg-muted/50 opacity-60 hover:opacity-100"
+              title={t('split.closePane')}
+            >
+              <X className="h-3 w-3 text-muted-foreground" />
+            </button>
           </div>
         )}
         <div className="flex-1 min-h-0">
