@@ -152,6 +152,9 @@ export const DEFAULT_EDITOR_OPTIONS: editor.IStandaloneEditorConstructionOptions
   // ホバー無効化
   hover: { enabled: false },
 
+  // スティッキースクロール無効化（タブと重複するため）
+  stickyScroll: { enabled: false },
+
   // フォーマット無効化
   formatOnType: false,
   formatOnPaste: false,
