@@ -86,7 +86,8 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
   const { setIsOpen: setSearchOpen, isOpen: searchOpen } = useSearchStore();
   const { reset, splitActive } = useSplitViewStore();
   const isSplit = useIsSplit();
-  const activeFileId = useFileStore((state) => state.activeFileId);
+  const activeFile = useFileStore((state) => state.files.find((f) => f.id === state.activeFileId));
+  const addFile = useFileStore((state) => state.addFile);
   const rulerVisible = useIndentStore((state) => state.rulerVisible);
   const setRulerVisible = useIndentStore((state) => state.setRulerVisible);
   const { isMobile, mounted } = useMobileDetection();
@@ -208,12 +209,30 @@ export function EditorToolbar({ onOpenSettings }: EditorToolbarProps) {
             icon={Columns2}
             label={t('toolbar.splitVertical')}
             shortcut="⌘\\"
-            onClick={() => splitActive('vertical', activeFileId)}
+            onClick={() => {
+              if (!activeFile) return;
+              const newFileId = addFile({
+                name: `${activeFile.name} (copy)`,
+                content: activeFile.content,
+                path: '',
+                lastModified: Date.now(),
+              });
+              splitActive('vertical', newFileId);
+            }}
           />
           <ToolbarButton
             icon={Rows2}
             label={t('toolbar.splitHorizontal')}
-            onClick={() => splitActive('horizontal', activeFileId)}
+            onClick={() => {
+              if (!activeFile) return;
+              const newFileId = addFile({
+                name: `${activeFile.name} (copy)`,
+                content: activeFile.content,
+                path: '',
+                lastModified: Date.now(),
+              });
+              splitActive('horizontal', newFileId);
+            }}
           />
           {isSplit && <ToolbarButton icon={X} label={t('toolbar.closeSplit')} onClick={reset} />}
         </div>

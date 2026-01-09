@@ -66,6 +66,7 @@ export const EditorContainer = memo(function EditorContainer() {
   const activeFile = useFileStore((state) => state.files.find((f) => f.id === state.activeFileId));
   const files = useFileStore((state) => state.files);
   const activeFileId = useFileStore((state) => state.activeFileId);
+  const addFile = useFileStore((state) => state.addFile);
   const statusInfo = useEditorInstanceStore((state) => state.statusInfo);
   const { root, setRatio, setPaneFile, reset, splitActive } = useSplitViewStore();
   const isSplit = useIsSplit();
@@ -214,15 +215,22 @@ export const EditorContainer = memo(function EditorContainer() {
   // 安定したコールバック（commands の依存を削減）
   const openSearch = useCallback(() => setSearchOpen(true), [setSearchOpen]);
   const openSettings = useCallback(() => setShowSettings(true), []);
-  // 分割時は新規ファイルを作らず、現在のファイルを新ペインに表示
-  const splitVertical = useCallback(
-    () => splitActive('vertical', activeFileId),
-    [splitActive, activeFileId]
+  // 分割時はファイル内容をコピーして新規ファイルを作成（独立編集）
+  const splitWithCopy = useCallback(
+    (direction: 'vertical' | 'horizontal') => {
+      if (!activeFile) return;
+      const newFileId = addFile({
+        name: `${activeFile.name} (copy)`,
+        content: activeFile.content,
+        path: '',
+        lastModified: Date.now(),
+      });
+      splitActive(direction, newFileId);
+    },
+    [activeFile, addFile, splitActive]
   );
-  const splitHorizontal = useCallback(
-    () => splitActive('horizontal', activeFileId),
-    [splitActive, activeFileId]
-  );
+  const splitVertical = useCallback(() => splitWithCopy('vertical'), [splitWithCopy]);
+  const splitHorizontal = useCallback(() => splitWithCopy('horizontal'), [splitWithCopy]);
 
   const { handleNewFile, handleSave, handleOpen, handleGoToLine } = useKeyboardShortcuts({
     onOpenSettings: () => setShowSettings(true),

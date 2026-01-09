@@ -3,6 +3,7 @@
 import { memo, useCallback, useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useSplitViewStore, type PaneNode, type PaneSplit } from '@/lib/store/split-view-store';
+import { useFileStore } from '@/lib/store/file-store';
 import { useTranslation } from 'react-i18next';
 import { Columns2, Rows2, X } from 'lucide-react';
 
@@ -28,6 +29,8 @@ export const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitP
   const [isDragging, setIsDragging] = useState(false);
   const [dragSplitId, setDragSplitId] = useState<string | null>(null);
   const { setActivePane, activePaneId, closePane, root, splitPane } = useSplitViewStore();
+  const files = useFileStore((state) => state.files);
+  const addFile = useFileStore((state) => state.addFile);
   const hasMultiplePanes = root.type === 'split';
   const { t } = useTranslation();
 
@@ -69,6 +72,18 @@ export const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitP
   if (node.type === 'leaf') {
     const fileId = node.fileId;
     const isActive = node.id === activePaneId;
+    const currentFile = files.find((f) => f.id === fileId);
+
+    const handleSplit = (direction: 'vertical' | 'horizontal') => {
+      if (!currentFile) return;
+      const newFileId = addFile({
+        name: `${currentFile.name} (copy)`,
+        content: currentFile.content,
+        path: '',
+        lastModified: Date.now(),
+      });
+      splitPane(node.id, direction, newFileId);
+    };
 
     return (
       <div
@@ -82,7 +97,7 @@ export const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitP
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  splitPane(node.id, 'vertical', fileId);
+                  handleSplit('vertical');
                 }}
                 className="p-0.5 rounded hover:bg-muted/50 opacity-60 hover:opacity-100"
                 title={t('split.splitVertical')}
@@ -93,7 +108,7 @@ export const SplitPane = memo(function SplitPane({ node, onRatioChange }: SplitP
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  splitPane(node.id, 'horizontal', fileId);
+                  handleSplit('horizontal');
                 }}
                 className="p-0.5 rounded hover:bg-muted/50 opacity-60 hover:opacity-100"
                 title={t('split.splitHorizontal')}
