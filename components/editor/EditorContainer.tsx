@@ -178,11 +178,13 @@ export const EditorContainer = memo(function EditorContainer() {
     onSwipeRight: switchToPrevFile,
   });
 
+  // 単一ペイン時: activeFileId と同期（タブ切替で表示が追従）
+  // 分割時: 各ペインは独自の fileId を保持
   useEffect(() => {
-    if (root.type === 'leaf' && root.fileId === null && activeFileId) {
+    if (root.type === 'leaf' && activeFileId) {
       setPaneFile(root.id, activeFileId);
     }
-  }, [root, activeFileId, setPaneFile]);
+  }, [root.type, root.id, activeFileId, setPaneFile]);
 
   const handleEditorAreaClick = useCallback(() => {
     if (!isMobile) return;
