@@ -1,4 +1,7 @@
-# Code Review
+---
+description: コードレビューを実行
+allowed-tools: Bash(git diff:*), Bash(git status:*), Bash(git log:*)
+---
 
 コードレビューを実行します。
 
@@ -23,7 +26,5 @@
 **問題**: 問題の説明
 **提案**: 修正案
 ```
-
-## 実行
 
 変更がない場合は、ステージングされたファイルまたは最新のコミットをレビューします。
