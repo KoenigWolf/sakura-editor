@@ -114,6 +114,7 @@ interface SplitViewState {
   setActivePane: (paneId: string) => void;
   reset: () => void;
   splitActive: (direction: SplitDirection, newFileId?: string | null) => string | null;
+  clearFileFromPanes: (fileId: string) => void;
 
   isSplit: () => boolean;
   getPaneCount: () => number;
@@ -184,6 +185,14 @@ export const useSplitViewStore = create<SplitViewState>((set, get) => ({
   reset: () => {
     idCounter = 0;
     set(createInitialState());
+  },
+
+  clearFileFromPanes: (fileId) => {
+    set((state) => ({
+      root: mapTree(state.root, (node) =>
+        node.type === 'leaf' && node.fileId === fileId ? { ...node, fileId: null } : node
+      ),
+    }));
   },
 
   splitActive: (direction, newFileId = null) => {

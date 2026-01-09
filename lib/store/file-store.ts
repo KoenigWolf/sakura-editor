@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createSafeStorage } from '@/lib/store/storage';
+import { useSplitViewStore } from '@/lib/store/split-view-store';
 
 export interface FileData {
   id: string;
@@ -43,9 +44,10 @@ export const useFileStore = create<FileStore>()(
       addFile: (file) => {
         const newFile = {
           ...file,
-          id: typeof crypto !== 'undefined' && crypto.randomUUID
-            ? crypto.randomUUID()
-            : `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+          id:
+            typeof crypto !== 'undefined' && crypto.randomUUID
+              ? crypto.randomUUID()
+              : `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
           isDirty: false,
           originalContent: file.content,
         };
@@ -85,6 +87,7 @@ export const useFileStore = create<FileStore>()(
       },
 
       removeFile: (id) => {
+        useSplitViewStore.getState().clearFileFromPanes(id);
         set((state) => ({
           files: state.files.filter((file) => file.id !== id),
           activeFileId: state.activeFileId === id ? null : state.activeFileId,
@@ -103,9 +106,7 @@ export const useFileStore = create<FileStore>()(
       markAsSaved: (id) => {
         set((state) => ({
           files: state.files.map((file) =>
-            file.id === id
-              ? { ...file, isDirty: false, originalContent: file.content }
-              : file
+            file.id === id ? { ...file, isDirty: false, originalContent: file.content } : file
           ),
         }));
       },
@@ -113,9 +114,7 @@ export const useFileStore = create<FileStore>()(
       renameFile: (id, name) => {
         set((state) => ({
           files: state.files.map((file) =>
-            file.id === id
-              ? { ...file, name, lastModified: Date.now() }
-              : file
+            file.id === id ? { ...file, name, lastModified: Date.now() } : file
           ),
         }));
       },
