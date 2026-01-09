@@ -27,7 +27,7 @@ interface MobileTabButtonProps {
   onLongPress: (event: React.TouchEvent | React.MouseEvent) => void;
 }
 
-export const MobileTabButton = memo(function MobileTabButton({
+const MobileTabButton = memo(function MobileTabButton({
   file,
   isActive,
   onPress,

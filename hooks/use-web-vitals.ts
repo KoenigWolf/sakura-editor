@@ -28,27 +28,3 @@ export const useWebVitals = (callback: WebVitalsCallback = defaultCallback): voi
     onTTFB(callback);
   }, [callback]);
 };
-
-// Utility to send metrics to an analytics endpoint
-export const sendToAnalytics = (metric: Metric): void => {
-  const body = JSON.stringify({
-    name: metric.name,
-    value: metric.value,
-    rating: metric.rating,
-    delta: metric.delta,
-    id: metric.id,
-    navigationType: metric.navigationType,
-  });
-
-  // Use sendBeacon if available, fallback to fetch
-  if (navigator.sendBeacon) {
-    navigator.sendBeacon('/api/vitals', body);
-  } else {
-    fetch('/api/vitals', {
-      body,
-      method: 'POST',
-      keepalive: true,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-};

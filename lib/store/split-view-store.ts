@@ -205,5 +205,3 @@ export const useSplitViewStore = create<SplitViewState>((set, get) => ({
 }));
 
 export const useIsSplit = () => useSplitViewStore((state) => state.root.type === 'split');
-export const usePaneCount = () => useSplitViewStore((state) => countLeaves(state.root));
-export const useActivePane = () => useSplitViewStore((state) => state.activePaneId);

@@ -9,7 +9,7 @@ type Monaco = typeof import('monaco-editor');
 /**
  * Monaco Editorで利用可能な言語モードのマッピング
  */
-export const LANGUAGE_MAPPINGS: Record<string, string> = {
+const LANGUAGE_MAPPINGS: Record<string, string> = {
   '.js': 'javascript',
   '.ts': 'typescript',
   '.jsx': 'javascript',

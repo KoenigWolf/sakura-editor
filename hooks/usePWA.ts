@@ -10,7 +10,7 @@ export interface BeforeInstallPromptEvent extends Event {
 export type Platform = 'ios' | 'android' | 'windows' | 'macos' | 'linux' | 'unknown';
 export type Browser = 'safari' | 'chrome' | 'edge' | 'firefox' | 'unknown';
 
-export const detectPlatform = (): Platform => {
+const detectPlatform = (): Platform => {
   if (typeof window === 'undefined') return 'unknown';
   const ua = navigator.userAgent.toLowerCase();
   if (/iphone|ipad|ipod/.test(ua)) return 'ios';
@@ -21,7 +21,7 @@ export const detectPlatform = (): Platform => {
   return 'unknown';
 };
 
-export const detectBrowser = (): Browser => {
+const detectBrowser = (): Browser => {
   if (typeof window === 'undefined') return 'unknown';
   const ua = navigator.userAgent.toLowerCase();
   if (/edg/.test(ua)) return 'edge';
