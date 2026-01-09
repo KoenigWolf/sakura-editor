@@ -4,7 +4,7 @@ import { create } from 'zustand';
 
 export type SplitDirection = 'horizontal' | 'vertical';
 
-export interface PaneLeaf {
+interface PaneLeaf {
   type: 'leaf';
   id: string;
   fileId: string | null;

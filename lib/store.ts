@@ -7,7 +7,7 @@ import { createSafeStorage } from '@/lib/store/storage';
 /**
  * エディタ設定ストアのインターフェース
  */
-export interface EditorSettingsState {
+interface EditorSettingsState {
   settings: EditorSettings;
   updateSettings: (settings: Partial<EditorSettings>) => void;
   resetSettings: () => void;
@@ -50,4 +50,3 @@ export const useEditorStore = create<EditorSettingsState>()(
     )
   )
 );
-

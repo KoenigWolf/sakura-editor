@@ -4,7 +4,7 @@
  */
 
 // 型定義
-export type { ThemeColors, EditorTheme } from './types';
+export type { EditorTheme } from './types';
 
 // ユーティリティ
 export {

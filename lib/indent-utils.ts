@@ -1,7 +1,7 @@
 import type { editor } from 'monaco-editor';
 import type { IndentSettings } from '@/lib/store/indent-store';
 
-export interface IndentResult {
+interface IndentResult {
   success: boolean;
   affectedLines: number;
 }
@@ -122,4 +122,3 @@ export const outdentLines = (
 
   return { success: false, affectedLines: 0 };
 };
-

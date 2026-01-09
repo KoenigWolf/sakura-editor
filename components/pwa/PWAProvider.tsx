@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, ReactNode } from 'react';
+import { createContext, ReactNode } from 'react';
 import { usePWA } from '@/hooks/usePWA';
 import { PWAInstallPrompt, OfflineIndicator, UpdateNotification } from './PWAInstallPrompt';
 
@@ -12,14 +12,6 @@ interface PWAContextValue {
 }
 
 const PWAContext = createContext<PWAContextValue | null>(null);
-
-export function usePWAContext() {
-  const context = useContext(PWAContext);
-  if (!context) {
-    throw new Error('usePWAContext must be used within PWAProvider');
-  }
-  return context;
-}
 
 export function PWAProvider({ children }: { children: ReactNode }) {
   const pwa = usePWA();
