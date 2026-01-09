@@ -26,16 +26,16 @@ interface MonacoEditorProps {
 
 export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps) {
   const { t } = useTranslation();
-  const files = useFileStore((state) => state.files);
-  const activeFileId = useFileStore((state) => state.activeFileId);
-  const updateFile = useFileStore((state) => state.updateFile);
-  const setEditorInstance = useEditorInstanceStore((state) => state.setEditorInstance);
-  const setSecondaryEditorInstance = useEditorInstanceStore(
-    (state) => state.setSecondaryEditorInstance
+  // 単一セレクタで必要なファイルのみを取得（不要な再レンダーを防止）
+  const activeFile = useFileStore(
+    useCallback(
+      (state) => {
+        const targetId = fileId || state.activeFileId;
+        return state.files.find((f) => f.id === targetId);
+      },
+      [fileId]
+    )
   );
-  const updateStatusInfo = useEditorInstanceStore((state) => state.updateStatusInfo);
-  const setSearchOpen = useSearchStore((state) => state.setIsOpen);
-  const setSearchTerm = useSearchStore((state) => state.setSearchTerm);
 
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
@@ -56,9 +56,6 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
     monacoRef,
   });
 
-  const targetFileId = fileId || activeFileId;
-  const activeFile = files.find((f) => f.id === targetFileId);
-
   if (activeFile) {
     currentFileIdRef.current = activeFile.id;
   } else {
@@ -74,6 +71,8 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       disposablesRef.current = [];
       cleanupFullWidthSpace();
 
+      // getState() でアクション関数を取得（サブスクリプション不要）
+      const { setEditorInstance, setSecondaryEditorInstance } = useEditorInstanceStore.getState();
       if (isSecondary) {
         setSecondaryEditorInstance(null);
       } else {
@@ -83,22 +82,23 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       editorRef.current = null;
       monacoRef.current = null;
     };
-  }, [isSecondary, setEditorInstance, setSecondaryEditorInstance, cleanupFullWidthSpace]);
+  }, [isSecondary, cleanupFullWidthSpace]);
 
-  const handleChange = useCallback(
-    (value: string | undefined) => {
-      const id = currentFileIdRef.current;
-      if (id && value !== undefined) {
-        updateFile(id, value);
-      }
-    },
-    [updateFile]
-  );
+  const handleChange = useCallback((value: string | undefined) => {
+    const id = currentFileIdRef.current;
+    if (id && value !== undefined) {
+      useFileStore.getState().updateFile(id, value);
+    }
+  }, []);
 
   const handleEditorDidMount: OnMount = useCallback(
     (editor, monaco) => {
       editorRef.current = editor;
       monacoRef.current = monaco as Monaco;
+
+      // getState() でアクション関数を取得（依存配列を削減）
+      const { setEditorInstance, setSecondaryEditorInstance, updateStatusInfo } =
+        useEditorInstanceStore.getState();
 
       if (isSecondary) {
         setSecondaryEditorInstance(editor);
@@ -111,7 +111,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       const cursorDisposable = editor.onDidChangeCursorPosition(() => {
         const position = editor.getPosition();
         if (position) {
-          updateStatusInfo({
+          useEditorInstanceStore.getState().updateStatusInfo({
             cursorLine: position.lineNumber,
             cursorColumn: position.column,
           });
@@ -121,7 +121,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
       const contentDisposable = editor.onDidChangeModelContent(() => {
         const model = editor.getModel();
         if (model) {
-          updateStatusInfo({
+          useEditorInstanceStore.getState().updateStatusInfo({
             lineCount: model.getLineCount(),
             charCount: model.getValueLength(),
           });
@@ -147,7 +147,8 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
 
       if (monaco.KeyMod && monaco.KeyCode) {
         editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
-          setSearchOpen(true);
+          const { setIsOpen, setSearchTerm } = useSearchStore.getState();
+          setIsOpen(true);
           const selection = editor.getSelection();
           if (selection && !selection.isEmpty()) {
             const selectedText = editor.getModel()?.getValueInRange(selection);
@@ -160,18 +161,7 @@ export function MonacoEditor({ fileId, isSecondary = false }: MonacoEditorProps)
 
       updateDecorations();
     },
-    [
-      settings.theme,
-      isDarkTheme,
-      updateStatusInfo,
-      setEditorInstance,
-      setSecondaryEditorInstance,
-      isSecondary,
-      setSearchOpen,
-      setSearchTerm,
-      updateDecorations,
-      applyEditorTheme,
-    ]
+    [settings.theme, isDarkTheme, isSecondary, updateDecorations, applyEditorTheme]
   );
 
   // テーマ変更時の適用

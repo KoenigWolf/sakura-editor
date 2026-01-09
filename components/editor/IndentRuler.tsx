@@ -1,14 +1,10 @@
 'use client';
 
-import { useCallback, useRef, useState, useEffect, memo } from 'react';
+import { useCallback, useRef, useState, useEffect, memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useIndentStore } from '@/lib/store/indent-store';
 import { useEditorStore } from '@/lib/store';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,11 +36,14 @@ interface IndentHandleProps {
   onRemove?: () => void;
 }
 
-const HANDLE_CONFIGS: Record<HandleVariant, {
-  className: string;
-  positionProp: 'left' | 'right';
-  svg: React.ReactNode;
-}> = {
+const HANDLE_CONFIGS: Record<
+  HandleVariant,
+  {
+    className: string;
+    positionProp: 'left' | 'right';
+    svg: React.ReactNode;
+  }
+> = {
   firstLine: {
     className: 'indent-handle-first-line',
     positionProp: 'left',
@@ -93,42 +92,36 @@ const HANDLE_CONFIGS: Record<HandleVariant, {
   },
 };
 
-const IndentHandle = memo(({
-  variant,
-  position,
-  onDragStart,
-  onKeyDown,
-  label,
-  value,
-  onRemove,
-}: IndentHandleProps) => {
-  const config = HANDLE_CONFIGS[variant];
+const IndentHandle = memo(
+  ({ variant, position, onDragStart, onKeyDown, label, value, onRemove }: IndentHandleProps) => {
+    const config = HANDLE_CONFIGS[variant];
 
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div
-          className={`indent-handle ${config.className}`}
-          style={{ [config.positionProp]: position }}
-          onMouseDown={onDragStart}
-          onKeyDown={onKeyDown}
-          onDoubleClick={onRemove}
-          role="slider"
-          aria-label={label}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={value}
-          tabIndex={0}
-        >
-          {config.svg}
-        </div>
-      </TooltipTrigger>
-      <TooltipContent side="bottom" className="text-xs">
-        {label}
-      </TooltipContent>
-    </Tooltip>
-  );
-});
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            className={`indent-handle ${config.className}`}
+            style={{ [config.positionProp]: position }}
+            onMouseDown={onDragStart}
+            onKeyDown={onKeyDown}
+            onDoubleClick={onRemove}
+            role="slider"
+            aria-label={label}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={value}
+            tabIndex={0}
+          >
+            {config.svg}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" className="text-xs">
+          {label}
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+);
 IndentHandle.displayName = 'IndentHandle';
 
 export const IndentRuler = memo(({ className }: IndentRulerProps) => {
@@ -172,60 +165,76 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
     return Math.round(cm / gridSize) * gridSize;
   }, []);
 
-  const handleMouseDown = useCallback((type: DragType, e: React.MouseEvent, tabIndex?: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-    setDragType(type);
-    if (tabIndex !== undefined) {
-      setDragTabIndex(tabIndex);
-    }
+  const handleMouseDown = useCallback(
+    (type: DragType, e: React.MouseEvent, tabIndex?: number) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(true);
+      setDragType(type);
+      if (tabIndex !== undefined) {
+        setDragTabIndex(tabIndex);
+      }
 
-    const rulerRect = rulerRef.current?.getBoundingClientRect();
-    if (rulerRect) {
-      const clickX = e.clientX - rulerRect.left - lineNumberWidth;
-      setDragOffset(clickX);
-    }
-  }, [lineNumberWidth]);
+      const rulerRect = rulerRef.current?.getBoundingClientRect();
+      if (rulerRect) {
+        const clickX = e.clientX - rulerRect.left - lineNumberWidth;
+        setDragOffset(clickX);
+      }
+    },
+    [lineNumberWidth]
+  );
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !dragType || !rulerRef.current) return;
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging || !dragType || !rulerRef.current) return;
 
-    const rulerRect = rulerRef.current.getBoundingClientRect();
-    const mouseX = e.clientX - rulerRect.left - lineNumberWidth;
-    const maxWidth = rulerWidth;
+      const rulerRect = rulerRef.current.getBoundingClientRect();
+      const mouseX = e.clientX - rulerRect.left - lineNumberWidth;
+      const maxWidth = rulerWidth;
 
-    let newCm = snapToGrid(pixelsToCm(mouseX));
-    newCm = Math.max(0, Math.min(newCm, pixelsToCm(maxWidth)));
+      let newCm = snapToGrid(pixelsToCm(mouseX));
+      newCm = Math.max(0, Math.min(newCm, pixelsToCm(maxWidth)));
 
-    switch (dragType) {
-      case 'firstLine':
-        updateSettings({ firstLineIndent: newCm - settings.leftMargin });
-        break;
-      case 'hanging':
-        updateSettings({ hangingIndent: newCm - settings.leftMargin });
-        break;
-      case 'leftMargin':
-        updateSettings({
-          leftMargin: newCm,
-          firstLineIndent: settings.firstLineIndent,
-          hangingIndent: settings.hangingIndent,
-        });
-        break;
-      case 'rightMargin':
-        const rightCm = pixelsToCm(maxWidth) - newCm;
-        updateSettings({ rightMargin: Math.max(0, snapToGrid(rightCm)) });
-        break;
-      case 'tabStop':
-        if (dragTabIndex >= 0) {
-          const newTabStops = [...settings.tabStops];
-          newTabStops[dragTabIndex] = newCm;
-          newTabStops.sort((a, b) => a - b);
-          updateSettings({ tabStops: newTabStops });
-        }
-        break;
-    }
-  }, [isDragging, dragType, dragTabIndex, settings, rulerWidth, lineNumberWidth, updateSettings, pixelsToCm, snapToGrid]);
+      switch (dragType) {
+        case 'firstLine':
+          updateSettings({ firstLineIndent: newCm - settings.leftMargin });
+          break;
+        case 'hanging':
+          updateSettings({ hangingIndent: newCm - settings.leftMargin });
+          break;
+        case 'leftMargin':
+          updateSettings({
+            leftMargin: newCm,
+            firstLineIndent: settings.firstLineIndent,
+            hangingIndent: settings.hangingIndent,
+          });
+          break;
+        case 'rightMargin':
+          const rightCm = pixelsToCm(maxWidth) - newCm;
+          updateSettings({ rightMargin: Math.max(0, snapToGrid(rightCm)) });
+          break;
+        case 'tabStop':
+          if (dragTabIndex >= 0) {
+            const newTabStops = [...settings.tabStops];
+            newTabStops[dragTabIndex] = newCm;
+            newTabStops.sort((a, b) => a - b);
+            updateSettings({ tabStops: newTabStops });
+          }
+          break;
+      }
+    },
+    [
+      isDragging,
+      dragType,
+      dragTabIndex,
+      settings,
+      rulerWidth,
+      lineNumberWidth,
+      updateSettings,
+      pixelsToCm,
+      snapToGrid,
+    ]
+  );
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -245,140 +254,181 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  const handleRulerClick = useCallback((e: React.MouseEvent) => {
-    if (isDragging) return;
+  const handleRulerClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (isDragging) return;
 
-    const rulerRect = rulerRef.current?.getBoundingClientRect();
-    if (!rulerRect) return;
+      const rulerRect = rulerRef.current?.getBoundingClientRect();
+      if (!rulerRect) return;
 
-    const clickX = e.clientX - rulerRect.left - lineNumberWidth;
-    const clickY = e.clientY - rulerRect.top;
+      const clickX = e.clientX - rulerRect.left - lineNumberWidth;
+      const clickY = e.clientY - rulerRect.top;
 
-    if (clickY > RULER_HEIGHT - 10) {
-      const cmPosition = snapToGrid(pixelsToCm(clickX));
-      if (!settings.tabStops.includes(cmPosition)) {
-        addTabStop(cmPosition);
+      if (clickY > RULER_HEIGHT - 10) {
+        const cmPosition = snapToGrid(pixelsToCm(clickX));
+        if (!settings.tabStops.includes(cmPosition)) {
+          addTabStop(cmPosition);
+        }
       }
-    }
-  }, [isDragging, lineNumberWidth, settings.tabStops, addTabStop, pixelsToCm, snapToGrid]);
+    },
+    [isDragging, lineNumberWidth, settings.tabStops, addTabStop, pixelsToCm, snapToGrid]
+  );
 
-  const handleRemoveTabStop = useCallback((position: number) => {
-    removeTabStop(position);
-  }, [removeTabStop]);
+  const handleRemoveTabStop = useCallback(
+    (position: number) => {
+      removeTabStop(position);
+    },
+    [removeTabStop]
+  );
 
   const STEP_SIZE = 0.127;
   const maxCm = pixelsToCm(rulerWidth);
 
-  const handleKeyDown = useCallback((type: DragType, e: React.KeyboardEvent, tabIndex?: number) => {
-    const step = e.shiftKey ? STEP_SIZE * 5 : STEP_SIZE;
-    let delta = 0;
+  const handleKeyDown = useCallback(
+    (type: DragType, e: React.KeyboardEvent, tabIndex?: number) => {
+      const step = e.shiftKey ? STEP_SIZE * 5 : STEP_SIZE;
+      let delta = 0;
 
-    switch (e.key) {
-      case 'ArrowLeft':
-      case 'ArrowDown':
-        delta = -step;
-        break;
-      case 'ArrowRight':
-      case 'ArrowUp':
-        delta = step;
-        break;
-      case 'Home':
-        delta = -Infinity;
-        break;
-      case 'End':
-        delta = Infinity;
-        break;
-      default:
-        return;
-    }
+      switch (e.key) {
+        case 'ArrowLeft':
+        case 'ArrowDown':
+          delta = -step;
+          break;
+        case 'ArrowRight':
+        case 'ArrowUp':
+          delta = step;
+          break;
+        case 'Home':
+          delta = -Infinity;
+          break;
+        case 'End':
+          delta = Infinity;
+          break;
+        default:
+          return;
+      }
 
-    e.preventDefault();
+      e.preventDefault();
 
-    switch (type) {
-      case 'firstLine': {
-        const newValue = delta === -Infinity ? -settings.leftMargin :
-                         delta === Infinity ? maxCm - settings.leftMargin :
-                         snapToGrid(settings.firstLineIndent + delta);
-        updateSettings({ firstLineIndent: Math.max(-settings.leftMargin, Math.min(newValue, maxCm - settings.leftMargin)) });
-        break;
-      }
-      case 'hanging': {
-        const newValue = delta === -Infinity ? -settings.leftMargin :
-                         delta === Infinity ? maxCm - settings.leftMargin :
-                         snapToGrid(settings.hangingIndent + delta);
-        updateSettings({ hangingIndent: Math.max(-settings.leftMargin, Math.min(newValue, maxCm - settings.leftMargin)) });
-        break;
-      }
-      case 'leftMargin': {
-        const newValue = delta === -Infinity ? 0 :
-                         delta === Infinity ? maxCm :
-                         snapToGrid(settings.leftMargin + delta);
-        updateSettings({ leftMargin: Math.max(0, Math.min(newValue, maxCm)) });
-        break;
-      }
-      case 'rightMargin': {
-        const newValue = delta === -Infinity ? 0 :
-                         delta === Infinity ? maxCm :
-                         snapToGrid(settings.rightMargin - delta);
-        updateSettings({ rightMargin: Math.max(0, Math.min(newValue, maxCm)) });
-        break;
-      }
-      case 'tabStop': {
-        if (tabIndex !== undefined && tabIndex >= 0) {
-          const currentValue = settings.tabStops[tabIndex];
-          const newValue = delta === -Infinity ? 0 :
-                           delta === Infinity ? maxCm :
-                           snapToGrid(currentValue + delta);
-          const newTabStops = [...settings.tabStops];
-          newTabStops[tabIndex] = Math.max(0, Math.min(newValue, maxCm));
-          newTabStops.sort((a, b) => a - b);
-          updateSettings({ tabStops: newTabStops });
+      switch (type) {
+        case 'firstLine': {
+          const newValue =
+            delta === -Infinity
+              ? -settings.leftMargin
+              : delta === Infinity
+                ? maxCm - settings.leftMargin
+                : snapToGrid(settings.firstLineIndent + delta);
+          updateSettings({
+            firstLineIndent: Math.max(
+              -settings.leftMargin,
+              Math.min(newValue, maxCm - settings.leftMargin)
+            ),
+          });
+          break;
         }
-        break;
+        case 'hanging': {
+          const newValue =
+            delta === -Infinity
+              ? -settings.leftMargin
+              : delta === Infinity
+                ? maxCm - settings.leftMargin
+                : snapToGrid(settings.hangingIndent + delta);
+          updateSettings({
+            hangingIndent: Math.max(
+              -settings.leftMargin,
+              Math.min(newValue, maxCm - settings.leftMargin)
+            ),
+          });
+          break;
+        }
+        case 'leftMargin': {
+          const newValue =
+            delta === -Infinity
+              ? 0
+              : delta === Infinity
+                ? maxCm
+                : snapToGrid(settings.leftMargin + delta);
+          updateSettings({ leftMargin: Math.max(0, Math.min(newValue, maxCm)) });
+          break;
+        }
+        case 'rightMargin': {
+          const newValue =
+            delta === -Infinity
+              ? 0
+              : delta === Infinity
+                ? maxCm
+                : snapToGrid(settings.rightMargin - delta);
+          updateSettings({ rightMargin: Math.max(0, Math.min(newValue, maxCm)) });
+          break;
+        }
+        case 'tabStop': {
+          if (tabIndex !== undefined && tabIndex >= 0) {
+            const currentValue = settings.tabStops[tabIndex];
+            const newValue =
+              delta === -Infinity
+                ? 0
+                : delta === Infinity
+                  ? maxCm
+                  : snapToGrid(currentValue + delta);
+            const newTabStops = [...settings.tabStops];
+            newTabStops[tabIndex] = Math.max(0, Math.min(newValue, maxCm));
+            newTabStops.sort((a, b) => a - b);
+            updateSettings({ tabStops: newTabStops });
+          }
+          break;
+        }
+      }
+    },
+    [settings, maxCm, updateSettings, snapToGrid]
+  );
+
+  // tick データを事前計算（位置とタイプのみ）
+  const tickData = useMemo(() => {
+    const data: Array<{ px: number; type: 'major' | 'half' | 'minor'; label?: number }> = [];
+    const maxCm = rulerWidth / CM_TO_PX;
+    const TICK_INTERVAL = 0.127;
+
+    for (let cm = 0; cm <= maxCm; cm += TICK_INTERVAL) {
+      const px = cm * CM_TO_PX + lineNumberWidth;
+      const roundedCm = Math.round(cm);
+      const diff = Math.abs(cm - roundedCm);
+
+      if (diff < 0.01) {
+        data.push({ px, type: 'major', label: roundedCm });
+      } else if (Math.abs(diff - 0.5) < 0.01) {
+        data.push({ px, type: 'half' });
+      } else if (Math.round(cm / TICK_INTERVAL) % 2 === 0) {
+        data.push({ px, type: 'minor' });
       }
     }
-  }, [settings, maxCm, updateSettings, snapToGrid]);
+    return data;
+  }, [rulerWidth, lineNumberWidth]);
 
-  const renderTicks = useCallback(() => {
-    const ticks: JSX.Element[] = [];
-    const maxCm = pixelsToCm(rulerWidth);
-
-    for (let cm = 0; cm <= maxCm; cm += 0.127) {
-      const px = cmToPixels(cm);
-      const isMajor = Math.abs(cm - Math.round(cm)) < 0.01;
-      const isHalf = Math.abs(cm - Math.round(cm) - 0.5) < 0.01 || Math.abs(cm - Math.round(cm) + 0.5) < 0.01;
-
-      if (isMajor) {
-        ticks.push(
+  // tick 要素をメモ化してレンダリング
+  const renderedTicks = useMemo(
+    () =>
+      tickData.map((tick, i) => {
+        if (tick.type === 'major') {
+          return (
+            <div
+              key={i}
+              className="indent-ruler-tick indent-ruler-tick-major"
+              style={{ left: tick.px }}
+            >
+              <span className="indent-ruler-tick-label">{tick.label}</span>
+            </div>
+          );
+        }
+        return (
           <div
-            key={`tick-${cm}`}
-            className="indent-ruler-tick indent-ruler-tick-major"
-            style={{ left: px + lineNumberWidth }}
-          >
-            <span className="indent-ruler-tick-label">{Math.round(cm)}</span>
-          </div>
-        );
-      } else if (isHalf) {
-        ticks.push(
-          <div
-            key={`tick-${cm}`}
-            className="indent-ruler-tick indent-ruler-tick-half"
-            style={{ left: px + lineNumberWidth }}
+            key={i}
+            className={`indent-ruler-tick indent-ruler-tick-${tick.type}`}
+            style={{ left: tick.px }}
           />
         );
-      } else if (Math.round(cm / 0.127) % 2 === 0) {
-        ticks.push(
-          <div
-            key={`tick-${cm}`}
-            className="indent-ruler-tick indent-ruler-tick-minor"
-            style={{ left: px + lineNumberWidth }}
-          />
-        );
-      }
-    }
-
-    return ticks;
-  }, [rulerWidth, cmToPixels, pixelsToCm, lineNumberWidth]);
+      }),
+    [tickData]
+  );
 
   const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
@@ -392,19 +442,17 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
   if (!rulerVisible) return null;
 
   const leftMarginPx = cmToPixels(settings.leftMargin) + lineNumberWidth;
-  const firstLineIndentPx = cmToPixels(settings.leftMargin + settings.firstLineIndent) + lineNumberWidth;
-  const hangingIndentPx = cmToPixels(settings.leftMargin + settings.hangingIndent) + lineNumberWidth;
+  const firstLineIndentPx =
+    cmToPixels(settings.leftMargin + settings.firstLineIndent) + lineNumberWidth;
+  const hangingIndentPx =
+    cmToPixels(settings.leftMargin + settings.hangingIndent) + lineNumberWidth;
   const rightMarginPx = cmToPixels(settings.rightMargin);
 
   return (
     <>
       <div
         ref={rulerRef}
-        className={cn(
-          'indent-ruler',
-          isDragging && 'indent-ruler-dragging',
-          className
-        )}
+        className={cn('indent-ruler', isDragging && 'indent-ruler-dragging', className)}
         onClick={handleRulerClick}
         onContextMenu={handleContextMenu}
         role="toolbar"
@@ -413,7 +461,7 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
         <div className="indent-ruler-margin-area" style={{ width: lineNumberWidth }} />
 
         <div className="indent-ruler-content">
-          {renderTicks()}
+          {renderedTicks}
 
           <div
             className="indent-ruler-text-area"
@@ -474,10 +522,7 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
         </div>
 
         {isDragging && (
-          <div
-            className="indent-ruler-drag-guide"
-            style={{ left: dragOffset + lineNumberWidth }}
-          />
+          <div className="indent-ruler-drag-guide" style={{ left: dragOffset + lineNumberWidth }} />
         )}
       </div>
 
@@ -495,11 +540,21 @@ export const IndentRuler = memo(({ className }: IndentRulerProps) => {
           />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => { clearTabStops(); setContextMenuOpen(false); }}>
+          <DropdownMenuItem
+            onClick={() => {
+              clearTabStops();
+              setContextMenuOpen(false);
+            }}
+          >
             {t('indent.clearTabStops')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => { resetSettings(); setContextMenuOpen(false); }}>
+          <DropdownMenuItem
+            onClick={() => {
+              resetSettings();
+              setContextMenuOpen(false);
+            }}
+          >
             {t('indent.resetIndent')}
           </DropdownMenuItem>
         </DropdownMenuContent>

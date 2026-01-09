@@ -24,6 +24,7 @@ export const useFullWidthSpace = ({ editorRef, monacoRef }: UseFullWidthSpaceOpt
 
   /**
    * 全角スペースをハイライト表示する（内部実装）
+   * Monaco の findMatches を使用して効率化
    */
   const updateDecorationsCore = useCallback(() => {
     const ed = editorRef.current;
@@ -41,21 +42,19 @@ export const useFullWidthSpace = ({ editorRef, monacoRef }: UseFullWidthSpaceOpt
         return;
       }
 
-      const content = model.getValue();
-      const decorations: editor.IModelDeltaDecoration[] = [];
-      const fullWidthSpaceRegex = /\u3000/g;
+      // findMatches を使用して効率的に全角スペースを検索
+      const matches = model.findMatches('\u3000', false, false, false, null, false);
       const selection = ed.getSelection();
-      let match;
+      const decorations: editor.IModelDeltaDecoration[] = [];
 
-      while ((match = fullWidthSpaceRegex.exec(content)) !== null) {
-        const startPos = model.getPositionAt(match.index);
-        const endPos = model.getPositionAt(match.index + 1);
-        const lineContent = model.getLineContent(startPos.lineNumber);
+      for (const match of matches) {
+        const range = match.range;
+        const lineContent = model.getLineContent(range.startLineNumber);
 
         const shouldHighlight = shouldHighlightFullWidthSpace(
           settings.showFullWidthSpace,
-          startPos,
-          endPos,
+          { lineNumber: range.startLineNumber, column: range.startColumn },
+          { lineNumber: range.endLineNumber, column: range.endColumn },
           selection,
           lineContent,
           monaco
@@ -65,10 +64,10 @@ export const useFullWidthSpace = ({ editorRef, monacoRef }: UseFullWidthSpaceOpt
 
         decorations.push({
           range: new monaco.Range(
-            startPos.lineNumber,
-            startPos.column,
-            endPos.lineNumber,
-            endPos.column
+            range.startLineNumber,
+            range.startColumn,
+            range.endLineNumber,
+            range.endColumn
           ),
           options: {
             inlineClassName: 'full-width-space-highlight',

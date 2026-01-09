@@ -203,9 +203,24 @@ export const EditorContainer = memo(function EditorContainer() {
   }, []);
 
   const toggleQuickActions = useCallback(() => setShowQuickActions((prev) => !prev), []);
+  // resolvedTheme を依存から除外し、呼び出し時に取得（commands の依存を削減）
+  const resolvedThemeRef = useRef(resolvedTheme);
+  resolvedThemeRef.current = resolvedTheme;
   const toggleTheme = useCallback(
-    () => setTheme(getNextTheme(resolvedTheme)),
-    [resolvedTheme, setTheme]
+    () => setTheme(getNextTheme(resolvedThemeRef.current)),
+    [setTheme]
+  );
+
+  // 安定したコールバック（commands の依存を削減）
+  const openSearch = useCallback(() => setSearchOpen(true), [setSearchOpen]);
+  const openSettings = useCallback(() => setShowSettings(true), []);
+  const splitVertical = useCallback(
+    () => splitActiveWithNewFile('vertical'),
+    [splitActiveWithNewFile]
+  );
+  const splitHorizontal = useCallback(
+    () => splitActiveWithNewFile('horizontal'),
+    [splitActiveWithNewFile]
   );
 
   const { handleNewFile, handleSave, handleOpen, handleGoToLine } = useKeyboardShortcuts({
@@ -261,7 +276,7 @@ export const EditorContainer = memo(function EditorContainer() {
         label: t('commandPalette.actions.find'),
         shortcut: '⌘+F',
         icon: Search,
-        action: () => setSearchOpen(true),
+        action: openSearch,
         category: 'search',
       },
       {
@@ -277,7 +292,7 @@ export const EditorContainer = memo(function EditorContainer() {
         label: t('commandPalette.actions.splitVertical'),
         shortcut: '⌘+\\',
         icon: Columns2,
-        action: () => splitActiveWithNewFile('vertical'),
+        action: splitVertical,
         category: 'view',
       },
       {
@@ -285,7 +300,7 @@ export const EditorContainer = memo(function EditorContainer() {
         label: t('commandPalette.actions.splitHorizontal'),
         shortcut: '⌘+\\',
         icon: Rows2,
-        action: () => splitActiveWithNewFile('horizontal'),
+        action: splitHorizontal,
         category: 'view',
       },
       ...(isSplit
@@ -312,7 +327,7 @@ export const EditorContainer = memo(function EditorContainer() {
         label: t('commandPalette.actions.openSettings'),
         shortcut: '⌘+,',
         icon: Settings,
-        action: () => setShowSettings(true),
+        action: openSettings,
         category: 'settings',
       },
     ],
@@ -324,8 +339,10 @@ export const EditorContainer = memo(function EditorContainer() {
       handleUndo,
       handleRedo,
       handleGoToLine,
-      setSearchOpen,
-      splitActiveWithNewFile,
+      openSearch,
+      openSettings,
+      splitVertical,
+      splitHorizontal,
       reset,
       isSplit,
       resolvedTheme,

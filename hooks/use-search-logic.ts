@@ -15,6 +15,28 @@ export interface SearchOptions {
   wholeWord: boolean;
 }
 
+/**
+ * 検索文字列を構築するヘルパー関数
+ * @param query 検索クエリ
+ * @param isRegex 正規表現モードか
+ * @param isWholeWord 単語全体マッチか
+ * @param forRegexSearch 正規表現検索用にエスケープするか
+ */
+const buildSearchString = (
+  query: string,
+  isRegex: boolean,
+  isWholeWord: boolean,
+  forRegexSearch: boolean
+): string => {
+  if (isRegex) {
+    return query;
+  }
+  if (isWholeWord) {
+    return `\\b${escapeRegExp(query)}\\b`;
+  }
+  return forRegexSearch ? escapeRegExp(query) : query;
+};
+
 export const useSearchLogic = (
   onSearch: (query: string, options: SearchOptions) => void,
   onReplace?: (query: string, replacement: string, options: SearchOptions) => void
@@ -137,15 +159,7 @@ export const useSearchLogic = (
 
         try {
           const isRegexMode = isRegex || isWholeWord;
-
-          let searchString: string;
-          if (isRegex) {
-            searchString = searchQuery;
-          } else if (isWholeWord) {
-            searchString = `\\b${escapeRegExp(searchQuery)}\\b`;
-          } else {
-            searchString = searchQuery;
-          }
+          const searchString = buildSearchString(searchQuery, isRegex, isWholeWord, false);
 
           const foundMatches = model.findMatches(
             searchString,
@@ -265,15 +279,7 @@ export const useSearchLogic = (
       const model = editor.getModel();
       if (!model) return;
 
-      let searchString: string;
-      if (isRegex) {
-        searchString = query;
-      } else if (isWholeWord) {
-        searchString = `\\b${escapeRegExp(query)}\\b`;
-      } else {
-        searchString = escapeRegExp(query);
-      }
-
+      const searchString = buildSearchString(query, isRegex, isWholeWord, true);
       const foundMatches = model.findMatches(
         searchString,
         false,

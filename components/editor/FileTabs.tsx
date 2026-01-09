@@ -48,7 +48,7 @@ interface FileTabItemProps {
   isActive: boolean;
   isDragging: boolean;
   isDragOver: boolean;
-  onSelect: () => void;
+  onSelect: (e: React.MouseEvent) => void;
   onClose: (e: React.MouseEvent | React.KeyboardEvent) => void;
   onDragStart: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
@@ -81,6 +81,7 @@ const FileTabItem = memo(function FileTabItem({
       role="tab"
       aria-selected={isActive}
       draggable
+      data-file-id={file.id}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
@@ -125,35 +126,52 @@ export const FileTabs = memo(function FileTabs() {
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
+  // data-file-id から id を取得するヘルパー
+  const getFileIdFromEvent = useCallback((e: React.SyntheticEvent): string | null => {
+    const target = e.currentTarget as HTMLElement;
+    return target.dataset.fileId || null;
+  }, []);
+
+  // 安定したコールバック（インライン関数を避けて memo を有効化）
   const handleSelect = useCallback(
-    (file: FileData) => {
-      setActiveFileId(file.id);
+    (e: React.MouseEvent) => {
+      const fileId = getFileIdFromEvent(e);
+      if (fileId) setActiveFileId(fileId);
     },
-    [setActiveFileId]
+    [setActiveFileId, getFileIdFromEvent]
   );
 
   const handleClose = useCallback(
-    (event: React.MouseEvent | React.KeyboardEvent, file: FileData) => {
-      event.stopPropagation();
-      removeFile(file.id);
+    (e: React.MouseEvent | React.KeyboardEvent) => {
+      e.stopPropagation();
+      const target = (e.target as HTMLElement).closest('[data-file-id]') as HTMLElement | null;
+      const fileId = target?.dataset.fileId;
+      if (fileId) removeFile(fileId);
     },
     [removeFile]
   );
 
-  const handleDragStart = useCallback((e: React.DragEvent, file: FileData) => {
-    setDraggedId(file.id);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', file.id);
-  }, []);
-
-  const handleDragOver = useCallback(
-    (e: React.DragEvent, file: FileData) => {
-      e.preventDefault();
-      if (draggedId && draggedId !== file.id) {
-        setDragOverId(file.id);
+  const handleDragStart = useCallback(
+    (e: React.DragEvent) => {
+      const fileId = getFileIdFromEvent(e);
+      if (fileId) {
+        setDraggedId(fileId);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', fileId);
       }
     },
-    [draggedId]
+    [getFileIdFromEvent]
+  );
+
+  const handleDragOver = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      const fileId = getFileIdFromEvent(e);
+      if (draggedId && fileId && draggedId !== fileId) {
+        setDragOverId(fileId);
+      }
+    },
+    [draggedId, getFileIdFromEvent]
   );
 
   const handleDragLeave = useCallback(() => {
@@ -161,16 +179,17 @@ export const FileTabs = memo(function FileTabs() {
   }, []);
 
   const handleDrop = useCallback(
-    (e: React.DragEvent, targetFile: FileData) => {
+    (e: React.DragEvent) => {
       e.preventDefault();
+      const targetFileId = getFileIdFromEvent(e);
       setDragOverId(null);
       setDraggedId(null);
 
-      if (!draggedId || draggedId === targetFile.id) return;
+      if (!draggedId || !targetFileId || draggedId === targetFileId) return;
 
       const { files: currentFiles } = useFileStore.getState();
       const draggedIndex = currentFiles.findIndex((f) => f.id === draggedId);
-      const targetIndex = currentFiles.findIndex((f) => f.id === targetFile.id);
+      const targetIndex = currentFiles.findIndex((f) => f.id === targetFileId);
 
       if (draggedIndex === -1 || targetIndex === -1) return;
 
@@ -180,7 +199,7 @@ export const FileTabs = memo(function FileTabs() {
 
       useFileStore.setState({ files: newFiles });
     },
-    [draggedId]
+    [draggedId, getFileIdFromEvent]
   );
 
   const handleDragEnd = useCallback(() => {
@@ -208,12 +227,12 @@ export const FileTabs = memo(function FileTabs() {
             isActive={file.id === activeFileId}
             isDragging={draggedId === file.id}
             isDragOver={dragOverId === file.id}
-            onSelect={() => handleSelect(file)}
-            onClose={(e) => handleClose(e, file)}
-            onDragStart={(e) => handleDragStart(e, file)}
-            onDragOver={(e) => handleDragOver(e, file)}
+            onSelect={handleSelect}
+            onClose={handleClose}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, file)}
+            onDrop={handleDrop}
             onDragEnd={handleDragEnd}
             closeLabel={closeLabel}
           />
